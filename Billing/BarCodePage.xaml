@@ -1,0 +1,15 @@
+﻿<Page
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:Billing"
+      xmlns:Viewer="clr-namespace:SAPBusinessObjects.WPF.Viewer;assembly=SAPBusinessObjects.WPF.Viewer" x:Class="Billing.BarCodePage"
+      mc:Ignorable="d"
+      Title="BarCodePage" Background="White" Width="1000" Height="600">
+
+    <Grid>
+        <Viewer:CrystalReportsViewer x:Name="barcodeReportViewer" ShowLogo="False" HorizontalAlignment="Left" Margin="95,24,0,0" ToggleSidePanel="None" VerticalAlignment="Top" Width="881" Height="556"/>
+        <Button x:Name="btn_Back" Content="Back" HorizontalAlignment="Left" Margin="23,24,0,0" VerticalAlignment="Top" Width="68" Height="30" FontWeight="Bold" FontSize="18" Click="btn_Back_Click"/>
+    </Grid>
+</Page>

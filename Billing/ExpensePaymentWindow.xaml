@@ -1,0 +1,20 @@
+﻿<Window x:Class="Billing.ExpensePaymentWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Billing"
+        mc:Ignorable="d"
+        Title="ExpensePaymentWindow" Height="384.5" Width="494.5" WindowStyle="None" WindowState="Normal" WindowStartupLocation="CenterScreen">
+    <Grid>
+        <Button x:Name="CloseButton" Content="X" HorizontalAlignment="Left" Margin="452,12,0,0" VerticalAlignment="Top" Width="22" Height="25" FontWeight="Bold" FontSize="16" BorderThickness="0" BorderBrush="Transparent" Background="Transparent" Click="CloseButton_Click" Foreground="#FFF01C1C" />
+        <Label x:Name="lblHeading" Content="Select Expense :" HorizontalAlignment="Left" Margin="34,41,0,0" VerticalAlignment="Top" FontWeight="Bold" FontSize="18"/>
+        <ComboBox x:Name="comboBoxExpenseName" HorizontalAlignment="Left" Margin="42,90,0,0" VerticalAlignment="Top" Width="171" Height="32" SelectionChanged="comboBoxExpenseName_SelectionChanged" IsTextSearchEnabled="False" IsEditable="True" ItemsSource="{Binding DataSource}" GotFocus ="comboBoxExpenseName_GotFocus"  KeyUp ="comboBoxExpenseName_KeyUp" FontSize="14"/>
+        <Label x:Name="lblPayment" Content="Payment :" HorizontalAlignment="Left" Margin="50,239,0,0" VerticalAlignment="Top" FontWeight="Bold" FontSize="18"/>
+        <TextBox x:Name="txtPayment" HorizontalAlignment="Left" Height="31" Margin="151,243,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="132" FontSize="18" FontWeight="Bold"/>
+        <Button x:Name="btn_Update" Content="Update" HorizontalAlignment="Left" Margin="95,297,0,0" VerticalAlignment="Top" Width="111" FontWeight="Bold" FontSize="18" Height="45" Click="btn_Update_Click"/>
+        <Label x:Name="labelExpenseId" Content="" FontSize="16" FontWeight="Bold" Margin="353,88,84,256"/>
+        <Label x:Name="label" Content="Expense Id :" HorizontalAlignment="Left" Margin="242,90,0,0" VerticalAlignment="Top" Width="106" FontWeight="Bold" FontSize="16"/>
+
+    </Grid>
+</Window>

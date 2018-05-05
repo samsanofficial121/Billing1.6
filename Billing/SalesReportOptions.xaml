@@ -1,0 +1,24 @@
+﻿<Window x:Class="Billing.SalesReportOptions"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Billing"
+        mc:Ignorable="d"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        Title="SalesReportOptions" Height="441.5" Width="511" WindowStyle="None" WindowState="Normal" WindowStartupLocation="CenterScreen">
+    <Grid>
+        <DatePicker SelectedDate="{x:Static sys:DateTime.Now}" x:Name="dateFrom1" HorizontalAlignment="Left" Margin="107,200,0,0" VerticalAlignment="Top" FontSize="14" Visibility="Hidden" SelectedDateChanged="dateFrom1_SelectedDateChanged" Width="108"/>
+        <DatePicker SelectedDate="{x:Static sys:DateTime.Now}" x:Name="dateTo1" HorizontalAlignment="Left" Margin="219,200,0,0" VerticalAlignment="Top" FontSize="14" Visibility="Hidden" SelectedDateChanged="dateTo1_SelectedDateChanged" Width="110"/>
+        <DatePicker SelectedDate="{x:Static sys:DateTime.Now}" x:Name="dateFrom2" HorizontalAlignment="Left" Margin="107,291,0,0" VerticalAlignment="Top" FontSize="14" Visibility="Hidden" SelectedDateChanged="dateFrom2_SelectedDateChanged" Width="108"/>
+        <DatePicker SelectedDate="{x:Static sys:DateTime.Now}" x:Name="dateTo2" HorizontalAlignment="Left" Margin="220,291,0,0" VerticalAlignment="Top" FontSize="14" Visibility="Hidden" SelectedDateChanged="dateTo2_SelectedDateChanged" Width="109"/>
+        <Button x:Name="CloseButton" Content="X" HorizontalAlignment="Left" Margin="459,6,0,0" VerticalAlignment="Top" Width="22" Height="25" FontWeight="Bold" FontSize="16" BorderThickness="0" BorderBrush="Transparent" Background="Transparent" Click="CloseButton_Click" Foreground="#FFF01C1C" />
+        <RadioButton x:Name="rbTotalReport" Content="Total Report" HorizontalAlignment="Left" Margin="106,62,0,0" VerticalAlignment="Top" Height="35" Width="243" FontWeight="Bold" FontSize="24" IsChecked="True" Click="rbTotalReport_Click"/>
+        <RadioButton x:Name="rbDailyReport" Content="Daily Report" HorizontalAlignment="Left" Margin="104,157,0,0" VerticalAlignment="Top" Height="32" Width="244" FontWeight="Bold" FontSize="24" Click="rbDailyReport_Click"/>
+        <RadioButton x:Name="rbMonthlyReport" Content="Monthly Report" HorizontalAlignment="Left" Margin="105,249,0,0" VerticalAlignment="Top" Height="32" Width="243" FontWeight="Bold" FontSize="24" Click="rbMonthlyReport_Click"/>
+        <DatePicker SelectedDate="{x:Static sys:DateTime.Now}" x:Name="dateFrom" HorizontalAlignment="Left" Margin="105,110,0,0" VerticalAlignment="Top" FontSize="14" SelectedDateChanged="dateFrom_SelectedDateChanged" Width="110"/>
+        <DatePicker SelectedDate="{x:Static sys:DateTime.Now}" x:Name="dateTo" HorizontalAlignment="Left" Margin="218,110,0,0" VerticalAlignment="Top" FontSize="14" SelectedDateChanged="dateTo_SelectedDateChanged" Width="111"/>
+        <Button x:Name="btnOk" Content="Ok" HorizontalAlignment="Left" Margin="178,358,0,0" VerticalAlignment="Top" Width="100" FontWeight="Bold" FontSize="24" Height="42" Click="btnOk_Click"/>
+
+    </Grid>
+</Window>

@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="DailyReportData" targetNamespace="http://tempuri.org/DailyReportData.xsd" xmlns:mstns="http://tempuri.org/DailyReportData.xsd" xmlns="http://tempuri.org/DailyReportData.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:msprop="urn:schemas-microsoft-com:xml-msprop" attributeFormDefault="qualified" elementFormDefault="qualified">
+  <xs:annotation>
+    <xs:appinfo source="urn:schemas-microsoft-com:xml-msdatasource">
+      <DataSource DefaultConnectionIndex="0" FunctionsComponentName="QueriesTableAdapter" Modifier="AutoLayout, AnsiClass, Class, Public" SchemaSerializationMode="IncludeSchema" xmlns="urn:schemas-microsoft-com:xml-msdatasource">
+        <Connections />
+        <Tables />
+        <Sources />
+      </DataSource>
+    </xs:appinfo>
+  </xs:annotation>
+  <xs:element name="DailyReportData" msdata:IsDataSet="true" msdata:UseCurrentLocale="true" msprop:EnableTableAdapterManager="true" msprop:Generator_DataSetName="DailyReportData" msprop:Generator_UserDSName="DailyReportData">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="DailyReportData" msprop:Generator_TableClassName="DailyReportDataDataTable" msprop:Generator_TableVarName="tableDailyReportData" msprop:Generator_TablePropName="_DailyReportData" msprop:Generator_RowDeletingName="DailyReportDataRowDeleting" msprop:Generator_RowChangingName="DailyReportDataRowChanging" msprop:Generator_RowEvHandlerName="DailyReportDataRowChangeEventHandler" msprop:Generator_RowDeletedName="DailyReportDataRowDeleted" msprop:Generator_UserTableName="DailyReportData" msprop:Generator_RowChangedName="DailyReportDataRowChanged" msprop:Generator_RowEvArgName="DailyReportDataRowChangeEvent" msprop:Generator_RowClassName="DailyReportDataRow">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="StDate" msprop:Generator_ColumnVarNameInTable="columnStDate" msprop:Generator_ColumnPropNameInRow="StDate" msprop:Generator_ColumnPropNameInTable="StDateColumn" msprop:Generator_UserColumnName="StDate" type="xs:string" minOccurs="0" />
+              <xs:element name="TotalSales" msprop:Generator_ColumnVarNameInTable="columnTotalSales" msprop:Generator_ColumnPropNameInRow="TotalSales" msprop:Generator_ColumnPropNameInTable="TotalSalesColumn" msprop:Generator_UserColumnName="TotalSales" type="xs:string" minOccurs="0" />
+              <xs:element name="TotalCredit" msprop:Generator_ColumnVarNameInTable="columnTotalCredit" msprop:Generator_ColumnPropNameInRow="TotalCredit" msprop:Generator_ColumnPropNameInTable="TotalCreditColumn" msprop:Generator_UserColumnName="TotalCredit" type="xs:string" minOccurs="0" />
+              <xs:element name="ExpenseName" msprop:Generator_ColumnVarNameInTable="columnExpenseName" msprop:Generator_ColumnPropNameInRow="ExpenseName" msprop:Generator_ColumnPropNameInTable="ExpenseNameColumn" msprop:Generator_UserColumnName="ExpenseName" type="xs:string" minOccurs="0" />
+              <xs:element name="ExpenseAmount" msprop:Generator_ColumnVarNameInTable="columnExpenseAmount" msprop:Generator_ColumnPropNameInRow="ExpenseAmount" msprop:Generator_ColumnPropNameInTable="ExpenseAmountColumn" msprop:Generator_UserColumnName="ExpenseAmount" type="xs:string" minOccurs="0" />
+              <xs:element name="CashBalance" msprop:Generator_ColumnVarNameInTable="columnCashBalance" msprop:Generator_ColumnPropNameInRow="CashBalance" msprop:Generator_ColumnPropNameInTable="CashBalanceColumn" msprop:Generator_UserColumnName="CashBalance" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

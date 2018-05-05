@@ -1,0 +1,24 @@
+﻿<Window x:Class="Billing.ExpenseListWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Billing"
+        mc:Ignorable="d"
+        Title="ExpenseListWindow" Height="450" Width="725" WindowStyle="None" WindowState="Normal" WindowStartupLocation="CenterScreen">
+    <Grid>
+        <Button x:Name="CloseButton" Content="X" HorizontalAlignment="Left" Margin="687,-2,0,419" VerticalAlignment="Bottom" Width="22" Height="25" FontWeight="Bold" FontSize="16" BorderThickness="0" BorderBrush="Transparent" Background="Transparent" Foreground="#FFF01C1C" Click="CloseButton_Click" />
+        <TextBlock x:Name="textBlockEId" HorizontalAlignment="Left" Margin="44,12,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Height="24" Width="42" FontSize="14"/>
+        <TextBlock x:Name="textBlockEName" HorizontalAlignment="Left" Margin="184,12,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Height="23" Width="211" FontSize="16"/>
+        <DataGrid x:Name="dataGridExpenseList" ColumnWidth="*" ItemsSource="{Binding}" AutoGenerateColumns="False" Margin="0,45,0,46" SelectionMode="Single" SelectionUnit="FullRow" IsReadOnly="True" LoadingRow="dataGridExpenseList_LoadingRow">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Cash Paid" Width="*" FontSize="16" FontWeight="Normal" Binding="{Binding Epayment,ConverterCulture=gu-in, StringFormat=C}"/>
+                <DataGridTextColumn Header="Date" Width="*" FontSize="16" FontWeight="Normal" Binding="{Binding EDate}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+        <Label x:Name="labelVid" Content="Id :" HorizontalAlignment="Left" Margin="8,6,0,0" VerticalAlignment="Top" FontSize="16" Width="31" FontWeight="Bold"/>
+        <Label x:Name="labelVid_Copy" Content="Name :" HorizontalAlignment="Left" Margin="97,6,0,0" VerticalAlignment="Top" FontSize="16" Width="66" FontWeight="Bold"/>
+        <TextBlock x:Name="txtBalance" HorizontalAlignment="Left" Margin="615,408,0,0" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="14" FontWeight="Bold" Width="95"/>
+
+    </Grid>
+</Window>

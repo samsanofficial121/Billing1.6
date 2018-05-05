@@ -1,0 +1,26 @@
+﻿<Page x:Class="Billing.VendorPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:Billing"
+      mc:Ignorable="d" 
+      d:DesignHeight="590" d:DesignWidth="823"
+      Title="VendorPage" Background="White">
+
+    <Grid Background="White">
+        <Rectangle Fill="#FF028502" Stroke="Black" Margin="0,0,0,367"/>
+        <Button x:Name="btnListAllVendor" Background="White" HorizontalAlignment="Left" Margin="0,228,0,0" VerticalAlignment="Top" Height="190" Width="205" Click="btnListAllVendor_Click">
+            <Image Source="Resources\ListVendor.png" Width="200" Height="185"/>
+        </Button>
+        <Button x:Name="btnAddVendor" Background="White" HorizontalAlignment="Left" Margin="206,228,0,0" VerticalAlignment="Top" Height="190" Width="205" Click="btnAddVendor_Click">
+            <Image Source="Resources\AddVendor.png" Width="200" Height="187"/>
+        </Button>
+        <Button x:Name="btnRemoveVendor" Background="White" HorizontalAlignment="Left" Margin="412,228,0,0" VerticalAlignment="Top" Height="190" Width="205" Click="btnRemoveVendor_Click">
+            <Image Source="Resources\RemoveVendor.png" Width="202" Height="184"/>
+        </Button>
+        <Button x:Name="btnVendorPayment" Background="White" HorizontalAlignment="Left" Margin="618,228,-4,0" VerticalAlignment="Top" Height="190" Width="209" Click="btnVendorPayment_Click">
+            <Image Source="Resources\VendorPayment.png" Width="199"/>
+        </Button>
+    </Grid>
+</Page>

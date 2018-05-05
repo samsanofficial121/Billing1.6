@@ -1,0 +1,26 @@
+﻿<Page x:Class="Billing.ExpenseAccountPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:Billing"
+      mc:Ignorable="d" 
+      d:DesignHeight="594" d:DesignWidth="824"
+      Title="ExpenseAccountPage" Background="White">
+
+    <Grid>
+        <Rectangle Fill="#FF028502" Stroke="Black" Margin="0,0,0,367"/>
+        <Button x:Name="btn_AddExpense" Background="Transparent"  HorizontalAlignment="Left" VerticalAlignment="Top" Height="190" Width="204" Margin="0,228,0,0" Click="btn_AddExpense_Click" >
+            <Image Source="Resources\AddExpense.png" Width="205"/>
+        </Button>
+        <Button x:Name="btn_ExpensePayment" Background="Transparent"  HorizontalAlignment="Left" VerticalAlignment="Top" Height="190" Width="204" Margin="205,228,0,0" Click="btn_ExpensePayment_Click" >
+            <Image Source="Resources\ExpensePayment.png" Height="187" Width="202"/>
+        </Button>
+        <Button x:Name="btn_ExpenseList" Background="Transparent"  HorizontalAlignment="Left" VerticalAlignment="Top" Height="190" Width="204" Margin="411,228,0,0" Click ="btn_ExpenseList_Click" >
+            <Image Source="Resources/ListExpense.png" Height="189" Width="202"/>
+        </Button>
+        <Button x:Name="btn_ExpenseRemove" Background="Transparent"  HorizontalAlignment="Left" VerticalAlignment="Top" Height="190" Width="208" Margin="617,228,0,0" Click ="btn_ExpenseRemove_Click" >
+            <Image Source="Resources/RemoveExpense.png" Height="185" Width="202"/>
+        </Button>
+    </Grid>
+</Page>

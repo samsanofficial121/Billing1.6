@@ -1,0 +1,15 @@
+﻿<Page
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:Billing"
+      xmlns:Viewer="clr-namespace:SAPBusinessObjects.WPF.Viewer;assembly=SAPBusinessObjects.WPF.Viewer" x:Class="Billing.CustomerOrderViewer"
+      mc:Ignorable="d" 
+      Title="CustomerOrderViewer" Background="White" Width="1000" Height="600">
+
+    <Grid>
+        <Button x:Name="btn_Back" Content="Back" HorizontalAlignment="Left" Margin="25,23,0,0" VerticalAlignment="Top" Width="79" Height="36" FontSize="16" FontWeight="Bold" Click="btn_Back_Click"/>
+        <Viewer:CrystalReportsViewer x:Name="CustomerOrderReportViewer" ShowLogo="False" HorizontalAlignment="Left" ToggleSidePanel="None" Margin="114,9,0,0" VerticalAlignment="Top" Height="580" Width="878"/>
+    </Grid>
+</Page>

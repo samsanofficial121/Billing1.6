@@ -1,0 +1,30 @@
+﻿<Window x:Class="Billing.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Billing"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="600" Width="1000" ResizeMode="CanMinimize" WindowStyle="None" WindowState="Normal" WindowStartupLocation="CenterScreen" Background="White">
+    <Window.CommandBindings>
+        <CommandBinding Command="{x:Static local:MainWindow.sellPageCommand}" Executed="CommandBinding_Executed"/>
+        <CommandBinding Command="{x:Static local:MainWindow.purchasePageCommand}" Executed="CommandBinding_Executed_1"/>
+        <CommandBinding Command="{x:Static local:MainWindow.salesHistoryCommand}" Executed="CommandBinding_Executed_2"/>
+        <CommandBinding Command="{x:Static local:MainWindow.purchaseHistoryCommand}" Executed="CommandBinding_Executed_3"/>
+        <CommandBinding Command="{x:Static local:MainWindow.reportsPageCommand}" Executed="CommandBinding_Executed_4"/>
+        <CommandBinding Command="{x:Static local:MainWindow.salesReportCommand}" Executed="CommandBinding_Executed_5"/>
+        <CommandBinding Command="{x:Static local:MainWindow.stockReportCommand}" Executed="CommandBinding_Executed_6"/>
+        <CommandBinding Command="{x:Static local:MainWindow.customerOrderReportCommand}" Executed="CommandBinding_Executed_7"/>
+        <CommandBinding Command="{x:Static local:MainWindow.damageItemPageCommand}" Executed="CommandBinding_Executed_8"/>
+        <CommandBinding Command="{x:Static local:MainWindow.vendorPageCommand}" Executed="CommandBinding_Executed_9"/>
+        <CommandBinding Command="{x:Static local:MainWindow.customerPageCommand}" Executed="CommandBinding_Executed_10"/>
+        <CommandBinding Command="{x:Static local:MainWindow.SpPageCommand}" Executed="CommandBinding_Executed_11"/>
+    </Window.CommandBindings>
+    
+    <Grid>
+        <Image x:Name="image" Source="Resources\loading.gif" HorizontalAlignment="Left" Height="100" Margin="450,245,0,0" VerticalAlignment="Top" Width="100"/>
+        <Frame x:Name="frame" Content="" NavigationUIVisibility="Hidden"/>
+        <Button x:Name="closebtn" Content="X" Margin="972,6,8,0" VerticalAlignment="Top" Height="27" FontWeight="Bold" FontSize="16" BorderThickness="0" BorderBrush="Transparent" Background="Transparent" Click="closebtn_Click"/>
+        <Button x:Name="minimizebtn" Content="-" Margin="951,6,29,0" VerticalAlignment="Top" Height="27" FontWeight="Bold" FontSize="22" BorderThickness="0" BorderBrush="Transparent" Background="Transparent" Click="minimizebtn_Click" FontFamily="Showcard Gothic" OpacityMask="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"/>
+    </Grid>
+</Window>

@@ -1,0 +1,26 @@
+﻿<Page x:Class="Billing.HistoryPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:Billing"
+      mc:Ignorable="d"
+      Title="HistoryPage" Background="White" Width="1000" Height="600">
+
+    <Grid>
+        <DataGrid x:Name="histDataGrid" HorizontalAlignment="Left" Margin="30,69,0,0" VerticalAlignment="Top" Height="498" Width="938" ColumnWidth="*" ItemsSource="{Binding}" AutoGenerateColumns="False" LoadingRow="histDataGrid_LoadingRow">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Sno" Width="*" Binding="{Binding Sno}"/>
+                <DataGridTextColumn Header="Item Id" Width="*" Binding="{Binding itemid}"/>
+                <DataGridTextColumn Header="Item Name" Width="*" Binding="{Binding iname}"/>
+                <DataGridTextColumn Header="Rate" Width="*" Binding="{Binding rate}"/>
+                <DataGridTextColumn Header="Quantity" Width="*" Binding="{Binding quantity}"/>
+                <DataGridTextColumn Header="Total" Width="*" Binding="{Binding total}"/>
+                <DataGridTextColumn Header="Sales Price" Width="*" Binding="{Binding sprice}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+        <Label x:Name="lblHist" Content="STOCK HISTORY" HorizontalAlignment="Left" Margin="405,25,0,0" VerticalAlignment="Top" Width="169" FontWeight="Bold" FontSize="20" Height="39"/>
+        <Button x:Name="btn_Back" Content="Back" HorizontalAlignment="Left" Margin="30,25,0,0" VerticalAlignment="Top" Width="78" Height="28" FontSize="16" FontWeight="Bold" Click="btn_Back_Click"/>
+
+    </Grid>
+</Page>

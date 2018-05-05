@@ -1,0 +1,21 @@
+﻿<Page x:Class="Billing.CustomerList"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:Billing"
+      mc:Ignorable="d" 
+      d:DesignHeight="594" d:DesignWidth="824"
+      Title="CustomerList" Background="White">
+
+    <Grid>
+        <DataGrid x:Name="dataGridCustomer" ColumnWidth="*" IsReadOnly="True" ItemsSource="{Binding}" AutoGenerateColumns="False" FontSize="20" FontWeight="Bold" MouseDoubleClick="dataGridCustomer_MouseDoubleClick" LoadingRow="dataGridCustomer_LoadingRow" Margin="0,93,0,0">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Customer Name" Width="*" FontSize="16" FontWeight="Normal" Binding="{Binding CustomerName}"/>
+                <DataGridTextColumn Header="Customer Phone" Width="*" FontSize="16" FontWeight="Normal" Binding="{Binding CustomerPhone}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+        <TextBlock x:Name="customerDetails" Text="CUSTOMER LIST" FontSize="24" FontWeight="Bold" FontStyle="Italic" Margin="311,48,326,502"/>
+        <Button x:Name="buttonBack" Content="Back" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="75" FontSize="16" FontWeight="Bold" Click="buttonBack_Click"/>
+    </Grid>
+</Page>
