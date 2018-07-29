@@ -47,12 +47,13 @@ namespace Billing
         {
             if (comboBoxExpenseName.SelectedItem != null)
             {
-                expenseList.Remove(comboBoxExpenseName.SelectedItem.ToString());
-                comboBoxExpenseName.Items.Refresh();
                 cc.OpenConnection();
-                cc.ExecuteQuery("Delete * from ExpenseDetails where Ename = '" + comboBoxExpenseName.SelectedItem + "' ");
+                cc.ExecuteQuery("Delete from ExpenseDetails where Ename = '" + comboBoxExpenseName.SelectedItem + "' ");
                 cc.CloseConnection();
                 MessageBox.Show("Expense removed");
+                expenseList.Remove(comboBoxExpenseName.SelectedItem.ToString());
+                comboBoxExpenseName.Items.Refresh();
+                comboBoxExpenseName.SelectedItem = null;
             }
             else
             {

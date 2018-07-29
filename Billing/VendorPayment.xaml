@@ -5,17 +5,17 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Billing"
         mc:Ignorable="d"
-        Title="VendorPayment" Height="384.5" Width="494.5" WindowStyle="None" WindowState="Normal" WindowStartupLocation="CenterScreen">
+        Title="VendorPayment" Height="384.5" Width="494.5" WindowStyle="None" WindowState="Normal" WindowStartupLocation="CenterScreen" AllowsTransparency="True" BorderThickness="3" BorderBrush="#FF76C6CC">
     <Grid>
-        <Button x:Name="CloseButton" Content="X" HorizontalAlignment="Left" Margin="452,12,0,0" VerticalAlignment="Top" Width="22" Height="25" FontWeight="Bold" FontSize="16" BorderThickness="0" BorderBrush="Transparent" Background="Transparent" Click="CloseButton_Click" Foreground="#FFF01C1C" />
-        <Label x:Name="lblHeading" Content="Select any vendor :" HorizontalAlignment="Left" Margin="34,41,0,0" VerticalAlignment="Top" FontWeight="Bold" FontSize="18"/>
-        <ComboBox x:Name="comboBoxVendorName" HorizontalAlignment="Left" Margin="42,90,0,0" VerticalAlignment="Top" Width="171" Height="32" SelectionChanged="comboBoxVendorName_SelectionChanged" IsTextSearchEnabled="False" IsEditable="True" ItemsSource="{Binding DataSource}" GotFocus="comboBoxVendorName_GotFocus" KeyUp="comboBoxVendorName_KeyUp"/>
+        <Button x:Name="CloseButton" Content="X" HorizontalAlignment="Left" Margin="458,3,0,0" VerticalAlignment="Top" Width="28" Height="27" FontWeight="Bold" FontSize="16" BorderThickness="0" BorderBrush="Transparent" Background="Transparent" Click="CloseButton_Click"/>
+        <Label x:Name="lblHeading" Content="Select any vendor :" HorizontalAlignment="Left" Margin="34,49,0,0" VerticalAlignment="Top" FontWeight="Bold" FontSize="18"/>
+        <ComboBox x:Name="comboBoxVendorName" HorizontalAlignment="Left" Margin="42,98,0,0" VerticalAlignment="Top" Width="171" Height="32" SelectionChanged="comboBoxVendorName_SelectionChanged" IsTextSearchEnabled="False" IsEditable="True" ItemsSource="{Binding DataSource}" GotFocus="comboBoxVendorName_GotFocus" KeyUp="comboBoxVendorName_KeyUp"/>
         <Label x:Name="lblBalance" Content="Balance : " HorizontalAlignment="Left" Margin="50,174,0,0" VerticalAlignment="Top" FontWeight="Bold" FontSize="18"/>
         <TextBlock x:Name="txtBalance" HorizontalAlignment="Left" Margin="146,179,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="30" Width="134" FontSize="18" FontWeight="Bold"/>
         <Label x:Name="lblPayment" Content="Payment :" HorizontalAlignment="Left" Margin="50,239,0,0" VerticalAlignment="Top" FontWeight="Bold" FontSize="18"/>
-        <TextBox x:Name="txtPayment" HorizontalAlignment="Left" Height="31" Margin="151,243,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="132" FontSize="18" FontWeight="Bold"/>
+        <TextBox x:Name="txtPayment" HorizontalAlignment="Left" Height="31" Margin="151,243,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="132" FontSize="18" FontWeight="Bold" PreviewKeyDown="txtPayment_PreviewKeyDown"/>
         <Button x:Name="btn_Update" Content="Update" HorizontalAlignment="Left" Margin="95,297,0,0" VerticalAlignment="Top" Width="111" FontWeight="Bold" FontSize="18" Height="45" Click="btn_Update_Click"/>
-        <Label x:Name="labelVendorName" Content="label" HorizontalAlignment="Left" Margin="180,90,0,0" VerticalAlignment="Top" Height="34" Width="170" FontSize="20" FontWeight="Bold" Visibility="Collapsed"/>
+        <Label x:Name="labelVendorName" Content="" HorizontalAlignment="Left" Margin="180,90,0,0" VerticalAlignment="Top" Height="34" Width="170" FontSize="20" FontWeight="Bold" Visibility="Collapsed"/>
         <Label x:Name="lblName" Content="Vendor Name :" HorizontalAlignment="Left" Margin="36,92,0,0" VerticalAlignment="Top" FontWeight="Bold" FontSize="18" Visibility="Collapsed"/>
 
     </Grid>

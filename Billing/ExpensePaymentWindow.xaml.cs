@@ -62,9 +62,9 @@ namespace Billing
                 if (txtPayment.Text != "")
                 {
                     var date = DateTime.Now;
-                    string expenseDate = date.ToString("dd-MMM-yy");
+                    string expenseDate = date.ToString("dd-MMM-yy hh:mm:ss tt");
                     cc.OpenConnection();
-                    cc.ExecuteQuery("insert into ExpenseTransactionDetails(Eid,Ename,Epayment,EDate) values (" + Convert.ToInt32(labelExpenseId.Content) + ",'" + comboBoxExpenseName.SelectedItem.ToString() + "','" + Convert.ToDouble(txtPayment.Text) + "',#" + expenseDate + "#)");
+                    cc.ExecuteQuery("insert into ExpenseTransactionDetails(Eid,Ename,Epayment,EDate) values (" + Convert.ToInt32(labelExpenseId.Content) + ",'" + comboBoxExpenseName.SelectedItem.ToString() + "','" + Convert.ToDouble(txtPayment.Text) + "','" + expenseDate + "')");
                     MessageBox.Show("Expense Added");
                 }
                 else

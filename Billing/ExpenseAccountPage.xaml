@@ -9,7 +9,7 @@
       Title="ExpenseAccountPage" Background="White">
 
     <Grid>
-        <Rectangle Fill="#FF028502" Stroke="Black" Margin="0,0,0,367"/>
+        <Rectangle Fill="#76C6CC" Stroke="Black" Margin="0,0,0,367"/>
         <Button x:Name="btn_AddExpense" Background="Transparent"  HorizontalAlignment="Left" VerticalAlignment="Top" Height="190" Width="204" Margin="0,228,0,0" Click="btn_AddExpense_Click" >
             <Image Source="Resources\AddExpense.png" Width="205"/>
         </Button>

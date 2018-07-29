@@ -14,6 +14,10 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Data;
 using System.Globalization;
+using System.IO;
+using System.Reflection;
+using System.Text.RegularExpressions;
+using System.Net.NetworkInformation;
 
 namespace Billing
 {
@@ -32,13 +36,15 @@ namespace Billing
         public static List<double> netGstList = new List<double>();
         public static List<double> salesReturnList = new List<double>();
         public static List<double> grandTotalList = new List<double>();
-        public static List<double> totalExpenseList = new List<double>();
+        public static List<double> expenseAmountList = new List<double>();
         public static List<string> expenseDateList = new List<string>();
+        public static List<string> expenseNameList = new List<string>();
         public static List<double> creditList = new List<double>();
         public static List<double> cashPaidList = new List<double>();
         public static List<string> particularsList = new List<string>();
+        public static List<double> discountList = new List<double>();
         public DateTime? fromDate = null, toDate = null;
-        public string typeOfReport;
+        public string typeOfReport, companyName, companyDetails;
 
         public SalesReporterViewer(string typrpt,DateTime? frmDat,DateTime? toDat)
         {
@@ -72,6 +78,7 @@ namespace Billing
                 {
                     clearList();
                     clearSalesData();
+                    clearExpenseData();
                     dailyReport();
                 }
                 else
@@ -86,6 +93,7 @@ namespace Billing
                 {
                     clearList();
                     clearSalesData();
+                    clearExpenseData();
                     monthlyReport();
                 }
                 else
@@ -99,19 +107,29 @@ namespace Billing
         private void generateReport()
         {
             SalesReporterData reportDetails = new SalesReporterData();
-            DataTable dataTable = reportDetails.SalesReporterTable;
-
+            DataTable dtTable = reportDetails.CompanyDetails;
             SalesReporter Report = new SalesReporter();
+            readCompanyDetails();
+            DataRow drr = dtTable.NewRow();
+            drr["CompanyName"] = companyName;
+            drr["CompanyDetails"] = companyDetails;
+            dtTable.Rows.Add(drr);
+            Report.Database.Tables["CompanyDetails"].SetDataSource((DataTable)dtTable);
             storeList();
+            DataTable dataTable = reportDetails.SalesReporterTable;
             for (int i = 0; i < bnoList.Count; i++)
             {
                 DataRow drow = dataTable.NewRow();
-                drow["DateFrom"] = fromDate;
-                drow["DateTo"] = toDate;
+                string[] fDate = Regex.Split(fromDate.ToString(), " ");
+                drow["DateFrom"] = fDate[0];
+                string[] tDate = Regex.Split(toDate.ToString(), " ");
+                drow["DateTo"] = tDate[0];
                 drow["BillNo"] = bnoList[i];
-                drow["SaleDate"] = saleDateList[i];
+                string[] sDate = Regex.Split(saleDateList[i], " ");
+                drow["SaleDate"] = sDate[0];
                 drow["Particulars"] = particularsList[i];
                 drow["TotalPrice"] = totalPriceList[i];
+                drow["Discount"] = discountList[i];
                 drow["Gst"] = netGstList[i];
                 drow["SalesReturn"] = salesReturnList[i];
                 drow["Credit"] = creditList[i];
@@ -121,6 +139,7 @@ namespace Billing
             }
             DataRow droww = dataTable.NewRow();
             droww["NetAmount"] = totalPriceList.Sum();
+            droww["TotalDiscount"] = discountList.Sum();
             droww["TotalGst"] = netGstList.Sum();
             droww["TotalSalesReturn"] = salesReturnList.Sum();
             droww["TotalCredit"] = creditList.Sum();
@@ -132,20 +151,38 @@ namespace Billing
             expenseData();
             DataTable dTable = reportDetails.ExpenseData;
             DataRow dr = dTable.NewRow();
-            dr["TotalExpense"] = totalExpenseList.Sum();
+            dr["TotalExpense"] = expenseAmountList.Sum();
             dTable.Rows.Add(dr);
             Report.Database.Tables["ExpenseData"].SetDataSource((DataTable)dTable);
             sales_Reporter_Viewer.ViewerCore.ReportSource = Report;
             Report.Refresh();
         }
 
+        private void readCompanyDetails()
+        {
+            cc.OpenConnection();
+            cc.DataReader("select ConfigValue from ConfigTable where ConfigId = 1");
+            while (cc.reader.Read())
+            {
+                companyName = cc.reader["ConfigValue"].ToString();
+            }
+            cc.CloseReader();
+            cc.DataReader("select ConfigValue from ConfigTable where ConfigId = 2");
+            while (cc.reader.Read())
+            {
+                companyDetails = cc.reader["ConfigValue"].ToString();
+            }
+            cc.CloseReader();
+            cc.CloseConnection();
+        }
+
         private void expenseData()
         {
             cc.OpenConnection();
-            cc.DataReader("select Epayment from ExpenseTransactionDetails where Edate Between #" + fromDate + "# And #" + toDate + "#");
+            cc.DataReader("select Epayment from ExpenseTransactionDetails where Edate Between '" + fromDate + "' And '" + toDate + "'");
             while (cc.reader.Read())
             {
-                totalExpenseList.Add(Convert.ToDouble(cc.reader["Epayment"]));
+                expenseAmountList.Add(Convert.ToDouble(cc.reader["Epayment"]));
             }
             cc.CloseReader();
             cc.CloseConnection();
@@ -154,12 +191,20 @@ namespace Billing
         private void storeList()
         {
             cc.OpenConnection();
-            cc.DataReader("select BillNo,SaleDate,NetAmount,netGst,SalesReturn,Credit,CashPaid,Particulars,SalesReturn+NetAmount as GrandTotal from (select distinct BillNo,SaleDate,NetAmount,netGst,SalesReturn,Credit,CashPaid,Particulars from BillStock) where SaleDate Between #" + fromDate + "# And #" + toDate + "# Group By BillNo,SaleDate,NetAmount,netGst,SalesReturn,Credit,CashPaid,Particulars");
+            if(MainWindow.userName=="admin")
+            {
+                cc.DataReader("select distinct BillNo,SaleDate,NetAmount,Discount,netGst,SalesReturn,Credit,CashPaid,Particulars,SalesReturn+NetAmount as GrandTotal from BillStock where SaleDate Between '" + fromDate + "' And '" + toDate + "'");
+            }
+            else
+            {
+                cc.DataReader("select distinct BillNo,SaleDate,NetAmount,Discount,netGst,SalesReturn,Credit,CashPaid,Particulars,SalesReturn+NetAmount as GrandTotal from BillStock where SaleDate Between '" + fromDate + "' And '" + toDate + "' and BillType='GST'");
+            }
             while (cc.reader.Read())
             {
                 bnoList.Add(Convert.ToInt32(cc.reader["BillNo"]));
                 saleDateList.Add(Convert.ToString(cc.reader["SaleDate"]));
                 totalPriceList.Add(Convert.ToDouble(cc.reader["GrandTotal"]));
+                discountList.Add(Convert.ToDouble(cc.reader["Discount"]));
                 netGstList.Add(Convert.ToDouble(cc.reader["netGst"]));
                 salesReturnList.Add(Convert.ToDouble(cc.reader["SalesReturn"]));
                 creditList.Add(Convert.ToDouble(cc.reader["Credit"]));
@@ -181,52 +226,70 @@ namespace Billing
             netGstList.Clear();
             salesReturnList.Clear();
             grandTotalList.Clear();
-            totalExpenseList.Clear();
+            expenseAmountList.Clear();
             expenseDateList.Clear();
+            expenseNameList.Clear();
             creditList.Clear();
             cashPaidList.Clear();
             particularsList.Clear();
+            discountList.Clear();
         }
 
         private void clearSalesData()
         {
             cc.OpenConnection();
-            cc.ExecuteQuery("delete * from SalesData");
+            cc.ExecuteQuery("delete from SalesData");
+            cc.CloseConnection();
+        }
+
+        private void clearExpenseData()
+        {
+            cc.OpenConnection();
+            cc.ExecuteQuery("Delete from ExpenseData");
             cc.CloseConnection();
         }
 
         private void dailyReport()
         {
             DailySalesData reportDetails = new DailySalesData();
-            DataTable dataTable = reportDetails.DailySaleData;
-
+            DataTable dtTable = reportDetails.CompanyDetails;
             DailySalesReport Report = new DailySalesReport();
+            readCompanyDetails();
+            DataRow drr = dtTable.NewRow();
+            drr["CompanyName"] = companyName;
+            drr["CompanyDetails"] = companyDetails;
+            dtTable.Rows.Add(drr);
+            Report.Database.Tables["CompanyDetails"].SetDataSource((DataTable)dtTable);
             addList();
+            DataTable dataTable = reportDetails.DailySaleData;
             for (int i = 0; i < saleDateList.Count; i++)
             {
                 DataRow drow = dataTable.NewRow();
-                drow["DateFrom"] = fromDate;
-                drow["DateTo"] = toDate;
+                string[] fDate = Regex.Split(fromDate.ToString(), " ");
+                drow["DateFrom"] = fDate[0];
+                string[] tDate = Regex.Split(toDate.ToString(), " ");
+                drow["DateTo"] = tDate[0];
                 drow["BillNoFrom"] = bnoFromList[i];
                 drow["BillNoTo"] = bnoToList[i];
-                drow["SaleDate"] = saleDateList[i];
+                string[] sDate = Regex.Split(saleDateList[i], " ");
+                drow["SaleDate"] = sDate[0];
                 drow["GrossValue"] = totalPriceList[i];
+                drow["Discount"] = discountList[i];
                 drow["Gst"] = netGstList[i];
                 drow["SalesReturn"] = salesReturnList[i];
                 drow["GrandTotal"] = grandTotalList[i];
                 drow["Credit"] = creditList[i];
                 drow["CashPaid"] = cashPaidList[i];
-                drow["TotalExpense"] = totalExpenseList[i];
                 dataTable.Rows.Add(drow);
             }
             DataRow droww = dataTable.NewRow();
             droww["TotalGross"] = totalPriceList.Sum();
+            droww["TotalDiscount"] = discountList.Sum();
             droww["TotalGst"] = netGstList.Sum();
             droww["TotalSalesReturn"] = salesReturnList.Sum();
             droww["TotalGrand"] = grandTotalList.Sum();
             droww["TotalCredit"] = creditList.Sum();
             droww["TotalCashPaid"] = cashPaidList.Sum();
-            droww["NetExpense"] = totalExpenseList.Sum();
             dataTable.Rows.Add(droww);
             Report.Database.Tables["DailySaleData"].SetDataSource((DataTable)dataTable);
             sales_Reporter_Viewer.ViewerCore.ReportSource = Report;
@@ -236,35 +299,45 @@ namespace Billing
         private void monthlyReport()
         {
             MonthlyReportData reportDetails = new MonthlyReportData();
-            DataTable dataTable = reportDetails._MonthlyReportData;
-
+            DataTable dtTable = reportDetails.CompanyDetails;
             MonthlyReport Report = new MonthlyReport();
+            readCompanyDetails();
+            DataRow drr = dtTable.NewRow();
+            drr["CompanyName"] = companyName;
+            drr["CompanyDetails"] = companyDetails;
+            dtTable.Rows.Add(drr);
+            Report.Database.Tables["CompanyDetails"].SetDataSource((DataTable)dtTable);
             monthlyList();
+            DataTable dataTable = reportDetails._MonthlyReportData;
             for (int i = 0; i < saleDateList.Count; i++)
             {
                 DataRow drow = dataTable.NewRow();
-                drow["DateFrom"] = fromDate;
-                drow["DateTo"] = toDate;
+                string[] fDate = Regex.Split(fromDate.ToString(), " ");
+                drow["DateFrom"] = fDate[0];
+                string[] tDate = Regex.Split(toDate.ToString(), " ");
+                drow["DateTo"] = tDate[0];
                 drow["BillNoFrom"] = bnoFromList[i];
                 drow["BillNoTo"] = bnoToList[i];
                 drow["SaleDate"] = saleDateList[i];
                 drow["GrossValue"] = totalPriceList[i];
+                drow["Discount"] = discountList[i];
                 drow["Gst"] = netGstList[i];
                 drow["SalesReturn"] = salesReturnList[i];
                 drow["Credit"] = creditList[i];
                 drow["CashPaid"] = cashPaidList[i];
                 drow["GrandTotal"] = grandTotalList[i];
-                drow["TotalExpense"] = totalExpenseList[i];
+                drow["TotalExpense"] = expenseAmountList.Sum();
                 dataTable.Rows.Add(drow);
             }
             DataRow droww = dataTable.NewRow();
             droww["TotalGross"] = totalPriceList.Sum();
+            droww["TotalDiscount"] = discountList.Sum();
             droww["TotalGst"] = netGstList.Sum();
             droww["TotalSalesReturn"] = salesReturnList.Sum();
             droww["TotalCredit"] = creditList.Sum();
             droww["TotalCashPaid"] = cashPaidList.Sum();
             droww["TotalGrand"] = grandTotalList.Sum();
-            droww["NetExpense"] = totalExpenseList.Sum();
+            droww["NetExpense"] = expenseAmountList.Sum();
             dataTable.Rows.Add(droww);
             Report.Database.Tables["MonthlyReportData"].SetDataSource((DataTable)dataTable);
             sales_Reporter_Viewer.ViewerCore.ReportSource = Report;
@@ -275,41 +348,55 @@ namespace Billing
         {
             salesDataTable();
             cc.OpenConnection();
-            cc.DataReader("select Min(BillNo) as BnoFrom,Max(BillNo) as BnoTo,SaleDate,sum(NetAmount) as GrossValue,sum(netGst) as Gst,sum(SalesReturn) as TotalSalesReturn,sum(GrandTotal) as GTotal, sum(Credit) as NetCredit, sum(CashPaid) as NetCashPaid, sum(ExpenseAmount) as DailyExpense from SalesData Group By SaleDate");
+            cc.DataReader("select Min(BillNo) as BnoFrom,Max(BillNo) as BnoTo,SaleDate,sum(NetAmount) as GrossValue,sum(Discount) as Dis,sum(netGst) as Gst,sum(SalesReturn) as TotalSalesReturn,sum(GrandTotal) as GTotal, sum(Credit) as NetCredit, sum(CashPaid) as NetCashPaid from SalesData Group By SaleDate");
             while (cc.reader.Read())
             {
                 bnoFromList.Add(Convert.ToInt32(cc.reader["BnoFrom"]));
                 bnoToList.Add(Convert.ToInt32(cc.reader["BnoTo"]));
                 saleDateList.Add(Convert.ToString(cc.reader["SaleDate"]));
                 totalPriceList.Add(Convert.ToDouble(cc.reader["GTotal"]));
+                discountList.Add(Convert.ToDouble(cc.reader["Dis"]));
                 netGstList.Add(Convert.ToDouble(cc.reader["Gst"]));
                 salesReturnList.Add(Convert.ToDouble(cc.reader["TotalSalesReturn"]));
                 grandTotalList.Add(Convert.ToDouble(cc.reader["GrossValue"]));
                 creditList.Add(Convert.ToDouble(cc.reader["NetCredit"]));
                 cashPaidList.Add(Convert.ToDouble(cc.reader["NetCashPaid"]));
-                totalExpenseList.Add(Convert.ToDouble(cc.reader["DailyExpense"]));
             }
             cc.CloseReader();
             cc.CloseConnection();
+            expenseList();
         }
 
         private void monthlyList()
         {
             salesDataTable();
             cc.OpenConnection();
-            cc.DataReader("select Min(BillNo) as BnoFrom,Max(BillNo) as BnoTo,month(SaleDate) as Mon,sum(NetAmount) as GrossValue,sum(netGst) as Gst,sum(SalesReturn) as TotalSalesReturn,sum(GrandTotal) as GTotal,sum(Credit) as TotalCredit,sum(CashPaid) as TotalCashPaid, sum(ExpenseAmount) as MonthlyExpense from SalesData Group By month(SaleDate)");
+            cc.DataReader("select Min(BillNo) as BnoFrom,Max(BillNo) as BnoTo,month(SaleDate) as Mon,sum(NetAmount) as GrossValue,sum(Discount) as Dis,sum(netGst) as Gst,sum(SalesReturn) as TotalSalesReturn,sum(GrandTotal) as GTotal,sum(Credit) as TotalCredit,sum(CashPaid) as TotalCashPaid from SalesData Group By month(SaleDate)");
             while (cc.reader.Read())
             {
                 bnoFromList.Add(Convert.ToInt32(cc.reader["BnoFrom"]));
                 bnoToList.Add(Convert.ToInt32(cc.reader["BnoTo"]));
                 months();
                 totalPriceList.Add(Convert.ToDouble(cc.reader["GTotal"]));
+                discountList.Add(Convert.ToDouble(cc.reader["Dis"]));
                 netGstList.Add(Convert.ToDouble(cc.reader["Gst"]));
                 salesReturnList.Add(Convert.ToDouble(cc.reader["TotalSalesReturn"]));
                 creditList.Add(Convert.ToDouble(cc.reader["TotalCredit"]));
                 cashPaidList.Add(Convert.ToDouble(cc.reader["TotalCashPaid"]));
                 grandTotalList.Add(Convert.ToDouble(cc.reader["GrossValue"]));
-                totalExpenseList.Add(Convert.ToDouble(cc.reader["MonthlyExpense"]));
+            }
+            cc.CloseReader();
+            cc.CloseConnection();
+            expenseList();
+        }
+
+        private void expenseList()
+        {
+            cc.OpenConnection();
+            cc.DataReader("select * from ExpenseData");
+            while (cc.reader.Read())
+            {
+                expenseAmountList.Add(Convert.ToDouble(cc.reader["ExpenseAmount"]));
             }
             cc.CloseReader();
             cc.CloseConnection();
@@ -372,7 +459,14 @@ namespace Billing
         private void salesDataTable()
         {
             cc.OpenConnection();
-            cc.ExecuteQuery("insert into SalesData(BillNo,SaleDate,NetAmount,netGst,SalesReturn,GrandTotal,Credit,CashPaid) select distinct BillNo,SaleDate,NetAmount,netGst,SalesReturn,SalesReturn+NetAmount,Credit,CashPaid as GrandTotal from BillStock where SaleDate Between #" + fromDate + "# And #" + toDate + "# Group By BillNo,SaleDate,NetAmount,netGst,SalesReturn,Credit,CashPaid");
+            if(MainWindow.userName=="admin")
+            {
+                cc.ExecuteQuery("insert into SalesData(BillNo,SaleDate,NetAmount,netGst,Discount,SalesReturn,GrandTotal,Credit,CashPaid) select distinct BillNo,convert(date,SaleDate,105),NetAmount,netGst,Discount,SalesReturn,SalesReturn+NetAmount,Credit,CashPaid from BillStock where SaleDate Between '" + fromDate + "' And '" + toDate + "' Group By BillNo,SaleDate,NetAmount,TotalPrice,netGst,Discount,SalesReturn,Credit,CashPaid");
+            }
+            else
+            {
+                cc.ExecuteQuery("insert into SalesData(BillNo,SaleDate,NetAmount,netGst,Discount,SalesReturn,GrandTotal,Credit,CashPaid) select distinct BillNo,convert(date,SaleDate,105),NetAmount,netGst,Discount,SalesReturn,SalesReturn+NetAmount,Credit,CashPaid from BillStock where SaleDate Between '" + fromDate + "' And '" + toDate + "' and BillType='GST' Group By BillNo,SaleDate,NetAmount,TotalPrice,netGst,Discount,SalesReturn,Credit,CashPaid");
+            }
             cc.CloseConnection();
             expenseAdd();
         }
@@ -380,7 +474,7 @@ namespace Billing
         private void expenseAdd()
         {
             cc.OpenConnection();
-            cc.ExecuteQuery("insert into SalesData(SaleDate,ExpenseName,ExpenseAmount) select distinct Edate,Ename,Epayment from ExpenseTransactionDetails where Edate Between #" + fromDate + "# And #" + toDate + "# Group By Edate,Ename,Epayment");
+            cc.ExecuteQuery("insert into ExpenseData(ExpenseDate,ExpenseName,ExpenseAmount) select distinct Edate,Ename,Epayment from ExpenseTransactionDetails where Edate Between '" + fromDate + "' And '" + toDate + "' Group By Edate,Ename,Epayment");
             cc.CloseConnection();
         }
     }

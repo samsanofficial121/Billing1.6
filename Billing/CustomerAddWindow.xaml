@@ -1,0 +1,22 @@
+﻿<Window x:Class="Billing.CustomerAddWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Billing"
+        mc:Ignorable="d"
+        Title="CustomerAddWindow" Height="362" Width="823" WindowStyle="None" WindowState="Normal" WindowStartupLocation="CenterScreen" AllowsTransparency="True" BorderThickness="3" BorderBrush="#FF76C6CC">
+    <Grid>
+        <Label x:Name="lblCustomerId" Content="Customer ID :" HorizontalAlignment="Left" Margin="38,52,0,0" VerticalAlignment="Top" Width="157" FontSize="22" FontWeight="Bold"/>
+        <TextBlock x:Name="txt_Customer_Id" HorizontalAlignment="Left" Margin="209,57,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="32" Width="120" FontSize="22"/>
+        <Label x:Name="lblCustomerName" Content="Customer Name :" HorizontalAlignment="Left" Margin="38,120,0,0" VerticalAlignment="Top" Width="194" FontSize="22" FontWeight="Bold"/>
+        <Label x:Name="lblCustomerPhone" Content="Customer Phone :" HorizontalAlignment="Left" Margin="38,176,0,0" VerticalAlignment="Top" Width="194" FontWeight="Bold" FontSize="22"/>
+        <TextBox x:Name="textBoxCustomerName" HorizontalAlignment="Left" Height="35" Margin="237,124,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="168" FontSize="16" PreviewKeyDown="textBoxCustomerName_PreviewKeyDown"/>
+        <TextBox x:Name="textBoxCustomerPhone" HorizontalAlignment="Left" Height="35" Margin="237,180,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="168" FontSize="16" PreviewKeyDown="textBoxCustomerPhone_PreviewKeyDown"/>
+        <TextBox x:Name="textBoxCardId" HorizontalAlignment="Left" Height="35" Margin="237,226,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="168" FontSize="16" PreviewKeyDown="textBoxCardId_PreviewKeyDown"/>
+        <Button x:Name="savebutton" Content="Save" HorizontalAlignment="Left" Margin="200,283,0,0" VerticalAlignment="Top" Width="98" Click="savebutton_Click" FontSize="22" FontWeight="Bold" />
+        <Button x:Name="btn_CloseButton" Content="X" HorizontalAlignment="Left" Margin="785,2,0,0" VerticalAlignment="Top" Width="28" Height="27" FontWeight="Bold" FontSize="16" BorderThickness="0" BorderBrush="Transparent" Background="Transparent" Click="btn_CloseButton_Click"/>
+        <Label x:Name="lblCardId" Content="Discount CardId :" HorizontalAlignment="Left" Margin="38,226,0,0" VerticalAlignment="Top" Width="194" FontWeight="Bold" FontSize="22"/>
+
+    </Grid>
+</Window>

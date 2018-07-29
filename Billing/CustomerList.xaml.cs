@@ -26,8 +26,32 @@ namespace Billing
         public CustomerList()
         {
             InitializeComponent();
+            MainWindow.isgst = 0;
+            if (MainWindow.userName != "admin")
+            {
+                checkBoxGST.Visibility = Visibility.Collapsed;
+            }
+            LoadGrid();
+        }
+
+        private void LoadGrid()
+        {
             cc.OpenConnection();
-            cc.DataGridDisplay("select distinct CustomerName,CustomerPhone from BillStock where CustomerName is not null");
+            if (MainWindow.userName == "admin")
+            {
+                if(checkBoxGST.IsChecked==true)
+                {
+                    cc.DataGridDisplay("select distinct CustomerName,CustomerPhone from BillStock where CustomerName not like 'Cust_%' and BillType='GST'");
+                }
+                else
+                {
+                    cc.DataGridDisplay("select distinct CustomerName,CustomerPhone from BillStock where CustomerName not like 'Cust_%' and BillType='NON_GST'");
+                }
+            }
+            else
+            {
+                cc.DataGridDisplay("select distinct CustomerName,CustomerPhone from BillStock where CustomerName not like 'Cust_%' and BillType='GST'");
+            }
             dataGridCustomer.ItemsSource = cc.dt.AsDataView();
             dataGridCustomer.Visibility = System.Windows.Visibility.Visible;
             cc.CloseConnection();
@@ -37,6 +61,14 @@ namespace Billing
         {
             try
             {
+                if(checkBoxGST.IsChecked==true)
+                {
+                    MainWindow.isgst = 1;
+                }
+                else
+                {
+                    MainWindow.isgst = 0;
+                }
                 custPhone = ((DataRowView)dataGridCustomer.SelectedItem).Row["CustomerPhone"].ToString();
                 CustomerDetails cd = new CustomerDetails();
                 cd.ShowDialog();
@@ -56,6 +88,16 @@ namespace Billing
         {
             CustomerTab ct = new CustomerTab();
             this.NavigationService.Navigate(ct);
+        }
+
+        private void checkBoxGST_Checked(object sender, RoutedEventArgs e)
+        {
+            LoadGrid();
+        }
+
+        private void checkBoxGST_Unchecked(object sender, RoutedEventArgs e)
+        {
+            LoadGrid();
         }
     }
 }

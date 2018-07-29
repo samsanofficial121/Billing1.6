@@ -21,17 +21,20 @@ namespace Billing
     /// </summary>
     public partial class SalesReturn : Window
     {
-        private ReturnClass.DataAccess objDs;
-        private ReturnClass.ReturnGridTable objBillToAdd;
         ConnectionClass cc = new ConnectionClass();
-        public static int qty, idCount;
-        public static string oldQty, selectedItemGst;
-        public static double sendAmnt;
+        SellPage sp = new SellPage();
+        public static int idCount, quantityCell, isExist,srbno;
+        public static string selectedItemGst, itemi, itname, rat, quantyty, spric, gstper, gstam, cellqty, selectedRowId;
+        public static double Netgst;
+        DataTable dt = new DataTable();
+        public DataTable dtSR = new DataTable();
         Id id = new Id();
         public SalesReturn()
         {
             InitializeComponent();
+            srbno = SellPage.srbno;
             txtItemId.Focus();
+            dtSR.Clear();
         }
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
@@ -47,142 +50,121 @@ namespace Billing
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            objDs = new ReturnClass.DataAccess();
-            Display();
-        }
-
-        private void dataGrid1_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            objBillToAdd = dataGrid1.SelectedItem as ReturnClass.ReturnGridTable;
+            dt.Columns.Add("Id", typeof(string));
+            dt.Columns.Add("Name", typeof(string));
+            dt.Columns.Add("Rate", typeof(double));
+            dt.Columns.Add("Quantity", typeof(string));
+            dt.Columns.Add("GSTPercent", typeof(string));
+            dt.Columns.Add("AddedGST", typeof(double));
+            dt.Columns.Add("Amount", typeof(double));
         }
 
         private void dataGrid1_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
-            try
+            DataRowView rowview = dataGrid1.SelectedItem as DataRowView;
+            string oldq = rowview.Row[3].ToString();
+            selectedRowId = rowview.Row[0].ToString();
+            FrameworkElement element_Quantity = dataGrid1.Columns[3].GetCellContent(e.Row);
+            if (element_Quantity.GetType() == typeof(TextBox))
             {
-                FrameworkElement element_Id = dataGrid1.Columns[0].GetCellContent(e.Row);
-                if (element_Id.GetType() == typeof(TextBox))
-                {
-                    var id = ((TextBox)element_Id).Text;
-                    objBillToAdd.Id = Convert.ToInt32(id);
-                }
-                FrameworkElement element_Name = dataGrid1.Columns[1].GetCellContent(e.Row);
-                if (element_Name.GetType() == typeof(TextBox))
-                {
-                    var name = ((TextBox)element_Name).Text;
-                    objBillToAdd.Name = name;
-                }
-                FrameworkElement element_Rate = dataGrid1.Columns[2].GetCellContent(e.Row);
-                if (element_Rate.GetType() == typeof(TextBox))
-                {
-                    var rate = ((TextBox)element_Rate).Text;
-                    objBillToAdd.Rate = Convert.ToInt32(rate);
-                }
-                FrameworkElement element_Quantity = dataGrid1.Columns[3].GetCellContent(e.Row);
-                if (element_Quantity.GetType() == typeof(TextBox))
-                {
-                    var qty = ((TextBox)element_Quantity).Text;
-                    objBillToAdd.Quantity = Convert.ToInt32(qty);
-                }
-                FrameworkElement element_Amount = dataGrid1.Columns[4].GetCellContent(e.Row);
-                if (element_Amount.GetType() == typeof(TextBox))
-                {
-                    var amount = ((TextBox)element_Amount).Text;
-                    objBillToAdd.Amount = Convert.ToInt32(amount);
-                }
-                FrameworkElement element_GSTPercent = dataGrid1.Columns[5].GetCellContent(e.Row);
-                if (element_GSTPercent.GetType() == typeof(TextBox))
-                {
-                    var per = ((TextBox)element_GSTPercent).Text;
-                    objBillToAdd.GSTPercent = per;
-                }
-                FrameworkElement element_AddedGST = dataGrid1.Columns[6].GetCellContent(e.Row);
-                if (element_AddedGST.GetType() == typeof(TextBox))
-                {
-                    var gst = ((TextBox)element_AddedGST).Text;
-                    objBillToAdd.AddedGST = Convert.ToInt32(gst);
-                }
-                objDs.InsertReturnBill(objBillToAdd);
-                Display();
+                var qty = ((TextBox)element_Quantity).Text;
+                cellqty = qty;
             }
-            catch (Exception ex)
+            DataRow dr = dt.Select("Id=" + selectedRowId + "").FirstOrDefault();
+            if (dr != null)
             {
-                MessageBox.Show(ex.Message);
+                dr["Quantity"] = Convert.ToInt32(cellqty);
+                dr["AddedGST"] = Convert.ToInt32(cellqty) * Convert.ToDouble(gstam);
+                dr["Amount"] = Convert.ToInt32(cellqty) * Convert.ToDouble(spric);
+            }
+            DisplayNetAmount();
+        }
+
+        public void UpdateGridRow()
+        {
+            int index = -1;
+            DataRow[] rows = dt.Select("Id = " + txtItemId.Text + "");
+            if (rows.Count() > 0)
+            {
+                index = dt.Rows.IndexOf(rows[0]);
+            }
+            quantityCell = Convert.ToInt32(dt.Rows[index][3]);
+            DataRow dr = dt.Select("Id=" + txtItemId.Text + "").FirstOrDefault();
+            if (dr != null)
+            {
+                dr["Quantity"] = quantityCell + 1;
+                dr["AddedGST"] = (quantityCell + 1) * Convert.ToDouble(gstam);
+                dr["Amount"] = (quantityCell + 1) * Convert.ToDouble(spric);
             }
         }
 
-        private void InsertDamageItem()
+        private void InsertNewRow()
         {
-            cc.OpenConnection();
-            cc.InsertBill("insert into ReturnGridTable(Id,Name,Rate,Quantity,Amount,GSTPercent,AddedGST) select itemid,iname,sprice,?,sprice+gst_amount,gst_percent,gst_amount from Stock where itemid= " + txtItemId.Text + "", "Quantity", qty);
-            cc.CloseConnection();
-        }
-        private void Display()
-        {
-            cc.OpenConnection();
-            cc.DataGridDisplay("select * from ReturnGridTable");
-            cc.da.Update(cc.dt);
-            dataGrid1.ItemsSource = objDs.GetReturnBill();
-            labelNetAmount.Text = cc.dt.Compute("Sum(Amount)", "").ToString();
-            cc.CloseConnection();
-        }
-        private void UpdateQty()
-        {
-            QtySelect();
-            qty = Convert.ToInt32(oldQty) + 1;
-            cc.OpenConnection();
-            cc.UpdateBillTable("Update ReturnGridTable set Quantity=? where Id= " + idCount + " ", "Quantity", qty);
-            cc.CloseConnection();
+            dt.Rows.Add(new string[] { itemi, itname, spric, "1", gstper, gstam, spric });
+            dataGrid1.ItemsSource = dt.DefaultView;
         }
 
-        private void QtySelect()
+        private void dataGrid1_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Delete)
+            {
+                try
+                {
+                    int selectedIndex = dataGrid1.SelectedIndex;
+                    if (dt.Rows.Count == 1 && selectedIndex == 0)
+                    {
+                        ClearReturnGrid();
+                    }
+                    else if (dt.Rows.Count > 1)
+                    {
+                        id.list.RemoveAt(selectedIndex);
+                        dt.Rows.RemoveAt(selectedIndex);
+                        dataGrid1.ItemsSource = null;
+                        dataGrid1.ItemsSource = dt.DefaultView;
+                        DisplayNetAmount();
+                    }
+                    else
+                    {
+                        MessageBox.Show("No items to delete");
+                    }
+                }
+                catch
+                {
+                    MessageBox.Show("Empty Row");
+                }
+                txtItemId.Focus();
+            }
+        }
+
+        private void DisplayNetAmount()
+        {
+            double NetA = Convert.ToDouble(dt.Compute("Sum(Amount)", ""));
+            Netgst = Convert.ToDouble(dt.Compute("Sum(AddedGST)", ""));
+            txtBlkNetAmount.Text = Convert.ToString(NetA + Netgst);
+        }
+
+        private void GetFromStock()
         {
             cc.OpenConnection();
-            cc.DataReader("select Quantity from ReturnGridTable where Id= " + idCount + " ");
+            cc.DataReader("select itemid,iname,quantity,sprice,gst_percent,gst_amount from Stock where itemid= " + Convert.ToInt32(txtItemId.Text) + "");
             while (cc.reader.Read())
             {
-                oldQty = cc.reader["Quantity"].ToString();
+                itemi = cc.reader["itemid"].ToString();
+                itname = cc.reader["iname"].ToString();
+                quantyty = cc.reader["quantity"].ToString();
+                spric = cc.reader["sprice"].ToString();
+                gstper = cc.reader["gst_percent"].ToString();
+                gstam = cc.reader["gst_amount"].ToString();
             }
             cc.CloseReader();
-            cc.CloseConnection();
-        }
-
-        private void UpdateAmount()
-        {
-            cc.OpenConnection();
-            cc.ExecuteQuery("Update ReturnGridTable set Amount = Rate * Quantity + AddedGST where Id = " + idCount + " ");
-            cc.CloseConnection();
-        }
-
-        private void GetSelectedItemGst()
-        {
-            cc.OpenConnection();
-            int id = Convert.ToInt32(txtItemId.Text);
-            cc.DataReader("select gst_amount from Stock where itemid= " + id + " ");
-            while (cc.reader.Read())
-            {
-                selectedItemGst = cc.reader["gst_amount"].ToString();
-            }
-            cc.CloseReader();
-            cc.CloseConnection();
-        }
-
-        public void UpdateGstAmount()
-        {
-            GetSelectedItemGst();
-            cc.OpenConnection();
-            cc.UpdateGST("Update ReturnGridTable set AddedGST=?*Quantity where Id= " + idCount + " ", "ItemGST", selectedItemGst);
             cc.CloseConnection();
         }
 
         private void ClearReturnGrid()
         {
+            dt.Clear();
+            txtBlkNetAmount.Text = "";
             id.list.Clear();
-            cc.OpenConnection();
-            cc.DataReader("delete * from ReturnGridTable");
-            cc.CloseReader();
-            cc.CloseConnection();
-            Display();
             txtItemId.Focus();
         }
 
@@ -211,13 +193,27 @@ namespace Billing
 
         private void btn_Save_Click(object sender, RoutedEventArgs e)
         {
-            if (labelNetAmount.Text == "")
+            if (txtBlkNetAmount.Text == "")
             {
                 MessageBox.Show("Enter an item to return");
             }
             else
             {
-                InputChanged(this, new DialogInputEventArgs() { Input = this.labelNetAmount.Text });
+                foreach (DataRow dg in dt.Rows)
+                {
+                    string gridId = dg[0].ToString();
+                    string gridName = dg[1].ToString();
+                    string gridRate = dg[2].ToString();
+                    string gridQuantity = dg[3].ToString();
+                    string gridGstPercent = dg[4].ToString();
+                    string gridGst = dg[5].ToString();
+                    string gridAmount = dg[6].ToString();
+                    cc.OpenConnection();
+                    cc.ExecuteQuery("insert into SalesReturn(billno,sritemid,sritemname,srrate,srquantity,srgstpercent,srgstamount,sramount) values(" + srbno + ",'" + gridId + "','" + gridName + "','" + gridRate + "','" + gridQuantity + "','" + gridGstPercent + "','" + gridGst + "','" + gridAmount + "')");
+                    cc.OpenConnection();
+                }
+                dtSR = dt.Copy();
+                InputChanged(this, new DialogInputEventArgs() { Input = this.txtBlkNetAmount.Text });
                 StockUpdate();
                 SystemCommands.CloseWindow(this);
                 ClearReturnGrid();
@@ -230,22 +226,30 @@ namespace Billing
             {
                 if (e.Key == Key.Return)
                 {
-                    idCount = Convert.ToInt32(txtItemId.Text);
-                    if (id.list.Contains(txtItemId.Text))
+                    cc.OpenConnection();
+                    if (cc.BillPreview("select COUNT(*) from Stock where itemid = @value ", "@value", txtItemId.Text, isExist) > 0)
                     {
-                        UpdateQty();
-                        UpdateGstAmount();
-                        UpdateAmount();
+                        cc.CloseConnection();
+                        GetFromStock();
+                        idCount = Convert.ToInt32(txtItemId.Text);
+                        if (id.list.Contains(txtItemId.Text))
+                        {
+                            UpdateGridRow();
+                        }
+                        else
+                        {
+                            StoreId();
+                            InsertNewRow();
+                        }
+                        DisplayNetAmount();
+                        txtItemId.Text = "";
                     }
                     else
                     {
-                        StoreId();
-                        QtySelect();
-                        qty = 1;
-                        InsertDamageItem();
+                        MessageBox.Show("Item does not exist in DB");
+                        txtItemId.Text = "";
+                        txtItemId.Focus();
                     }
-                    Display();
-                    txtItemId.Text = "";
                 }
             }
             catch (Exception)
@@ -259,9 +263,19 @@ namespace Billing
 
         private void StockUpdate()
         {
-            cc.OpenConnection();
-            cc.ExecuteQuery("update Stock as a inner join ReturnGridTable as b on a.itemid = b.Id set a.quantity = a.quantity + b.Quantity");
-            cc.CloseConnection();
+            foreach (DataRow dg in dt.Rows)
+            {
+                string gridId = dg[0].ToString();
+                string gridName = dg[1].ToString();
+                string gridRate = dg[2].ToString();
+                string gridQuantity = dg[3].ToString();
+                string gridGstPercent = dg[4].ToString();
+                string gridGst = dg[5].ToString();
+                string gridAmount = dg[6].ToString();
+                cc.OpenConnection();
+                cc.ExecuteQuery("update Stock set quantity = quantity + " + Convert.ToInt32(gridQuantity) + " where itemid = " + Convert.ToInt32(gridId) + "");
+                cc.CloseConnection();
+            }
         }
 
     }

@@ -1,0 +1,16 @@
+﻿<Window x:Class="Billing.CloseBilling"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Billing"
+        mc:Ignorable="d"
+        Title="CloseBilling" Height="200" Width="300" Background="#0B6493" ResizeMode="CanMinimize" WindowStyle="None" WindowState="Normal" WindowStartupLocation="CenterScreen" BorderThickness="3" BorderBrush="Black">
+    <Grid>
+        <Image x:Name="image" Source="Resources\logo.png" HorizontalAlignment="Center" Margin="10" Height="60" VerticalAlignment="Top" Width="60"/>
+        <TextBlock x:Name="textBlock" HorizontalAlignment="Center" Foreground="White" Margin="24,84,14,0" TextWrapping="Wrap" Text=" Do you really want to close Billing ?" VerticalAlignment="Top" FontWeight="Bold" Width="262" FontSize="15"/>
+        <Border Background="#2e3137" CornerRadius="20" Margin="12,118,12,32"/>
+        <Button Name="btnClose" Content="Yes" Margin="30,126,160,40" Background="#545d6a" Foreground="White" FontSize="18" FontWeight="Bold" Click="btnClose_Click"/>
+        <Button Name="btnCancel" Content="No" Margin="160,126,30,40" Background="#545d6a" Foreground="White" FontSize="18" FontWeight="Bold" Click="btnCancel_Click"/>
+    </Grid>
+</Window>

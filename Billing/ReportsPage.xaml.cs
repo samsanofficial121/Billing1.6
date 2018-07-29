@@ -57,5 +57,17 @@ namespace Billing
             DailyReportViewer drv = new DailyReportViewer();
             this.NavigationService.Navigate(drv);
         }
+
+        private void btn_Expense_Report_Click(object sender, RoutedEventArgs e)
+        {
+            ExpenseReportOption ero = new ExpenseReportOption();
+            ero.ShowDialog();
+        }
+
+        private void btn_Monthly_Report_Click(object sender, RoutedEventArgs e)
+        {
+            MonthlyReportOption mro = new MonthlyReportOption();
+            mro.ShowDialog();
+        }
     }
 }

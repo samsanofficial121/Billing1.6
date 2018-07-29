@@ -35,7 +35,7 @@ namespace Billing
         {
             LoadExpense();
             cc.OpenConnection();
-            cc.DataGridDisplay("select distinct Epayment,EDate from ExpenseTransactionDetails where Eid=" + expenseID + "");
+            cc.DataGridDisplay("select Epayment,EDate from ExpenseTransactionDetails where Eid=" + expenseID + "");
             dataGridExpenseList.ItemsSource = cc.dt.AsDataView();
             dataGridExpenseList.Visibility = System.Windows.Visibility.Visible;
             cc.CloseConnection();

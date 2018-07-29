@@ -9,7 +9,7 @@
       Title="StockPage" Background="White">
 
     <Grid>
-        <Rectangle Fill="#FF028502" Stroke="Black" Margin="0,0,0,367"/>
+        <Rectangle Fill="#76C6CC" Stroke="Black" Margin="0,0,0,367"/>
         <Button x:Name="btn_DamageItems" Background="Transparent"  HorizontalAlignment="Left" VerticalAlignment="Top" Height="190" Width="205" Margin="0,228,0,0" Click="btn_DamageItems_Click">
             <Image Source="Resources\DamageItems.png" Height="187" Width="202"/>
         </Button>

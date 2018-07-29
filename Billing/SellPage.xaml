@@ -4,52 +4,100 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:Billing"
+      xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
       mc:Ignorable="d"
       Title="SellPage"
       Loaded="Window_Loaded" Width="1000" Height="600">
 
     <Grid Background="White">
-        <DataGrid x:Name="dataGrid1" HorizontalAlignment="Left" Margin="43,149,0,0" VerticalAlignment="Top" Height="367" Width="654" ColumnWidth="*" ItemsSource="{Binding}" AutoGenerateColumns="False" LoadingRow="dataGrid1_LoadingRow"
-                  CellEditEnding="dataGrid1_CellEditEnding"
-                  RowEditEnding="dataGrid1_RowEditEnding"
-                   SelectionChanged="dataGrid1_SelectionChanged">
+        <DataGrid x:Name="dataGrid1" HorizontalAlignment="Left" Margin="43,115,0,0" VerticalAlignment="Top" Height="358" Width="654" ColumnWidth="*" ItemsSource="{Binding}" AutoGenerateColumns="False" LoadingRow="dataGrid1_LoadingRow" CellEditEnding="dataGrid1_CellEditEnding" PreviewKeyDown="dataGrid1_PreviewKeyDown">
+            <DataGrid.Resources>
+                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#FF76C6CC"/>
+            </DataGrid.Resources>
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Item Id" Width="*" Binding="{Binding Path=Id}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Item Name" Width="*" Binding="{Binding Path=Name}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Rate (₹)" Width="*" Binding="{Binding Path=Rate, ConverterCulture=gu-in, StringFormat=C}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Quantity" Width="*" Binding="{Binding Path=Quantity}" IsReadOnly="False"/>
+                <DataGridTextColumn Header="GST (%)" Width="*" Binding="{Binding Path=GSTPercent}" IsReadOnly="False"/>
+                <DataGridTextColumn Header="GST Amount (₹)" Width="*" Binding="{Binding Path=AddedGST, ConverterCulture=gu-in, StringFormat=C}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Amount (₹)" Width="*" Binding="{Binding Path=Amount, ConverterCulture=gu-in, StringFormat=C}" IsReadOnly="True"/>
+            </DataGrid.Columns>
+        </DataGrid>
+        <DataGrid x:Name="dataGrid2" HorizontalAlignment="Left" Margin="43,115,0,0" VerticalAlignment="Top" Height="358" Width="654" ColumnWidth="*" ItemsSource="{Binding}" AutoGenerateColumns="False" LoadingRow="dataGrid2_LoadingRow" CellEditEnding="dataGrid2_CellEditEnding" PreviewKeyDown="dataGrid2_PreviewKeyDown" Visibility="Collapsed">
+            <DataGrid.Resources>
+                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#FF76C6CC"/>
+            </DataGrid.Resources>
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Item Id" Width="*" Binding="{Binding Path=Id}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Item Name" Width="*" Binding="{Binding Path=Name}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Rate (₹)" Width="*" Binding="{Binding Path=Rate, ConverterCulture=gu-in, StringFormat=C}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Quantity" Width="*" Binding="{Binding Path=Quantity}" IsReadOnly="False"/>
+                <DataGridTextColumn Header="Amount (₹)" Width="*" Binding="{Binding Path=Amount, ConverterCulture=gu-in, StringFormat=C}" IsReadOnly="True"/>
+            </DataGrid.Columns>
+        </DataGrid>
+        <Label x:Name="label" Content="ITEM ID : " HorizontalAlignment="Left" Margin="37,72,0,0" VerticalAlignment="Top" Width="77" FontSize="16" FontWeight="Bold" Height="29"/>
+        <TextBox x:Name="txtItemId" HorizontalAlignment="Left" Height="28" Margin="116,74,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="140" FontSize="16"  PreviewKeyDown="EnterClicked" PreviewTextInput="txtItemId_PreviewTextInput"/>
+        <Button x:Name="btn_Clear" Content="Clear" HorizontalAlignment="Left" Margin="721,149,0,0" VerticalAlignment="Top" Width="75" Height="60" FontWeight="Bold" FontSize="18" Click="btn_Clear_Click"/>
+        <Button x:Name="btn_Sales_History" Content="  Sales &#xA;History" HorizontalAlignment="Left" Margin="798,149,0,0" VerticalAlignment="Top" Width="75" Height="60" FontSize="18" FontWeight="Bold" Click="btn_Sales_History_Click"/>
+        <Button x:Name="btn_Sales_Return" Content=" Sales &#xA;Return" HorizontalAlignment="Left" Margin="875,149,0,0" VerticalAlignment="Top" Width="75" Height="60" FontWeight="Bold" FontSize="18" Click="btn_Sales_Return_Click"/>
+        <Button x:Name="button_Copy2" Content="+" HorizontalAlignment="Left" Margin="721,211,0,0" VerticalAlignment="Top" Width="75" Height="60" FontWeight="Bold" FontSize="18"/>
+        <Button x:Name="button_Copy3" Content="+" HorizontalAlignment="Left" Margin="798,211,0,0" VerticalAlignment="Top" Width="75" Height="60" FontWeight="Bold" FontSize="18"/>
+        <Button x:Name="button_Copy4" Content="+" HorizontalAlignment="Left" Margin="875,211,0,0" VerticalAlignment="Top" Width="75" Height="60" FontWeight="Bold" FontSize="18"/>
+        <Label x:Name="label_Copy" Content="₹ :" HorizontalAlignment="Left" Margin="724,422,0,0" VerticalAlignment="Top" Width="54" FontSize="36" FontWeight="Bold" Height="52"/>
+        <Button x:Name="btn_Save" Content="Save" HorizontalAlignment="Left" Margin="714,542,0,0" VerticalAlignment="Top" Width="114" Height="34" FontWeight="Bold" FontSize="20" Click="btn_Save_Click"/>
+        <Button x:Name="backbutton" HorizontalAlignment="Left" Margin="18,20,0,0" VerticalAlignment="Top" Width="90" Height="33" Click="backbutton_Click" Foreground="{x:Null}" BorderBrush="{x:Null}" Background="{x:Null}">
+            <StackPanel Orientation="Horizontal" Width="90" Height="33" Background="White">
+                <materialDesign:PackIcon Kind="StepBackward" Width="28" Height="30" Foreground="Black" Background="White"/>
+                <TextBlock Text="BACK" FontSize="20" Foreground="Black"/>
+            </StackPanel>
+        </Button>
+        <TextBlock x:Name="txtBlkNetAmount" Text="" HorizontalAlignment="Left" Margin="784,427,0,0" VerticalAlignment="Top" Width="160" Height="46" FontSize="36" FontWeight="Bold" Background="#FFE8E3E3" TextWrapping="Wrap"/>
+        <Label x:Name="salehead" Content="SALES FORM" HorizontalAlignment="Left" Margin="433,11,0,0" VerticalAlignment="Top" Width="130" FontSize="20" Height="44" FontWeight="Bold"/>
+        <Label x:Name="lblDate" Content="" HorizontalAlignment="Left" Margin="848,28,0,0" VerticalAlignment="Top" Width="126" FontSize="18" Height="40" FontWeight="Bold"/>
+        <TextBlock Visibility="Collapsed" x:Name="txtBillNoo" HorizontalAlignment="Left" Height="27" Margin="641,68,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="67" FontSize="22" FontWeight="Bold"/>
+        <Label Visibility="Collapsed" x:Name="label_bno" Content="BILL NO : " HorizontalAlignment="Left" Margin="558,68,0,0" VerticalAlignment="Top" Width="80" FontSize="16" FontWeight="Bold" Height="29"/>
+        <TextBox x:Name="textBoxCustomer" HorizontalAlignment="Left" Height="23" Margin="283,75,0,0" TextWrapping="NoWrap" VerticalAlignment="Top" Width="120" FontSize="14" Text="Customer Name" GotKeyboardFocus="textBoxCustomer_GotKeyboardFocus" ToolTip="Enter customer name" LostFocus="textBoxCustomer_LostFocus"/>
+        <ListBox x:Name="lbSuggestion" HorizontalAlignment="Left" Height="100" Margin="284,98,0,0" VerticalAlignment="Top" Width="120" Visibility="Collapsed" SelectionChanged="lbSuggestion_SelectionChanged"/>
+        <TextBox x:Name="textBoxCustomerPh" HorizontalAlignment="Left" Height="23" Margin="439,75,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" FontSize="14" Text="Phone No" GotKeyboardFocus="textBoxCustomerPh_GotKeyboardFocus" PreviewTextInput="textBoxCustomerPh_PreviewTextInput" ToolTip="Enter customer phone number"/>
+        <ComboBox x:Name="comboBoxPayment" HorizontalAlignment="Left" Margin="721,293,0,0" VerticalAlignment="Top" Width="139" FontSize="14" FontWeight="Bold" SelectedIndex="0" SelectionChanged="comboBoxPayment_SelectionChanged">
+            <ComboBoxItem Visibility="Collapsed" Content="Payment Mode" FontSize="20" FontWeight="Bold"/>
+        </ComboBox>
+        <Label x:Name="lbl_Credit" Content="Credit            :" HorizontalAlignment="Left" Margin="712,508,0,0" VerticalAlignment="Top" FontSize="16" FontWeight="Bold" Width="114" Height="29"/>
+        <TextBox x:Name="textBox_Credit" HorizontalAlignment="Left" Height="27" Margin="840,510,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="106" FontSize="14" FontWeight="Bold"/>
+        <Label x:Name="cashPay" Content="Cash Paid      : " HorizontalAlignment="Left" Margin="712,474,0,0" VerticalAlignment="Top" Width="118" FontSize="16" FontWeight="Bold" Height="30"/>
+        <TextBox x:Name="txtBox_CashPaid" HorizontalAlignment="Left" Height="30" Margin="840,476,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="106" TextChanged="txtBox_CashPaid_TextChanged" PreviewKeyDown="txtBox_CashPaid_PreviewKeyDown" GotFocus="txtBox_CashPaid_GotFocus"/>
+        <Button x:Name="CustomerAddbutton" HorizontalAlignment="Left" Margin="406,72,0,0" VerticalAlignment="Top" Width="30" Click="CustomerAddbutton_Click" Height="29" FontSize="20" FontWeight="Bold" ToolTip="Click to add new Customer">
+            <StackPanel Width="30" Height="29">
+                <materialDesign:PackIcon Kind="AccountPlus" Width="25" Height="27" Foreground="White" Background="#FF373332"/>
+            </StackPanel>
+        </Button>
+        <TextBox x:Name="txtBox_Discount" HorizontalAlignment="Left" Height="30" Margin="724,361,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="86" TextChanged="txtBox_Discount_TextChanged"/>
+        <TextBox x:Name="txtBox_DiscountPercent" HorizontalAlignment="Left" Height="30" Margin="856,361,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="86" TextChanged="txtBox_DiscountPercent_TextChanged"/>
+        <CheckBox x:Name="checkBox" Content="Round Off" HorizontalAlignment="Left" Margin="856,400,0,0" VerticalAlignment="Top" FontSize="14" FontWeight="Bold" Checked="checkBox_Checked" Unchecked="checkBox_Unchecked"/>
+        <Grid HorizontalAlignment="Left" Height="30" Margin="816,361,0,0" VerticalAlignment="Top" Width="36">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Width="36">
+                <materialDesign:PackIcon HorizontalAlignment="Center" VerticalAlignment="Center" Kind="Rotate3d" Width="36" Height="30" Foreground="Black" Margin="0,0,0,0" FontSize="18"/>
+            </StackPanel>
+        </Grid>
+        <Label x:Name="lbl_Discount" Content="Discount ₹" HorizontalAlignment="Left" Margin="720,332,0,0" VerticalAlignment="Top" FontSize="16" FontWeight="Bold" Width="90" Height="29"/>
+        <Label x:Name="lbl_Discountp" Content="Discount %" HorizontalAlignment="Left" Margin="852,332,0,0" VerticalAlignment="Top" FontSize="16" FontWeight="Bold" Width="95" Height="29"/>
+        <DataGrid x:Name="dataGridSR" HorizontalAlignment="Left" Margin="43,508,0,0" VerticalAlignment="Top" Height="68" Width="654" ColumnWidth="*" ItemsSource="{Binding}" AutoGenerateColumns="False" Visibility="Collapsed">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Item Id" Width="*" Binding="{Binding Id}" IsReadOnly="True"/>
                 <DataGridTextColumn Header="Item Name" Width="*" Binding="{Binding Name}" IsReadOnly="True"/>
-                <DataGridTextColumn Header="Rate" Width="*" Binding="{Binding Rate,ConverterCulture=gu-in,StringFormat=C}" IsReadOnly="True"/>
-                <DataGridTextColumn Header="Quantity" Width="*" Binding="{Binding Quantity}" IsReadOnly="False"/>
+                <DataGridTextColumn Header="Rate" Width="*" Binding="{Binding Rate, ConverterCulture=gu-in, StringFormat=C}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Quantity" Width="*" Binding="{Binding Quantity}" IsReadOnly="True"/>
                 <DataGridTextColumn Header="GST (%)" Width="*" Binding="{Binding GSTPercent}" IsReadOnly="True"/>
-                <DataGridTextColumn Header="Added GST" Width="*" Binding="{Binding AddedGST,ConverterCulture=gu-in,StringFormat=C}" IsReadOnly="True"/>
-                <DataGridTextColumn Header="Amount" Width="*" Binding="{Binding Amount,ConverterCulture=gu-in,StringFormat=C}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Added GST" Width="*" Binding="{Binding AddedGST, ConverterCulture=gu-in, StringFormat=C}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Amount" Width="*" Binding="{Binding Amount, ConverterCulture=gu-in, StringFormat=C}" IsReadOnly="True"/>
             </DataGrid.Columns>
         </DataGrid>
-        <Label x:Name="label" Content="ITEM ID : " HorizontalAlignment="Left" Margin="37,98,0,0" VerticalAlignment="Top" Width="77" FontSize="16" FontWeight="Bold" Height="29"/>
-        <TextBox x:Name="txtItemId" HorizontalAlignment="Left" Height="28" Margin="116,100,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="140" FontSize="16"  PreviewKeyDown="EnterClicked" PreviewTextInput="txtItemId_PreviewTextInput"/>
-        <Button x:Name="btn_Clear" Content="Clear" HorizontalAlignment="Left" Margin="725,149,0,0" VerticalAlignment="Top" Width="75" Height="60" FontWeight="Bold" FontSize="18" Click="btn_Clear_Click"/>
-        <Button x:Name="btn_Sales_History" Content="  Sales &#xD;&#xA;History" HorizontalAlignment="Left" Margin="826,149,0,0" VerticalAlignment="Top" Width="75" Height="60" FontSize="18" FontWeight="Bold" Click="btn_Sales_History_Click"/>
-        <Button x:Name="btn_Sales_Return" Content=" Sales &#xD;&#xA;Return" HorizontalAlignment="Left" Margin="725,229,0,0" VerticalAlignment="Top" Width="75" Height="58" FontWeight="Bold" FontSize="18" Click="btn_Sales_Return_Click"/>
-        <Button x:Name="button_Copy2" Content="+" HorizontalAlignment="Left" Margin="826,229,0,0" VerticalAlignment="Top" Width="75" Height="58" FontWeight="Bold" FontSize="18" Click="button_Copy2_Click"/>
-        <Button x:Name="button_Copy3" Content="+" HorizontalAlignment="Left" Margin="725,308,0,0" VerticalAlignment="Top" Width="75" Height="60" FontWeight="Bold" FontSize="18"/>
-        <Button x:Name="button_Copy4" Content="+" HorizontalAlignment="Left" Margin="826,308,0,0" VerticalAlignment="Top" Width="75" Height="60" FontWeight="Bold" FontSize="18"/>
-        <Label x:Name="label_Copy" Content="Net Amount : " HorizontalAlignment="Left" Margin="719,419,0,0" VerticalAlignment="Top" Width="117" FontSize="16" FontWeight="Bold" Height="28"/>
-        <Button x:Name="btn_Save" Content="Save" HorizontalAlignment="Left" Margin="724,526,0,0" VerticalAlignment="Top" Width="115" Height="34" FontWeight="Bold" FontSize="20" Click="btn_Save_Click"/>
-        <Button x:Name="backbutton" Content="Back To Home" HorizontalAlignment="Left" Margin="18,20,0,0" VerticalAlignment="Top" Width="105" Height="30" FontWeight="Bold" FontSize="14" Click="backbutton_Click"/>
-        <Label x:Name="labelNetAmount" Content="" HorizontalAlignment="Left" Margin="846,419,0,0" VerticalAlignment="Top" Width="106" Height="28" FontSize="16" FontWeight="Bold"/>
-        <Label x:Name="salehead" Content="SALES FORM" HorizontalAlignment="Left" Margin="433,11,0,0" VerticalAlignment="Top" Width="130" FontSize="20" Height="44" FontWeight="Bold"/>
-        <Label x:Name="lblDate" Content="" HorizontalAlignment="Left" Margin="848,28,0,0" VerticalAlignment="Top" Width="126" FontSize="18" Height="30" FontWeight="Bold"/>
-        <TextBox x:Name="txtBillNo" HorizontalAlignment="Left" Height="27" Margin="637,98,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="52" FontSize="16" PreviewTextInput="txtBillNo_PreviewTextInput" IsReadOnly="True"/>
-        <Label x:Name="label_bno" Content="BILL NO : " HorizontalAlignment="Left" Margin="552,94,0,0" VerticalAlignment="Top" Width="80" FontSize="16" FontWeight="Bold" Height="29"/>
-        <TextBox x:Name="textBoxCustomer" HorizontalAlignment="Left" Height="23" Margin="283,101,0,0" TextWrapping="NoWrap" VerticalAlignment="Top" Width="120" FontSize="14" Text="Customer Name" GotKeyboardFocus="textBoxCustomer_GotKeyboardFocus" ToolTip="Enter customer name" LostFocus="textBoxCustomer_LostFocus"/>
-        <ListBox x:Name="lbSuggestion" HorizontalAlignment="Left" Height="100" Margin="284,126,0,0" VerticalAlignment="Top" Width="120" Visibility="Collapsed" SelectionChanged="lbSuggestion_SelectionChanged"/>
-        <TextBox x:Name="textBoxCustomerPh" HorizontalAlignment="Left" Height="23" Margin="409,101,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" FontSize="14" Text="Phone No" GotKeyboardFocus="textBoxCustomerPh_GotKeyboardFocus" PreviewTextInput="textBoxCustomerPh_PreviewTextInput" ToolTip="Enter customer phone number"/>
-        <Button x:Name="btn_Print" Content="Print" HorizontalAlignment="Left" Margin="859,526,0,0" VerticalAlignment="Top" Width="115" Height="34" FontSize="20" FontWeight="Bold" Click="btn_Print_Click"/>
-        <ComboBox x:Name="comboBoxPayment" HorizontalAlignment="Left" Margin="725,391,0,0" VerticalAlignment="Top" Width="139" FontSize="14" FontWeight="Bold" SelectedIndex="0" SelectionChanged="comboBoxPayment_SelectionChanged">
-            <ComboBoxItem Visibility="Collapsed" Content="Payment Mode" FontSize="20" FontWeight="Bold"/>
-        </ComboBox>
-        <Label x:Name="lbl_Credit" Content="Credit            :" HorizontalAlignment="Left" Margin="719,484,0,0" VerticalAlignment="Top" FontSize="16" FontWeight="Bold" Width="113" Height="29"/>
-        <TextBox x:Name="textBox_Credit" HorizontalAlignment="Left" Height="27" Margin="846,486,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="106" FontSize="14" FontWeight="Bold" PreviewKeyDown="textBox_Credit_PreviewKeyDown" TextChanged="textBox_Credit_TextChanged"/>
-        <Label x:Name="cashPay" Content="Cash Paid      : " HorizontalAlignment="Left" Margin="719,450,0,0" VerticalAlignment="Top" Width="117" FontSize="16" FontWeight="Bold" Height="30"/>
-        <TextBox x:Name="txtBox_CashPaid" HorizontalAlignment="Left" Height="30" Margin="846,452,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="106" TextChanged="txtBox_CashPaid_TextChanged"/>
-
+        <Label x:Name="salereturnhead" Content="SALES RETURN" HorizontalAlignment="Left" Margin="318,478,0,0" VerticalAlignment="Top" Width="110" FontSize="14" Height="29" FontWeight="Bold" Visibility="Collapsed"/>
+        <TextBox x:Name="textBoxDiscountCard" HorizontalAlignment="Left" Height="23" Margin="708,74,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="88" FontSize="14" Text="Enter Card Id" GotKeyboardFocus="textBoxDiscountCard_GotKeyboardFocus" PreviewKeyDown="textBoxDiscountCard_PreviewKeyDown" ToolTip="Enter discount card number"/>
+        <TextBlock x:Name="textBlockCard" HorizontalAlignment="Left" Margin="801,75,0,0" TextWrapping="Wrap" Text="Balance :" VerticalAlignment="Top" Height="22" FontWeight="Bold" FontSize="14" Visibility="Collapsed"/>
+        <TextBlock x:Name="textBlockCardBalance" HorizontalAlignment="Left" Margin="875,75,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Height="22" FontWeight="Bold" FontSize="14" Visibility="Collapsed"/>
+        <CheckBox x:Name="checkBoxCard" Content="Use Card" HorizontalAlignment="Left" Margin="724,400,0,0" VerticalAlignment="Top" FontSize="14" FontWeight="Bold" Checked="checkBoxCard_Checked" Unchecked="checkBoxCard_Unchecked" IsEnabled="False"/>
+        <CheckBox x:Name="checkBoxGST" Content="GST" HorizontalAlignment="Left" Margin="702,115,0,0" VerticalAlignment="Top" FontSize="14" FontWeight="Bold" Checked="checkBoxGST_Checked" Unchecked="checkBoxGST_Unchecked"/>
     </Grid>
 </Page>

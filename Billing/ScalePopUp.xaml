@@ -1,0 +1,14 @@
+﻿<Window x:Class="Billing.ScalePopUp"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Billing"
+        mc:Ignorable="d"
+        Title="ScalePopUp" Height="150" Width="200" WindowStyle="None" WindowState="Normal" WindowStartupLocation="CenterScreen">
+    <Grid>
+        <Button x:Name="btn_CloseButton" Content="X" HorizontalAlignment="Left" Margin="170,0,0,0" VerticalAlignment="Top" Width="22" Height="25" FontWeight="Bold" FontSize="16" BorderThickness="0" BorderBrush="Transparent" Background="Transparent"  Foreground="#FFF01C1C" Click="btn_CloseButton_Click"/>
+        <TextBox x:Name="textBox" HorizontalAlignment="Left" Height="23" Margin="36,58,0,0" TextWrapping="Wrap" Text="Length in Meters" VerticalAlignment="Top" Width="120" FontWeight="Bold" FontSize="14" GotFocus="textBox_GotFocus" PreviewKeyDown="textBox_PreviewKeyDown"/>
+
+    </Grid>
+</Window>

@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Billing"
         mc:Ignorable="d"
-        Title="LoginWindow" Height="500" Width="400" Background="#FF028502" ResizeMode="CanMinimize" WindowStyle="None" WindowState="Normal" WindowStartupLocation="CenterScreen">
+        Title="LoginWindow" Height="500" Width="400" Background="#0B6493" ResizeMode="CanMinimize" WindowStyle="None" WindowState="Normal" WindowStartupLocation="CenterScreen">
     <Border Background="#2e3137" CornerRadius="20" Margin="20,157,20,20">
         <StackPanel Margin="20,-148,20,1">
             <Image x:Name="image" Source="Resources\logo.png" HorizontalAlignment="Center" Height="120" Margin="10" VerticalAlignment="Top" Width="120"/>
@@ -14,7 +14,7 @@
             <Label Content="Username" Foreground="White" FontWeight="Bold"/>
             <TextBox Name="txtUsername" Background="White" Foreground="Black" FontSize="18" Text="admin"/>
             <Label Content="Password" Foreground="White" FontWeight="Bold"/>
-            <PasswordBox Name="txtPassword" Background="White" Foreground="Black" FontSize="18" Password="1234"/>
+            <PasswordBox Name="txtPassword" Background="White" Foreground="Black" FontSize="18" Password="123461"/>
             <Button Name="btnSubmit" Content="Submit" Margin="60 20" Background="#545d6a" Foreground="White" FontSize="18" Click="btnSubmit_Click" FontWeight="Bold"/>
             <Button Name="btnClose" Content="Close" Margin="60 1" Background="#545d6a" Foreground="White" FontSize="18" Click="btnClose_Click" FontWeight="Bold"/>
         </StackPanel>

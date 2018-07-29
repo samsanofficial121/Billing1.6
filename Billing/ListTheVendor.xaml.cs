@@ -27,7 +27,17 @@ namespace Billing
         public ListTheVendor()
         {
             InitializeComponent();
+            if(MainWindow.userName!="admin")
+            {
+                checkBoxGST.Visibility = Visibility.Collapsed;
+            }
+            MainWindow.isgst = 0;
             calculateCredit();
+            LoadVendor();
+        }
+
+        private void LoadVendor()
+        {
             cc.OpenConnection();
             cc.DataGridDisplay("select distinct Vid,Vname from VendorDetails");
             dataGridVendor.ItemsSource = cc.dt.AsDataView();
@@ -38,7 +48,14 @@ namespace Billing
         private void calculateCredit()
         {
             cc.OpenConnection();
-            cc.DataReader("select sum(CreditAmount) as CreditSum from TransactionDetails");
+            if(MainWindow.userName=="admin")
+            {
+                cc.DataReader("select sum(CreditAmount) as CreditSum from TransactionDetails");
+            }
+            else
+            {
+                cc.DataReader("select sum(CreditAmount) as CreditSum from TransactionDetails where BillType='GST'");
+            }
             while (cc.reader.Read())
             {
                 totalCredit = cc.reader["CreditSum"].ToString();
@@ -53,16 +70,48 @@ namespace Billing
             cc.OpenConnection();
             try
             {
-                vendorId = ((DataRowView)dataGridVendor.SelectedItem).Row["Vid"].ToString();
-                if (cc.BillPreview("select Count(*) from TransactionDetails where Vid=@vid", "@vid", vendorId, vidExist) > 0)
+                if (MainWindow.userName == "admin")
                 {
-                    VendorPurchases vp = new VendorPurchases();
-                    vp.ShowDialog();
+                    if (checkBoxGST.IsChecked == true)
+                    {
+                        vendorId = ((DataRowView)dataGridVendor.SelectedItem).Row["Vid"].ToString();
+                        if (cc.BillPreview("select Count(*) from TransactionDetails where Vid=@vid and BillType='GST'", "@vid", vendorId, vidExist) > 0)
+                        {
+                            VendorPurchases vp = new VendorPurchases();
+                            vp.ShowDialog();
+                        }
+                        else
+                        {
+                            MessageBox.Show("Transaction not found");
+                        }
+                    }
+                    else
+                    {
+                        vendorId = ((DataRowView)dataGridVendor.SelectedItem).Row["Vid"].ToString();
+                        if (cc.BillPreview("select Count(*) from TransactionDetails where Vid=@vid and BillType='NON_GST'", "@vid", vendorId, vidExist) > 0)
+                        {
+                            VendorPurchases vp = new VendorPurchases();
+                            vp.ShowDialog();
+                        }
+                        else
+                        {
+                            MessageBox.Show("Transaction not found");
+                        }
+                    }
                 }
                 else
                 {
-                    MessageBox.Show("Transaction not found");
-                }
+                    vendorId = ((DataRowView)dataGridVendor.SelectedItem).Row["Vid"].ToString();
+                    if (cc.BillPreview("select Count(*) from TransactionDetails where Vid=@vid and BillType='GST'", "@vid", vendorId, vidExist) > 0)
+                    {
+                        VendorPurchases vp = new VendorPurchases();
+                        vp.ShowDialog();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Transaction not found");
+                    }
+                }  
             }
             catch (Exception)
             {
@@ -74,6 +123,20 @@ namespace Billing
         private void dataGridVendor_LoadingRow(object sender, DataGridRowEventArgs e)
         {
             e.Row.Header = (e.Row.GetIndex() + 1).ToString();
+        }
+
+        private void checkBoxGST_Checked(object sender, RoutedEventArgs e)
+        {
+            MainWindow.isgst = 1;
+            calculateCredit();
+            LoadVendor();
+        }
+
+        private void checkBoxGST_Unchecked(object sender, RoutedEventArgs e)
+        {
+            MainWindow.isgst = 0;
+            calculateCredit();
+            LoadVendor();
         }
 
         private void btn_Back_Click(object sender, RoutedEventArgs e)

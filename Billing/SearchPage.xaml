@@ -3,13 +3,19 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
       xmlns:local="clr-namespace:Billing"
       mc:Ignorable="d" 
       d:DesignHeight="600" d:DesignWidth="1000"
       Title="SearchPage" Background="White">
 
     <Grid>
-        <Button x:Name="btn_Back" Content="Back" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="132" Height="56" FontSize="20" FontWeight="Bold" Click="btn_Back_Click"/>
+        <Button x:Name="btn_Back" HorizontalAlignment="Left" Margin="18,20,0,0" VerticalAlignment="Top" Width="90" Height="33" FontSize="20" Click="btn_Back_Click" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="{x:Null}">
+            <StackPanel Orientation="Horizontal" Width="105" Height="40" Background="White">
+                <materialDesign:PackIcon Kind="StepBackward" Width="28" Height="30" Foreground="Black" Background="White"/>
+                <TextBlock Text="BACK" FontSize="20" Foreground="Black"/>
+            </StackPanel>
+        </Button>
 
     </Grid>
 </Page>

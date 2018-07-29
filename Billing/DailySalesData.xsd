@@ -39,6 +39,24 @@
             </xs:sequence>
           </xs:complexType>
         </xs:element>
+        <xs:element name="CompanyDetails" msprop:Generator_TableClassName="CompanyDetailsDataTable" msprop:Generator_TableVarName="tableCompanyDetails" msprop:Generator_RowChangedName="CompanyDetailsRowChanged" msprop:Generator_TablePropName="CompanyDetails" msprop:Generator_RowDeletingName="CompanyDetailsRowDeleting" msprop:Generator_RowChangingName="CompanyDetailsRowChanging" msprop:Generator_RowEvHandlerName="CompanyDetailsRowChangeEventHandler" msprop:Generator_RowDeletedName="CompanyDetailsRowDeleted" msprop:Generator_RowClassName="CompanyDetailsRow" msprop:Generator_UserTableName="CompanyDetails" msprop:Generator_RowEvArgName="CompanyDetailsRowChangeEvent">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="CompanyName" msprop:Generator_ColumnVarNameInTable="columnCompanyName" msprop:Generator_ColumnPropNameInRow="CompanyName" msprop:Generator_ColumnPropNameInTable="CompanyNameColumn" msprop:Generator_UserColumnName="CompanyName" type="xs:string" minOccurs="0" />
+              <xs:element name="CompanyDetails" msprop:Generator_ColumnVarNameInTable="columnCompanyDetails" msprop:Generator_ColumnPropNameInRow="CompanyDetails" msprop:Generator_ColumnPropNameInTable="CompanyDetailsColumn" msprop:Generator_UserColumnName="CompanyDetails" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="ExpenseData" msprop:Generator_TableClassName="ExpenseDataDataTable" msprop:Generator_TableVarName="tableExpenseData" msprop:Generator_TablePropName="ExpenseData" msprop:Generator_RowDeletingName="ExpenseDataRowDeleting" msprop:Generator_RowChangingName="ExpenseDataRowChanging" msprop:Generator_RowEvHandlerName="ExpenseDataRowChangeEventHandler" msprop:Generator_RowDeletedName="ExpenseDataRowDeleted" msprop:Generator_UserTableName="ExpenseData" msprop:Generator_RowChangedName="ExpenseDataRowChanged" msprop:Generator_RowEvArgName="ExpenseDataRowChangeEvent" msprop:Generator_RowClassName="ExpenseDataRow">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="ExpenseName" msprop:Generator_ColumnVarNameInTable="columnExpenseName" msprop:Generator_ColumnPropNameInRow="ExpenseName" msprop:Generator_ColumnPropNameInTable="ExpenseNameColumn" msprop:Generator_UserColumnName="ExpenseName" type="xs:string" minOccurs="0" />
+              <xs:element name="ExpenseDate" msprop:Generator_ColumnVarNameInTable="columnExpenseDate" msprop:Generator_ColumnPropNameInRow="ExpenseDate" msprop:Generator_ColumnPropNameInTable="ExpenseDateColumn" msprop:Generator_UserColumnName="ExpenseDate" type="xs:string" minOccurs="0" />
+              <xs:element name="ExpenseAmount" msprop:Generator_ColumnVarNameInTable="columnExpenseAmount" msprop:Generator_ColumnPropNameInRow="ExpenseAmount" msprop:Generator_ColumnPropNameInTable="ExpenseAmountColumn" msprop:Generator_UserColumnName="ExpenseAmount" type="xs:string" minOccurs="0" />
+              <xs:element name="TotalExpenseAmount" msprop:Generator_ColumnVarNameInTable="columnTotalExpenseAmount" msprop:Generator_ColumnPropNameInRow="TotalExpenseAmount" msprop:Generator_ColumnPropNameInTable="TotalExpenseAmountColumn" msprop:Generator_UserColumnName="TotalExpenseAmount" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
       </xs:choice>
     </xs:complexType>
   </xs:element>

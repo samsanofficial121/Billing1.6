@@ -27,34 +27,66 @@ namespace Billing
     public partial class PurchaseHistory : Page
     {
         ConnectionClass cc = new ConnectionClass();
-        public static int billExistValue, bno;
-        public static string billNo;
-        public static List<string> billNoList = new List<string>();
+        public static int billExistValue, bno, nextBillno;
+        public static string billNo, currentBillNo;
+        public static List<string> billNosList = new List<string>();
 
         public PurchaseHistory()
         {
             InitializeComponent();
-            billNoList.Clear();
-            txt_Bill_No.Focus();
-            readBillNumber();
-            ViewBill();
-            blankDataGrid.Visibility = System.Windows.Visibility.Visible;
+            if(MainWindow.userName!="admin")
+            {
+                checkBoxGST.Visibility = Visibility.Collapsed;
+            }
+            billNosList.Clear();
+            billNoTextBoxChange();
+            ReadBillNumber();
         }
 
-        private void readBillNumber()
+        private void billNoTextBoxChange()
         {
-            string billNoPath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Config\Config.txt");
-            string billNoValue = File.ReadAllText(billNoPath);
-            if (billNoValue.Contains("PurchaseBillNumber"))
+            cc.OpenConnection();
+            if (MainWindow.userName == "admin")
             {
-                string[] val = billNoValue.Substring(billNoValue.IndexOf("PurchaseBillNumber") + 20).Split(Convert.ToChar("'"));
-                billNoList.Add(val[0].ToString());
-                foreach (var number in billNoList)
+                if(checkBoxGST.IsChecked==true)
                 {
-                    billNo = number.ToString();
-                    txt_Bill_No.Text = (Convert.ToInt32(billNo) - 1).ToString();
+                    cc.DataReader("select distinct Bno from Stock where BillType='GST'");
+                }
+                else
+                {
+                    cc.DataReader("select distinct Bno from Stock where BillType='NON_GST'");
                 }
             }
+            else
+            {
+                cc.DataReader("select distinct Bno from Stock where BillType='GST'");
+            }
+            while (cc.reader.Read())
+            {
+                billNosList.Add(Convert.ToString(cc.reader["Bno"]));
+            }
+            cc.CloseReader();
+            cc.CloseConnection();
+
+        }
+
+        private void ReadBillNumber()
+        {
+            if (billNosList.Count <= 0)
+            {
+                MessageBox.Show("No Bills to Show");
+            }
+            else
+            {
+                string bnl = billNosList[billNosList.Count - 1];
+                txt_Bill_No.Text = bnl;
+                ViewBill();
+            }
+        }
+
+        private void txt_Bill_No_GotFocus(object sender, RoutedEventArgs e)
+        {
+            currentBillNo = txt_Bill_No.Text;
         }
 
         private void btn_Back_Click(object sender, RoutedEventArgs e)
@@ -68,18 +100,21 @@ namespace Billing
             if (txt_Bill_No.Text == "")
             {
                 MessageBox.Show("Enter bill number");
-                clearDetails();
-                dataGridPurchase.Visibility = System.Windows.Visibility.Hidden;
             }
             else
             {
-                dataGridPurchase.Visibility = System.Windows.Visibility.Hidden;
-                clearDetails();
-                int bnoi;
-                bnoi = Convert.ToInt32(txt_Bill_No.Text) + 1;
-                txt_Bill_No.Text = Convert.ToString(bnoi);
-                txt_Bill_No.Focus();
-                ViewBill();
+                nextBillno = billNosList.IndexOf(txt_Bill_No.Text);
+                int bnod;
+                bnod = nextBillno + 1;
+                if (bnod < billNosList.Count)
+                {
+                    txt_Bill_No.Text = billNosList[bnod];
+                    ViewBill();
+                }
+                else
+                {
+                    MessageBox.Show("End of List...!");
+                }
             }
         }
 
@@ -88,83 +123,105 @@ namespace Billing
             if (txt_Bill_No.Text == "")
             {
                 MessageBox.Show("Enter bill number");
-                clearDetails();
-                dataGridPurchase.Visibility = System.Windows.Visibility.Hidden;
             }
             else
             {
-                dataGridPurchase.Visibility = System.Windows.Visibility.Hidden;
-                clearDetails();
+                nextBillno = billNosList.IndexOf(txt_Bill_No.Text);
                 int bnod;
-                bnod = Convert.ToInt32(txt_Bill_No.Text) - 1;
-                if (bnod > 0)
+                bnod = nextBillno - 1;
+                if (bnod >= 0)
                 {
-                    txt_Bill_No.Text = Convert.ToString(bnod);
-                    txt_Bill_No.Focus();
+                    txt_Bill_No.Text = billNosList[bnod];
+                    ViewBill();
                 }
-                ViewBill();
+                else
+                {
+                    MessageBox.Show("End of List...!");
+                }
             }
         }
 
         private void txt_Bill_No_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-            clearDetails();
-            dataGridPurchase.Visibility = System.Windows.Visibility.Hidden;
-                if (e.Key == Key.Return)
+            if (e.Key == Key.Return)
+            {
+                if (txt_Bill_No.Text == "")
                 {
-                    if (txt_Bill_No.Text == "")
-                    {
-                        MessageBox.Show("Enter bill number");
-                        clearDetails();
-                        dataGridPurchase.Visibility = System.Windows.Visibility.Hidden;
-                    }
-                    else
-                    {
-                        cc.OpenConnection();
-                        string txtbn = Convert.ToString(txt_Bill_No.Text);
-                        if (cc.BillPreview("select COUNT(*) from Stock where Bno = @bno ", "@bno", txtbn, billExistValue) > 0)
-                        {
-                            displayVendorDetails();
-                            int bn = Convert.ToInt32(txt_Bill_No.Text);
-                            cc.DataGridDisplay("select itemid,iname,rate,purchaseQty,total,sprice,gst_percent,gst_amount from Stock where Bno = " + bn + " ");
-                            dataGridPurchase.ItemsSource = cc.dt.AsDataView();
-                            dataGridPurchase.Visibility = System.Windows.Visibility.Visible;
-                            txt_Bill_No.Focus();
-                        }
-                        else
-                        {
-                            MessageBox.Show("Bill does not exist");
-                            clearDetails();
-                            txt_Bill_No.Focus();
-                            dataGridPurchase.Visibility = System.Windows.Visibility.Hidden;
-                        }
-                        cc.CloseConnection();
-                    }
+                    MessageBox.Show("Enter bill number");
+                    txt_Bill_No.Text = currentBillNo;
+                    txt_Bill_No.Focus();
                 }
+                else
+                {
+                    ViewBill();
+                }
+            }
         }
 
         private void ViewBill()
         {
             if(txt_Bill_No.Text != null)
             {
-                cc.OpenConnection();
-                string txtbn = Convert.ToString(txt_Bill_No.Text);
-                if (cc.BillPreview("select COUNT(*) from Stock where Bno = @bno ", "@bno", txtbn, billExistValue) > 0)
+                if(MainWindow.userName=="admin")
                 {
-                    displayVendorDetails();
-                    int bn = Convert.ToInt32(txt_Bill_No.Text);
-                    cc.DataGridDisplay("select itemid,iname,rate,purchaseQty,total,sprice,gst_percent,gst_amount from Stock where Bno = " + bn + " ");
-                    dataGridPurchase.ItemsSource = cc.dt.AsDataView();
-                    dataGridPurchase.Visibility = System.Windows.Visibility.Visible;
-                    txt_Bill_No.Focus();
+                    if (checkBoxGST.IsChecked == true)
+                    {
+                        cc.OpenConnection();
+                        string txtbn = Convert.ToString(txt_Bill_No.Text);
+                        if (cc.BillPreview("select COUNT(*) from Stock where Bno = @bno and BillType='GST'", "@bno", txtbn, billExistValue) > 0)
+                        {
+                            displayVendorDetails();
+                            int bn = Convert.ToInt32(txt_Bill_No.Text);
+                            cc.DataGridDisplay("select itemid,iname,rate,purchaseQty,total,sprice,gst_percent,gst_amount from Stock where Bno = " + bn + " and BillType='GST'");
+                            dataGridPurchase.ItemsSource = cc.dt.AsDataView();
+                        }
+                        else
+                        {
+                            MessageBox.Show("Bill does not exist");
+                            txt_Bill_No.Text = currentBillNo;
+                            txt_Bill_No.Focus();
+                        }
+                        cc.CloseConnection();
+                    }
+                    else
+                    {
+                        cc.OpenConnection();
+                        string txtbn = Convert.ToString(txt_Bill_No.Text);
+                        if (cc.BillPreview("select COUNT(*) from Stock where Bno = @bno and BillType='NON_GST'", "@bno", txtbn, billExistValue) > 0)
+                        {
+                            displayVendorDetails();
+                            int bn = Convert.ToInt32(txt_Bill_No.Text);
+                            cc.DataGridDisplay("select itemid,iname,rate,purchaseQty,total,sprice,gst_percent,gst_amount from Stock where Bno = " + bn + " and BillType='NON_GST'");
+                            dataGridPurchase.ItemsSource = cc.dt.AsDataView();
+                        }
+                        else
+                        {
+                            MessageBox.Show("Bill does not exist");
+                            txt_Bill_No.Text = currentBillNo;
+                            txt_Bill_No.Focus();
+                        }
+                        cc.CloseConnection();
+                    }
                 }
                 else
                 {
-                    MessageBox.Show("Bill does not exist");
-                    clearDetails();
-                    txt_Bill_No.Focus();
+                    cc.OpenConnection();
+                    string txtbn = Convert.ToString(txt_Bill_No.Text);
+                    if (cc.BillPreview("select COUNT(*) from Stock where Bno = @bno and BillType='GST'", "@bno", txtbn, billExistValue) > 0)
+                    {
+                        displayVendorDetails();
+                        int bn = Convert.ToInt32(txt_Bill_No.Text);
+                        cc.DataGridDisplay("select itemid,iname,rate,purchaseQty,total,sprice,gst_percent,gst_amount from Stock where Bno = " + bn + " and BillType='GST'");
+                        dataGridPurchase.ItemsSource = cc.dt.AsDataView();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Bill does not exist");
+                        txt_Bill_No.Text = currentBillNo;
+                        txt_Bill_No.Focus();
+                    }
+                    cc.CloseConnection();
                 }
-                cc.CloseConnection();
             }
         }
 
@@ -172,7 +229,21 @@ namespace Billing
         {
             cc.OpenConnection();
             int tbn = Convert.ToInt32(txt_Bill_No.Text);
-            cc.CreateView("CREATE VIEW DisplayVendor AS Select Stock.Bno,Stock.gtotal,TransactionDetails.Vid,TransactionDetails.Vname,TransactionDetails.Vphone,TransactionDetails.Vplace,TransactionDetails.PurchaseDate from Stock,TransactionDetails where Stock.Bno=TransactionDetails.Bno");
+            if(MainWindow.userName=="admin")
+            {
+                if (checkBoxGST.IsChecked == true)
+                {
+                    cc.CreateView("CREATE VIEW DisplayVendor AS Select Stock.Bno,Stock.gtotal,TransactionDetails.Vid,TransactionDetails.Vname,TransactionDetails.Vphone,TransactionDetails.Vplace,FORMAT(TransactionDetails.PurchaseDate,'dd-MMM-yyyy') as PDate from Stock,TransactionDetails where Stock.Bno=TransactionDetails.Bno and Stock.BillType='GST' and TransactionDetails.BillType='GST'");
+                }
+                else
+                {
+                    cc.CreateView("CREATE VIEW DisplayVendor AS Select Stock.Bno,Stock.gtotal,TransactionDetails.Vid,TransactionDetails.Vname,TransactionDetails.Vphone,TransactionDetails.Vplace,FORMAT(TransactionDetails.PurchaseDate,'dd-MMM-yyyy') as PDate from Stock,TransactionDetails where Stock.Bno=TransactionDetails.Bno and Stock.BillType='NON_GST' and TransactionDetails.BillType='NON_GST'");
+                }
+            }
+            else
+            {
+                cc.CreateView("CREATE VIEW DisplayVendor AS Select Stock.Bno,Stock.gtotal,TransactionDetails.Vid,TransactionDetails.Vname,TransactionDetails.Vphone,TransactionDetails.Vplace,FORMAT(TransactionDetails.PurchaseDate,'dd-MMM-yyyy') as PDate from Stock,TransactionDetails where Stock.Bno=TransactionDetails.Bno and Stock.BillType='GST' and TransactionDetails.BillType='GST'");
+            }
             cc.DataReader("Select * from DisplayVendor where Bno=" + tbn + "");
             while (cc.reader.Read())
             {
@@ -181,11 +252,25 @@ namespace Billing
                 txt_Vendor_Name.Text = cc.reader["Vname"].ToString();
                 txt_Vendor_Place.Text = cc.reader["Vplace"].ToString();
                 txt_Vendor_Phone.Text = cc.reader["Vphone"].ToString();
-                txt_Purchase_Date.Text = cc.reader["PurchaseDate"].ToString();
+                txt_Purchase_Date.Text = cc.reader["PDate"].ToString();
             }
             cc.CloseReader();
             cc.DropView("DROP VIEW DisplayVendor");
             cc.CloseConnection();
+        }
+
+        private void checkBoxGST_Checked(object sender, RoutedEventArgs e)
+        {
+            billNosList.Clear();
+            billNoTextBoxChange();
+            ReadBillNumber();
+        }
+
+        private void checkBoxGST_Unchecked(object sender, RoutedEventArgs e)
+        {
+            billNosList.Clear();
+            billNoTextBoxChange();
+            ReadBillNumber();
         }
 
         private void btn_BarCode_Click(object sender, RoutedEventArgs e)
@@ -204,16 +289,6 @@ namespace Billing
         private void dataGridPurchase_LoadingRow(object sender, DataGridRowEventArgs e)
         {
             e.Row.Header = (e.Row.GetIndex() + 1).ToString();
-        }
-
-        private void clearDetails()
-        {
-            txt_Net_Amount.Text = "";
-            txt_Vendor_Id.Text = "";
-            txt_Vendor_Name.Text = "";
-            txt_Vendor_Place.Text = "";
-            txt_Vendor_Phone.Text = "";
-            txt_Purchase_Date.Text = "";
         }
     }
 }

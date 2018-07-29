@@ -5,10 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Billing"
         mc:Ignorable="d"
-        Title="RemoveVendor" Height="362" Width="422.5" WindowStyle="None" WindowState="Normal" WindowStartupLocation="CenterScreen">
+        Title="RemoveVendor" Height="362" Width="422.5" WindowStyle="None" WindowState="Normal" WindowStartupLocation="CenterScreen" AllowsTransparency="True" BorderThickness="3" BorderBrush="#FF76C6CC">
     <Grid>
-        <ComboBox x:Name="comboBoxVendorName" HorizontalAlignment="Left" Margin="31,71,0,0" VerticalAlignment="Top" Width="200" Height="36" FontWeight="Bold" FontSize="16" IsTextSearchEnabled="False" IsEditable="True" ItemsSource="{Binding DataSource}" GotFocus="comboBoxVendorName_GotFocus" KeyUp="comboBoxVendorName_KeyUp"/>
-        <Label x:Name="labelHeading" Content="Select the vendor to be removed : " HorizontalAlignment="Left" Margin="24,26,0,0" VerticalAlignment="Top" FontWeight="Bold" FontSize="22"/>
+        <ComboBox x:Name="comboBoxVendorName" HorizontalAlignment="Left" Margin="31,89,0,0" VerticalAlignment="Top" Width="200" Height="36" FontWeight="Bold" FontSize="16" IsTextSearchEnabled="False" IsEditable="True" ItemsSource="{Binding DataSource}" GotFocus="comboBoxVendorName_GotFocus" KeyUp="comboBoxVendorName_KeyUp" SelectionChanged="comboBoxVendorName_SelectionChanged"/>
+        <Label x:Name="labelHeading" Content="Select the vendor to be removed : " HorizontalAlignment="Left" Margin="24,44,0,0" VerticalAlignment="Top" FontWeight="Bold" FontSize="22"/>
         <Button x:Name="btnDelete" Content="Delete" HorizontalAlignment="Left" Margin="35,284,0,0" VerticalAlignment="Top" Width="129" FontWeight="Bold" FontSize="22" Height="42" Click="btnDelete_Click"/>
         <Button x:Name="btnBack" Content="Back" HorizontalAlignment="Left" Margin="204,284,0,0" VerticalAlignment="Top" Width="129" FontWeight="Bold" FontSize="22" Height="42" Click="btnBack_Click"/>
 

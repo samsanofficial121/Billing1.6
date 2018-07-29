@@ -22,13 +22,21 @@ namespace Billing
     {
         ConnectionClass cc = new ConnectionClass();
         public static List<string> customerNameList = new List<string>();
-        public static string comboName, totalBillAmount, totalPayment;
-        public static int count, billAmount, balanceAmount, paymentAmount, textPayment;
+        public static string comboName, totalBillAmount, totalPayment, cName = null, totalSDiscount;
+        public static int count;
+        public double billAmount, balanceAmount, paymentAmount, textPayment, specialDiscount;
         public static string[] customerPhone;
 
         public CustomerPayment()
         {
             InitializeComponent();
+            txtPayment.Focus();
+            cName = CustomerDetails.customerName;
+            if (cName != null)
+            {
+                comboBoxCustomerName.SelectedItem = cName;
+                labelCustomerName.Content = cName;
+            }
             FilterViewModel vm = new FilterViewModel();
             this.DataContext = vm;
             customerName();
@@ -37,10 +45,17 @@ namespace Billing
         private void customerName()
         {
             cc.OpenConnection();
-            cc.DataReader("select distinct CustomerName,CustomerPhone from CustomerTransactions where CustomerName is not null");
+            if(MainWindow.userName=="admin")
+            {
+                cc.DataReader("select distinct CustomerName from CustomerTransactions where CustomerName not like 'Cust_%'");
+            }
+            else
+            {
+                cc.DataReader("select distinct CustomerName from CustomerTransactions where CustomerName not like 'Cust_%' and BillType='GST'");
+            }
             while (cc.reader.Read())
             {
-                customerNameList.Add(cc.reader["CustomerName"].ToString()+"  "+cc.reader["CustomerPhone"]);
+                customerNameList.Add(cc.reader["CustomerName"].ToString());
                 customerNameList.Sort();
             }
             cc.CloseReader();
@@ -53,17 +68,31 @@ namespace Billing
             customerNameList.Clear();
         }
 
+        public class DialogInputEventArgs : EventArgs
+        {
+            public string Input { get; set; }
+        }
+
+        public event EventHandler<DialogInputEventArgs> InputChanged = delegate { };
+
         private void btn_Update_Click(object sender, RoutedEventArgs e)
         {
             if (comboBoxCustomerName.SelectedItem != null)
             {
                 if (txtPayment.Text != "")
                 {
-                    textPayment = Convert.ToInt32(txtPayment.Text);
-                    balanceAmount = balanceAmount - textPayment;
+                    if(txtDiscount.Text=="")
+                    {
+                        txtDiscount.Text = "0";
+                    }
+                    textPayment = Convert.ToDouble(txtPayment.Text);
+                    balanceAmount = (balanceAmount - textPayment) - Convert.ToDouble(txtDiscount.Text);
                     updateBalance();
                     MessageBox.Show("Balance amount updated");
                     txtBalance.Text = Convert.ToString(balanceAmount);
+                    InputChanged(this, new DialogInputEventArgs() { Input = this.txtBalance.Text });
+                    SystemCommands.CloseWindow(this);
+                    customerNameList.Clear();
                 }
                 else
                 {
@@ -79,9 +108,31 @@ namespace Billing
 
         private void updateBalance()
         {
+            if(txtDiscount.Text=="")
+            {
+                txtDiscount.Text = "0";
+            }
+            var date = DateTime.Now;
+            string today = date.ToString("dd-MMM-yy hh:mm:ss tt");
             cc.OpenConnection();
-            cc.ExecuteQuery("insert into CustomerTransactions(BillNo,CustomerName,CustomerPhone,NetAmount,AmountPaid) values(0,'" + customerPhone[0] + "','" + customerPhone[1] + "',0," + textPayment + ")");
+            cc.ExecuteQuery("insert into CustomerTransactions(BillNo,CustomerName,CustomerPhone,NetAmount,AmountPaid,Date,Credit,Debit,Discount) values(0,'" + comboName + "','" + customerPhone[1] + "',0," + textPayment + ",'"+ today + "',0,0,'"+txtDiscount.Text+"')");
             cc.CloseConnection();
+        }
+
+        private void txtPayment_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Return)
+            {
+                txtDiscount.Focus();
+            }
+        }
+
+        private void txtDiscount_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Return)
+            {
+                btn_Update.Focus();
+            }
         }
 
         private class FilterViewModel
@@ -122,17 +173,37 @@ namespace Billing
                 comboName = comboBoxCustomerName.SelectedItem.ToString();
                 customerPhone = Regex.Split(comboName, "  ");
                 cc.OpenConnection();
-                if (cc.BillPreview("select count(*) from CustomerTransactions where CustomerPhone=@phone", "@phone", customerPhone[1], count) > 0)
+                if(MainWindow.userName=="admin")
                 {
-                    calculateBillAmount();
-                    calculateTotalPayment();
-                    balanceAmount = billAmount - paymentAmount;
-                    txtBalance.Text = Convert.ToString(balanceAmount);
-                    txtPayment.Text = "";
+                    if (cc.BillPreview("select count(*) from CustomerTransactions where CustomerPhone=@phone", "@phone", customerPhone[1], count) > 0)
+                    {
+                        calculateBillAmount();
+                        calculateTotalPayment();
+                        calculateSpecialDiscount();
+                        balanceAmount = (billAmount - paymentAmount) - specialDiscount;
+                        txtBalance.Text = Convert.ToString(balanceAmount);
+                        txtPayment.Text = "";
+                    }
+                    else
+                    {
+                        MessageBox.Show("No transactions with " + comboName);
+                    }
                 }
                 else
                 {
-                    MessageBox.Show("No transactions with " + comboName);
+                    if (cc.BillPreview("select count(*) from CustomerTransactions where CustomerPhone=@phone and BillType='GST'", "@phone", customerPhone[1], count) > 0)
+                    {
+                        calculateBillAmount();
+                        calculateTotalPayment();
+                        calculateSpecialDiscount();
+                        balanceAmount = (billAmount - paymentAmount) - specialDiscount;
+                        txtBalance.Text = Convert.ToString(balanceAmount);
+                        txtPayment.Text = "";
+                    }
+                    else
+                    {
+                        MessageBox.Show("No transactions with " + comboName);
+                    }
                 }
             }
 
@@ -142,6 +213,7 @@ namespace Billing
             }
             cc.CloseConnection();
             comboBoxCustomerName.IsDropDownOpen = true;
+            txtPayment.Focus();
         }
 
         private void calculateTotalPayment()
@@ -150,7 +222,14 @@ namespace Billing
             {
                 cc.OpenConnection();
                 comboName = comboBoxCustomerName.SelectedItem.ToString();
-                cc.DataReader("select sum(AmountPaid) as PaymentAmount from CustomerTransactions where CustomerPhone='" + customerPhone[1] + "'");
+                if(MainWindow.userName=="admin")
+                {
+                    cc.DataReader("select sum(AmountPaid) as PaymentAmount from CustomerTransactions where CustomerPhone='" + customerPhone[1] + "'");
+                }
+                else
+                {
+                    cc.DataReader("select sum(AmountPaid) as PaymentAmount from CustomerTransactions where CustomerPhone='" + customerPhone[1] + "' and BillType='GST'");
+                }
                 while (cc.reader.Read())
                 {
                     totalPayment = cc.reader["PaymentAmount"].ToString();
@@ -163,7 +242,7 @@ namespace Billing
                 }
                 else
                 {
-                    paymentAmount = Convert.ToInt32(totalPayment);
+                    paymentAmount = Convert.ToDouble(totalPayment);
                 }
             }
             else
@@ -178,19 +257,55 @@ namespace Billing
             {
                 cc.OpenConnection();
                 comboName = comboBoxCustomerName.SelectedItem.ToString();
-                cc.DataReader("select sum(NetAmount) as BillAmount from CustomerTransactions where CustomerPhone='" + customerPhone[1] + "'");
+                if (MainWindow.userName == "admin")
+                {
+                    cc.DataReader("select sum(NetAmount) as BillAmount from CustomerTransactions where CustomerPhone='" + customerPhone[1] + "'");
+                }
+                else
+                {
+                    cc.DataReader("select sum(NetAmount) as BillAmount from CustomerTransactions where CustomerPhone='" + customerPhone[1] + "' and BillType='GST'");
+                }
                 while (cc.reader.Read())
                 {
                     totalBillAmount = cc.reader["BillAmount"].ToString();
                 }
                 cc.CloseReader();
                 cc.CloseConnection();
-                billAmount = Convert.ToInt32(totalBillAmount);
+                billAmount = Convert.ToDouble(totalBillAmount);
             }
             else
             {
                 MessageBox.Show("Select any customer");
             }
         }
+
+        private void calculateSpecialDiscount()
+        {
+            if (comboBoxCustomerName.SelectedItem != null)
+            {
+                cc.OpenConnection();
+                comboName = comboBoxCustomerName.SelectedItem.ToString();
+                if (MainWindow.userName == "admin")
+                {
+                    cc.DataReader("select sum(Discount) as SpecialDisc from CustomerTransactions where CustomerPhone='" + customerPhone[1] + "'");
+                }
+                else
+                {
+                    cc.DataReader("select sum(Discount) as SpecialDisc from CustomerTransactions where CustomerPhone='" + customerPhone[1] + "' and BillType='GST'");
+                }
+                while (cc.reader.Read())
+                {
+                    totalSDiscount = cc.reader["SpecialDisc"].ToString();
+                }
+                cc.CloseReader();
+                cc.CloseConnection();
+                specialDiscount = Convert.ToDouble(totalSDiscount);
+            }
+            else
+            {
+                MessageBox.Show("Select any customer");
+            }
+        }
+
     }
 }

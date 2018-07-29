@@ -3,24 +3,17 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
       xmlns:local="clr-namespace:Billing"
       mc:Ignorable="d" 
       d:DesignHeight="600" d:DesignWidth="1000"
       Title="SalesHistory" Background="White">
 
     <Grid>
-        <DataGrid x:Name="blankDataGrid" IsReadOnly="True" HorizontalAlignment="Left" Margin="44,149,0,0" VerticalAlignment="Top" Height="366" Width="650" ColumnWidth="*" AutoGenerateColumns="False">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Item Id" Width="*"/>
-                <DataGridTextColumn Header="Item Name" Width="*"/>
-                <DataGridTextColumn Header="Rate" Width="*"/>
-                <DataGridTextColumn Header="Quantity" Width="*"/>
-                <DataGridTextColumn Header="GST (%)" Width="*"/>
-                <DataGridTextColumn Header="Added GST" Width="*"/>
-                <DataGridTextColumn Header="Amount" Width="*"/>
-            </DataGrid.Columns>
-        </DataGrid>
         <DataGrid x:Name="dataGrid1" HorizontalAlignment="Left" Margin="41,146,0,0" VerticalAlignment="Top" Height="370" Width="654" ColumnWidth="*" ItemsSource="{Binding}" AutoGenerateColumns="False" LoadingRow="dataGrid1_LoadingRow">
+            <DataGrid.Resources>
+                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#FF76C6CC"/>
+            </DataGrid.Resources>
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Item Id" Width="*" Binding="{Binding ItemNo}" IsReadOnly="True"/>
                 <DataGridTextColumn Header="Item Name" Width="*" Binding="{Binding Product}" IsReadOnly="True"/>
@@ -31,23 +24,34 @@
                 <DataGridTextColumn Header="Amount" Width="*" Binding="{Binding TotalPrice, ConverterCulture=gu-in, StringFormat=C}" IsReadOnly="True"/>
             </DataGrid.Columns>
         </DataGrid>
-        <Label x:Name="label_Copy" Content="Net Amount : " HorizontalAlignment="Left" Margin="709,355,0,0" VerticalAlignment="Top" Width="117" FontSize="16" FontWeight="Bold" Height="28"/>
-        <Button x:Name="backbutton" Content="Back To Home" HorizontalAlignment="Left" Margin="18,20,0,0" VerticalAlignment="Top" Width="105" Height="30" FontWeight="Bold" FontSize="14" Click="backbutton_Click"/>
-        <TextBox x:Name="txtBillNo" HorizontalAlignment="Left" Height="28" Margin="114,94,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="57" FontSize="16" PreviewTextInput="txtBillNo_PreviewTextInput" PreviewKeyDown="txtBillNo_PreviewKeyDown"/>
+        <Button x:Name="backbutton" HorizontalAlignment="Left" Margin="18,20,0,0" VerticalAlignment="Top" Width="90" Height="33" FontSize="14" Click="backbutton_Click" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="{x:Null}">
+            <StackPanel Orientation="Horizontal" Width="105" Height="40" Background="White">
+                <materialDesign:PackIcon Kind="StepBackward" Width="28" Height="30" Foreground="Black" Background="White"/>
+                <TextBlock Text="BACK" FontSize="20" Foreground="Black"/>
+            </StackPanel>
+        </Button>
+        <TextBox x:Name="txtBillNo" HorizontalAlignment="Left" Height="28" Margin="114,94,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="57" FontSize="18" PreviewTextInput="txtBillNo_PreviewTextInput" PreviewKeyDown="txtBillNo_PreviewKeyDown" GotFocus="txtBillNo_GotFocus" FontWeight="Bold"/>
         <Label x:Name="label_bno" Content="BILL NO : " HorizontalAlignment="Left" Margin="31,92,0,0" VerticalAlignment="Top" Width="80" FontSize="16" FontWeight="Bold" Height="30"/>
-        <Button x:Name="btn_Next" Content="Next" HorizontalAlignment="Left" Margin="228,94,0,0" VerticalAlignment="Top" Width="42" Height="28" FontWeight="Bold" FontSize="16" Click="btn_Next_Click"/>
-        <Button x:Name="btn_Prev" Content="Prev" HorizontalAlignment="Left" Margin="178,95,0,0" VerticalAlignment="Top" Width="43" Height="27" FontWeight="Bold" FontSize="16" Click="btn_Prev_Click"/>
+        <Button x:Name="btn_Next" HorizontalAlignment="Left" Margin="220,88,0,0" VerticalAlignment="Top" Width="40" Height="37" FontWeight="Bold" FontSize="16" Click="btn_Next_Click" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="{x:Null}">
+            <StackPanel Orientation="Horizontal" Width="40" Height="35">
+                <materialDesign:PackIcon Kind="SkipNext" Width="40" Height="35" Foreground="Black"/>
+            </StackPanel>
+        </Button>
+        <Button x:Name="btn_Prev" HorizontalAlignment="Left" Margin="174,89,0,0" VerticalAlignment="Top" Width="40" Height="37" FontWeight="Bold" FontSize="16" Click="btn_Prev_Click" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="{x:Null}">
+            <StackPanel Orientation="Horizontal" Width="40" Height="35">
+                <materialDesign:PackIcon Kind="SkipPrevious" Width="40" Height="35" Foreground="Black"/>
+            </StackPanel>
+        </Button>
         <TextBox x:Name="textBoxCustomer" HorizontalAlignment="Left" Height="23" Margin="409,97,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" FontSize="14" IsReadOnly="True"/>
         <TextBox x:Name="textBoxCustomerPh" HorizontalAlignment="Left" Height="22" Margin="671,96,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" FontSize="14" PreviewTextInput="textBoxCustomerPh_PreviewTextInput" IsReadOnly="True"/>
         <Button x:Name="btn_Print" Content="Print" HorizontalAlignment="Left" Margin="771,480,0,0" VerticalAlignment="Top" Width="115" Height="34" FontSize="20" FontWeight="Bold" Click="btn_Print_Click"/>
         <Label x:Name="lbl_Credit" Content="Credit            :" HorizontalAlignment="Left" Margin="709,406,0,0" VerticalAlignment="Top" FontSize="16" FontWeight="Bold" Width="113" Height="29"/>
-        <TextBox x:Name="textBox_Credit" HorizontalAlignment="Left" Height="27" Margin="828,412,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="106" FontSize="14" FontWeight="Bold" PreviewKeyDown="textBox_Credit_PreviewKeyDown" ToolTip="Changes done here will be saved"/>
-        <Label x:Name="labelNetAmount" Content="" HorizontalAlignment="Left" Margin="830,357,0,0" VerticalAlignment="Top" Width="106" Height="28" FontSize="16" FontWeight="Bold"/>
-        <Label x:Name="salehistory" Content="SALES HISTORY" HorizontalAlignment="Left" Margin="396,11,0,0" VerticalAlignment="Top" Width="160" FontSize="20" Height="44" FontWeight="Bold"/>
+        <TextBlock x:Name="textBlock_Credit" HorizontalAlignment="Left" Height="27" Margin="828,412,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="106" FontSize="14" FontWeight="Bold"/>
+        <Label x:Name="salehistory" Content="SALES HISTORY" HorizontalAlignment="Left" Margin="414,11,0,0" VerticalAlignment="Top" Width="160" FontSize="20" Height="42" FontWeight="Bold"/>
         <Label x:Name="lblCustomerName" Content="Customer Name :" HorizontalAlignment="Left" Margin="283,95,0,0" VerticalAlignment="Top" FontWeight="Bold" FontSize="14"/>
         <Label x:Name="lblCustomerPhone" Content="Customer Phone :" HorizontalAlignment="Left" Margin="541,93,0,0" VerticalAlignment="Top" FontWeight="Bold" FontSize="14"/>
-        <Label x:Name="lblSaleDate" Content="Sale Date :" HorizontalAlignment="Left" Margin="720,42,0,0" VerticalAlignment="Top" FontWeight="Bold" FontSize="16"/>
-        <TextBlock x:Name="txtSaleDate" HorizontalAlignment="Left" Margin="813,47,0,0" TextWrapping="Wrap" VerticalAlignment="Top" FontWeight="Bold" FontSize="16" RenderTransformOrigin="0.5,0.5" Width="161">
+        <Label x:Name="lblSaleDate" Content="Sale Date :" HorizontalAlignment="Left" Margin="700,44,0,0" VerticalAlignment="Top" FontWeight="Bold" FontSize="16"/>
+        <TextBlock x:Name="txtSaleDate" HorizontalAlignment="Left" Margin="793,49,0,0" TextWrapping="Wrap" VerticalAlignment="Top" FontWeight="Bold" FontSize="16" RenderTransformOrigin="0.5,0.5" Width="188">
             <TextBlock.RenderTransform>
                 <TransformGroup>
                     <ScaleTransform/>
@@ -57,6 +61,10 @@
                 </TransformGroup>
             </TextBlock.RenderTransform>
         </TextBlock>
+        <Label x:Name="label_Copy1" Content="₹ :" HorizontalAlignment="Left" Margin="711,338,0,0" VerticalAlignment="Top" Width="53" FontSize="36" FontWeight="Bold" Height="52"/>
+        <TextBlock x:Name="txtBlkNetAmount" Text="" HorizontalAlignment="Left" Margin="772,343,0,0" VerticalAlignment="Top" Width="161" Height="46" FontSize="36" FontWeight="Bold" Background="#FFE8E3E3" TextWrapping="Wrap"/>
+        <Button x:Name="deletebutton" Content="Delete Bill" HorizontalAlignment="Left" Margin="700,149,0,0" VerticalAlignment="Top" Width="115" Height="34" FontSize="20" FontWeight="Bold" Click="deletebutton_Click"/>
+        <CheckBox x:Name="checkBoxGST" Content="GST" HorizontalAlignment="Left" Margin="856,95,0,0" VerticalAlignment="Top" FontSize="14" FontWeight="Bold" Checked="checkBoxGST_Checked" Unchecked="checkBoxGST_Unchecked"/>
 
     </Grid>
 </Page>

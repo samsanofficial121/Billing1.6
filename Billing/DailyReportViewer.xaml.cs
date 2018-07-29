@@ -13,6 +13,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.IO;
+using System.Reflection;
 
 namespace Billing
 {
@@ -26,7 +28,7 @@ namespace Billing
         public static List<double> totalCreditList = new List<double>();
         public static List<string> expenseNameList = new List<string>();
         public static List<double> expenseAmountList = new List<double>();
-        public static string stDate;
+        public static string endDate, companyName, companyDetails,startDate;
         public static double cashBalance;
 
         public DailyReportViewer()
@@ -39,14 +41,24 @@ namespace Billing
         private void generateReport()
         {
             var date = DateTime.Now;
-            stDate = date.ToString("dd-MMM-yy");
+            endDate = date.ToString("dd-MMM-yy hh:mm:ss tt");
+            //endDate = "28-May-18 23:59:59 PM";
+            var dat = DateTime.Today;
+            startDate = dat.ToString("dd-MMM-yy hh:mm:ss tt");
             DailyReportData reportDetails = new DailyReportData();
-            DataTable dataTable = reportDetails._DailyReportData;
             DailyReport report = new DailyReport();
+            DataTable dtTable = reportDetails.CompanyDetails;
+            readCompanyDetails();
+            DataRow drr = dtTable.NewRow();
+            drr["CompanyName"] = companyName;
+            drr["CompanyDetails"] = companyDetails;
+            dtTable.Rows.Add(drr);
+            report.Database.Tables["CompanyDetails"].SetDataSource((DataTable)dtTable);
             storeSales();
             storeExpense();
+            DataTable dataTable = reportDetails._DailyReportData;
             DataRow drow = dataTable.NewRow();
-            drow["StDate"] = stDate;
+            drow["StDate"] = endDate;
             drow["TotalSales"] = totalSalesList.Sum();
             drow["TotalCredit"] = totalCreditList.Sum();
             dataTable.Rows.Add(drow);
@@ -59,6 +71,7 @@ namespace Billing
             }
             cashBalance = totalSalesList.Sum() - totalCreditList.Sum() - expenseAmountList.Sum();
             DataRow dr = dataTable.NewRow();
+            dr["TotalExpense"] = expenseAmountList.Sum();
             dr["CashBalance"] = cashBalance;
             dataTable.Rows.Add(dr);
             report.Database.Tables["DailyReportData"].SetDataSource((DataTable)dataTable);
@@ -66,10 +79,28 @@ namespace Billing
             report.Refresh();
         }
 
+        private void readCompanyDetails()
+        {
+            cc.OpenConnection();
+            cc.DataReader("select ConfigValue from ConfigTable where ConfigId = 1");
+            while (cc.reader.Read())
+            {
+                companyName = cc.reader["ConfigValue"].ToString();
+            }
+            cc.CloseReader();
+            cc.DataReader("select ConfigValue from ConfigTable where ConfigId = 2");
+            while (cc.reader.Read())
+            {
+                companyDetails = cc.reader["ConfigValue"].ToString();
+            }
+            cc.CloseReader();
+            cc.CloseConnection();
+        }
+
         private void storeExpense()
         {
             cc.OpenConnection();
-            cc.DataReader("select distinct Ename,Epayment from ExpenseTransactionDetails where EDate = #" + stDate + "# Group By Ename,Epayment");
+            cc.DataReader("select Ename,Epayment from ExpenseTransactionDetails where Edate between '" + startDate + "' and '" + endDate + "'");
             while (cc.reader.Read())
             {
                 expenseAmountList.Add(Convert.ToDouble(cc.reader["Epayment"]));
@@ -82,7 +113,14 @@ namespace Billing
         private void storeSales()
         {
             cc.OpenConnection();
-            cc.DataReader("select distinct NetAmount,Credit from BillStock where SaleDate = #" + stDate + "# Group By NetAmount,Credit");
+            if(MainWindow.userName=="admin")
+            {
+                cc.DataReader("select distinct BillNo,NetAmount,Credit from BillStock where SaleDate between '" + startDate + "' and '" + endDate + "' Group By BillNo,NetAmount,Credit");
+            }
+            else
+            {
+                cc.DataReader("select distinct BillNo,NetAmount,Credit from BillStock where SaleDate between '" + startDate + "' and '" + endDate + "' and BillType='GST' Group By BillNo,NetAmount,Credit");
+            }
             while (cc.reader.Read())
             {
                 totalSalesList.Add(Convert.ToDouble(cc.reader["NetAmount"]));

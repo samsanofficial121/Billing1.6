@@ -40,7 +40,7 @@ namespace Billing
 
         private void dateTo_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
         {
-            endDate = dateTo.SelectedDate.Value.Date;
+            endDate = dateTo.SelectedDate.Value.Date.AddDays(1).AddSeconds(-1);
         }
 
         private void dateFrom1_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
@@ -50,7 +50,7 @@ namespace Billing
 
         private void dateTo1_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
         {
-            endDate = dateTo1.SelectedDate.Value.Date;
+            endDate = dateTo1.SelectedDate.Value.Date.AddDays(1).AddSeconds(-1);
         }
 
         private void dateFrom2_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
@@ -60,12 +60,12 @@ namespace Billing
 
         private void dateTo2_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
         {
-            endDate = dateTo2.SelectedDate.Value.Date;
+            endDate = dateTo2.SelectedDate.Value.Date.AddDays(1).AddSeconds(-1);
         }
 
         private void btnOk_Click(object sender, RoutedEventArgs e)
         {
-            if (startDate != null && endDate != null)
+            if (startDate != null || endDate != null)
             {
                 if (rbTotalReport.IsChecked == true)
                 {

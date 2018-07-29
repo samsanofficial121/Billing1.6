@@ -36,7 +36,21 @@ namespace Billing
         private void billDisplay()
         {
             cc.OpenConnection();
-            cc.DataGridDisplay("select distinct ItemNo,Product,Price,ProductQuantity,TotalPrice,gstPercent,gstRate from BillStock where BillNo = " + bno + " ");
+            if (MainWindow.userName == "admin")
+            {
+                if (MainWindow.isgst == 1)
+                {
+                    cc.DataGridDisplay("select distinct ItemNo,Product,Price,ProductQuantity,TotalPrice,gstPercent,gstRate from BillStock where BillNo = " + bno + " and BillType='GST'");
+                }
+                else
+                {
+                    cc.DataGridDisplay("select distinct ItemNo,Product,Price,ProductQuantity,TotalPrice,gstPercent,gstRate from BillStock where BillNo = " + bno + " and BillType='NON_GST'");
+                }
+            }
+            else
+            {
+                cc.DataGridDisplay("select distinct ItemNo,Product,Price,ProductQuantity,TotalPrice,gstPercent,gstRate from BillStock where BillNo = " + bno + " and BillType='GST'");
+            }
             dataGridCustomer.ItemsSource = cc.dt.AsDataView();
             dataGridCustomer.Visibility = System.Windows.Visibility.Visible;
             cc.CloseConnection();
@@ -45,7 +59,14 @@ namespace Billing
         private void billNumberDisplay()
         {
             cc.OpenConnection();
-            cc.DataReader("select distinct BillNo,netGst,NetAmount,SaleDate,Credit from BillStock where BillNo = " + bno + " ");
+            if (MainWindow.userName == "admin")
+            {
+                cc.DataReader("select distinct BillNo,netGst,NetAmount,SaleDate,Credit,Particulars from BillStock where BillNo = " + bno + " ");
+            }
+            else
+            {
+                cc.DataReader("select distinct BillNo,netGst,NetAmount,SaleDate,Credit,Particulars from BillStock where BillNo = " + bno + " and BillType='GST'");
+            }
             while (cc.reader.Read())
             {
                 txt_Bill_Number.Text = cc.reader["BillNo"].ToString();
@@ -53,6 +74,7 @@ namespace Billing
                 txt_Total_Gst.Text = "₹ " + cc.reader["netGst"].ToString();
                 txt_Grant_Total.Text = "₹ " + cc.reader["NetAmount"].ToString();
                 textBox_Credit.Text = cc.reader["Credit"].ToString();
+                txt_Payment_Type.Text = cc.reader["Particulars"].ToString();
             }
             cc.CloseReader();
             cc.CloseConnection();
@@ -62,24 +84,7 @@ namespace Billing
         {
             SystemCommands.CloseWindow(this);
         }
-        private void textBox_Credit_PreviewKeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Return)
-            {
-                if (textBox_Credit.Text == "")
-                    textBox_Credit.Text = "0";
-                cc.OpenConnection();
-                cc.ExecuteQuery("update BillStock set Credit=" + textBox_Credit.Text + " where BillNo=" + bno + "");
-                cc.CloseConnection();
-                MessageBox.Show("Credit Updated");
-            }
-        }
-
-        private void textBox_Credit_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            textBox_Credit.ToolTip = "Changes in here will be saved...";
-        }
-
+        
         private void dataGridCustomer_LoadingRow(object sender, DataGridRowEventArgs e)
         {
             e.Row.Header = (e.Row.GetIndex() + 1).ToString();

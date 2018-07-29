@@ -5,25 +5,28 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Billing"
         mc:Ignorable="d"
-        Title="VendorPurchases" Height="450" Width="725" WindowStyle="None" WindowState="Normal" WindowStartupLocation="CenterScreen">
+        Title="VendorPurchases" Height="450" Width="725" WindowStyle="None" WindowState="Normal" WindowStartupLocation="CenterScreen" AllowsTransparency="True" BorderThickness="3" BorderBrush="#FF76C6CC">
     <Grid>
-        <Button x:Name="CloseButton" Content="X" HorizontalAlignment="Left" Margin="687,-2,0,0" VerticalAlignment="Top" Width="22" Height="25" FontWeight="Bold" FontSize="16" BorderThickness="0" BorderBrush="Transparent" Background="Transparent" Click="CloseButton_Click" Foreground="#FFF01C1C" />
-        <TextBlock x:Name="textBlockVId" HorizontalAlignment="Left" Margin="44,12,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Height="24" Width="42" FontSize="14" FontWeight="Bold"/>
-        <TextBlock x:Name="textBlockVName" HorizontalAlignment="Left" Margin="162,12,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Height="24" Width="123" FontSize="14" FontWeight="Bold"/>
-        <TextBlock x:Name="textBlockVPhone" HorizontalAlignment="Left" Margin="361,12,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Height="24" Width="123" FontSize="14" FontWeight="Bold"/>
-        <TextBlock x:Name="textBlockVPlace" HorizontalAlignment="Left" Margin="555,12,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Height="24" Width="124" FontSize="14" FontWeight="Bold"/>
-        <DataGrid x:Name="dataGridPurchasedVendor" ColumnWidth="*" ItemsSource="{Binding}" AutoGenerateColumns="False" Margin="0,45,0,46" MouseDoubleClick="dataGridPurchasedVendor_MouseDoubleClick" SelectionMode="Single" SelectionUnit="FullRow" IsReadOnly="True" LoadingRow="dataGridPurchasedVendor_LoadingRow">
+        <Button x:Name="CloseButton" Content="X" HorizontalAlignment="Left" Margin="687,4,0,0" VerticalAlignment="Top" Width="28" Height="27" FontWeight="Bold" FontSize="16" BorderThickness="0" BorderBrush="Transparent" Background="Transparent" Click="CloseButton_Click"/>
+        <TextBlock x:Name="textBlockVId" HorizontalAlignment="Left" Margin="42,63,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Height="24" Width="42" FontSize="14" FontWeight="Bold"/>
+        <TextBlock x:Name="textBlockVName" HorizontalAlignment="Left" Margin="160,63,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Height="24" Width="123" FontSize="14" FontWeight="Bold"/>
+        <TextBlock x:Name="textBlockVPhone" HorizontalAlignment="Left" Margin="359,63,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Height="24" Width="123" FontSize="14" FontWeight="Bold"/>
+        <TextBlock x:Name="textBlockVPlace" HorizontalAlignment="Left" Margin="553,63,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Height="24" Width="124" FontSize="14" FontWeight="Bold"/>
+        <DataGrid x:Name="dataGridPurchasedVendor" ColumnWidth="*" ItemsSource="{Binding}" AutoGenerateColumns="False" Margin="0,91,0,46" MouseDoubleClick="dataGridPurchasedVendor_MouseDoubleClick" SelectionMode="Single" SelectionUnit="FullRow" IsReadOnly="True" LoadingRow="dataGridPurchasedVendor_LoadingRow">
+            <DataGrid.Resources>
+                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#FF76C6CC"/>
+            </DataGrid.Resources>
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Bill Number" Width="*" FontSize="16" FontWeight="Normal" Binding="{Binding Bno}"/>
                 <DataGridTextColumn Header="Bill Amount" Width="*" FontSize="16" FontWeight="Normal" Binding="{Binding gtotal,ConverterCulture=gu-in, StringFormat=C}"/>
-                <DataGridTextColumn Header="Cash Paid" Width="*" FontSize="16" FontWeight="Normal" Binding="{Binding CashPaid,ConverterCulture=gu-in, StringFormat=C}"/>
-                <DataGridTextColumn Header="Purchased Date" Width="*" FontSize="16" FontWeight="Normal" Binding="{Binding PurchaseDate}"/>
+                <DataGridTextColumn Header="Cash Paid" Width="*" FontSize="16" FontWeight="Normal" Binding="{Binding Payment,ConverterCulture=gu-in, StringFormat=C}"/>
+                <DataGridTextColumn Header="Purchased Date" Width="*" FontSize="16" FontWeight="Normal" Binding="{Binding PDate}"/>
             </DataGrid.Columns>
         </DataGrid>
-        <Label x:Name="labelVid" Content="Id :" HorizontalAlignment="Left" Margin="8,6,0,0" VerticalAlignment="Top" FontSize="14" Width="31" FontWeight="Bold"/>
-        <Label x:Name="labelVid_Copy" Content="Name :" HorizontalAlignment="Left" Margin="97,6,0,0" VerticalAlignment="Top" FontSize="14" Width="56" FontWeight="Bold"/>
-        <Label x:Name="labelVid_Copy1" Content="Phone :" HorizontalAlignment="Left" Margin="292,6,0,0" VerticalAlignment="Top" FontSize="14" Width="62" FontWeight="Bold"/>
-        <Label x:Name="labelVid_Copy2" Content="Place :" HorizontalAlignment="Left" Margin="492,6,0,0" VerticalAlignment="Top" FontSize="14" Width="54" FontWeight="Bold"/>
+        <Label x:Name="labelVid" Content="Id :" HorizontalAlignment="Left" Margin="6,57,0,0" VerticalAlignment="Top" FontSize="14" Width="31" FontWeight="Bold"/>
+        <Label x:Name="labelVid_Copy" Content="Name :" HorizontalAlignment="Left" Margin="95,57,0,0" VerticalAlignment="Top" FontSize="14" Width="56" FontWeight="Bold"/>
+        <Label x:Name="labelVid_Copy1" Content="Phone :" HorizontalAlignment="Left" Margin="290,57,0,0" VerticalAlignment="Top" FontSize="14" Width="62" FontWeight="Bold"/>
+        <Label x:Name="labelVid_Copy2" Content="Place :" HorizontalAlignment="Left" Margin="490,57,0,0" VerticalAlignment="Top" FontSize="14" Width="54" FontWeight="Bold"/>
         <Label x:Name="lblBalance" Content="Balance :" HorizontalAlignment="Left" Margin="543,402,0,0" VerticalAlignment="Top" FontWeight="Bold" FontSize="14"/>
         <TextBlock x:Name="txtBalance" HorizontalAlignment="Left" Margin="615,408,0,0" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="14" FontWeight="Bold" Width="95"/>
         <Button x:Name="paymentButton" Content="Payment" HorizontalAlignment="Left" Margin="28,401,0,0" VerticalAlignment="Top" Width="93" Click="paymentButton_Click" FontWeight="Bold" FontSize="14" Height="28"/>

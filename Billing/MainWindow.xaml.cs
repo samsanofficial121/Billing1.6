@@ -32,10 +32,14 @@ namespace Billing
         public static RoutedCommand vendorPageCommand = new RoutedCommand();
         public static RoutedCommand customerPageCommand = new RoutedCommand();
         public static RoutedCommand SpPageCommand = new RoutedCommand();
+        public static string userName, passWord;
+        public static int isgst=0;
 
-        public MainWindow()
+        public MainWindow(string username, string password)
         {
             InitializeComponent();
+            userName = username;
+            passWord = password;
             keyActions();
             SPpage sp = new SPpage();
             frame.NavigationService.Navigate(sp);
@@ -59,7 +63,9 @@ namespace Billing
 
         private void closebtn_Click(object sender, RoutedEventArgs e)
         {
-            SystemCommands.CloseWindow(this);
+            CloseBilling cb = new CloseBilling();
+            cb.btnClose.Focus();
+            cb.ShowDialog();
         }
 
         private void minimizebtn_Click(object sender, RoutedEventArgs e)

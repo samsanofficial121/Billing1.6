@@ -3,6 +3,7 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
       xmlns:local="clr-namespace:Billing"
       mc:Ignorable="d" 
       d:DesignHeight="594" d:DesignWidth="824"
@@ -10,12 +11,21 @@
 
     <Grid>
         <DataGrid x:Name="dataGridCustomer" ColumnWidth="*" IsReadOnly="True" ItemsSource="{Binding}" AutoGenerateColumns="False" FontSize="20" FontWeight="Bold" MouseDoubleClick="dataGridCustomer_MouseDoubleClick" LoadingRow="dataGridCustomer_LoadingRow" Margin="0,93,0,0">
+            <DataGrid.Resources>
+                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#FF76C6CC"/>
+            </DataGrid.Resources>
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Customer Name" Width="*" FontSize="16" FontWeight="Normal" Binding="{Binding CustomerName}"/>
                 <DataGridTextColumn Header="Customer Phone" Width="*" FontSize="16" FontWeight="Normal" Binding="{Binding CustomerPhone}"/>
             </DataGrid.Columns>
         </DataGrid>
-        <TextBlock x:Name="customerDetails" Text="CUSTOMER LIST" FontSize="24" FontWeight="Bold" FontStyle="Italic" Margin="311,48,326,502"/>
-        <Button x:Name="buttonBack" Content="Back" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="75" FontSize="16" FontWeight="Bold" Click="buttonBack_Click"/>
+        <TextBlock x:Name="customerDetails" Text="CUSTOMER LIST" FontSize="24" FontWeight="Bold" Margin="311,18,326,548"/>
+        <Button x:Name="buttonBack" HorizontalAlignment="Left" Margin="10,14,0,0" VerticalAlignment="Top" Width="90" Height="33" FontSize="20" Click="buttonBack_Click" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="{x:Null}">
+            <StackPanel Orientation="Horizontal" Width="105" Height="40" Background="White">
+                <materialDesign:PackIcon Kind="StepBackward" Width="28" Height="30" Foreground="Black" Background="White"/>
+                <TextBlock Text="BACK" FontSize="20" Foreground="Black"/>
+            </StackPanel>
+        </Button>
+        <CheckBox x:Name="checkBoxGST" Content="GST" HorizontalAlignment="Left" Margin="746,70,0,0" VerticalAlignment="Top" FontSize="14" FontWeight="Bold" Checked="checkBoxGST_Checked" Unchecked="checkBoxGST_Unchecked" ToolTip="Check this to show GST transactions"/>
     </Grid>
 </Page>

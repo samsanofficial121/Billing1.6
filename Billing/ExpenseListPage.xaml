@@ -3,17 +3,26 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
       xmlns:local="clr-namespace:Billing"
       mc:Ignorable="d"
       Title="ExpenseListPage" Background="White" Height="590" Width="823">
 
     <Grid>
         <DataGrid x:Name="dataGridVendor" ColumnWidth="*" ItemsSource="{Binding}" AutoGenerateColumns="False" FontSize="20" FontWeight="Bold" MouseDoubleClick="dataGridVendor_MouseDoubleClick" IsReadOnly="True" Margin="-1,56,3,8" LoadingRow="dataGridVendor_LoadingRow">
+            <DataGrid.Resources>
+                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#FF76C6CC"/>
+            </DataGrid.Resources>
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Expense Id" Width="*" FontSize="16" FontWeight="Normal" Binding="{Binding Eid}"/>
                 <DataGridTextColumn Header="Expense Name" Width="*" FontSize="16" FontWeight="Normal" Binding="{Binding Ename}"/>
             </DataGrid.Columns>
         </DataGrid>
-        <Button x:Name="btn_Back" Content="Back" HorizontalAlignment="Left" Margin="4,0,0,548" Width="91" FontWeight="Bold" FontSize="20" Click= "btn_Back_Click" Height="40" VerticalAlignment="Bottom"/>
+        <Button x:Name="btn_Back" HorizontalAlignment="Left" Margin="12,0,0,546" Width="90" FontSize="20" Click= "btn_Back_Click" Height="33" VerticalAlignment="Bottom" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="{x:Null}">
+            <StackPanel Orientation="Horizontal" Width="105" Height="40" Background="White">
+                <materialDesign:PackIcon Kind="StepBackward" Width="28" Height="30" Foreground="Black" Background="White"/>
+                <TextBlock Text="BACK" FontSize="20" Foreground="Black"/>
+            </StackPanel>
+        </Button>
     </Grid>
 </Page>

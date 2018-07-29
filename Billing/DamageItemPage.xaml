@@ -3,14 +3,23 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
       xmlns:local="clr-namespace:Billing"
       mc:Ignorable="d" 
       d:DesignHeight="590" d:DesignWidth="823"
-      Title="DamageItemPage" Background="White">
+      Title="DamageItemPage" Background="White" Loaded="Window_Loaded">
 
     <Grid>
-        <Button x:Name="backFromDamaged" Content="Back" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="75" FontWeight="Bold" FontSize="14" Click="backFromDamaged_Click"/>
-        <DataGrid x:Name="dataGridDamage" IsReadOnly="True" HorizontalAlignment="Left" Margin="10,125,0,0" VerticalAlignment="Top" Height="367" Width="803" ColumnWidth="*" ItemsSource="{Binding}" AutoGenerateColumns="False" LoadingRow="dataGridDamage_LoadingRow">
+        <Button x:Name="backFromDamaged" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="90" Height="33" FontSize="20" Click="backFromDamaged_Click" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="{x:Null}">
+            <StackPanel Orientation="Horizontal" Width="90" Height="33" Background="White">
+                <materialDesign:PackIcon Kind="StepBackward" Width="28" Height="30" Foreground="Black" Background="White"/>
+                <TextBlock Text="BACK" FontSize="20" Foreground="Black"/>
+            </StackPanel>
+        </Button>
+        <DataGrid x:Name="dataGridDamage" IsReadOnly="True" HorizontalAlignment="Left" Margin="10,125,0,0" VerticalAlignment="Top" Height="367" Width="803" ColumnWidth="*" ItemsSource="{Binding}" AutoGenerateColumns="False" LoadingRow="dataGridDamage_LoadingRow" PreviewKeyDown="dataGridDamage_PreviewKeyDown" CellEditEnding="dataGridDamage_CellEditEnding">
+            <DataGrid.Resources>
+                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#FF76C6CC"/>
+            </DataGrid.Resources>
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Item Id" Width="*" Binding="{Binding DItemNo}"/>
                 <DataGridTextColumn Header="Item Name" Width="*" Binding="{Binding DName}"/>
@@ -24,10 +33,10 @@
         </DataGrid>
         <TextBlock x:Name="textBlockItemID" HorizontalAlignment="Left" Margin="13,78,0,0" TextWrapping="Wrap" Text="Item ID :" VerticalAlignment="Top" Height="28" Width="68" FontWeight="Bold" FontSize="14"/>
         <TextBox x:Name="DamageItemId" HorizontalAlignment="Left" Height="28" Margin="88,76,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="142" FontSize="14" PreviewKeyDown="DamageItemId_PreviewKeyDown" PreviewTextInput="DamageItemId_PreviewTextInput"/>
-        <Button x:Name="buttonClear" Content="Clear" HorizontalAlignment="Left" Margin="500,82,0,0" VerticalAlignment="Top" Width="79" FontWeight="Bold" FontSize="14" Click="buttonClear_Click" Height="31"/>
+        <Button x:Name="buttonClear" Content="Clear" HorizontalAlignment="Left" Margin="600,82,0,0" VerticalAlignment="Top" Width="79" FontWeight="Bold" FontSize="14" Click="buttonClear_Click" Height="31"/>
         <Button x:Name="buttonSaveDamaged" Content="Save" HorizontalAlignment="Left" Margin="682,518,0,0" VerticalAlignment="Top" Width="101" Height="36" FontWeight="Bold" FontSize="18" Click="buttonSaveDamaged_Click"/>
-        <Button x:Name="buttonList" Content="List Damage Items" HorizontalAlignment="Left" Margin="594,82,0,0" VerticalAlignment="Top" Width="129" FontWeight="Bold" FontSize="14" Click="buttonList_Click" Height="31"/>
-        <Button x:Name="buttonDelete" Content="Delete" HorizontalAlignment="Left" Margin="734,82,0,0" VerticalAlignment="Top" Width="79" FontWeight="Bold" FontSize="14" Click="buttonDelete_Click" Height="31"/>
+        <Button x:Name="buttonList" Content="List Damage Items" HorizontalAlignment="Left" Margin="684,82,0,0" VerticalAlignment="Top" Width="129" FontWeight="Bold" FontSize="14" Click="buttonList_Click" Height="31"/>
+        <Button x:Name="buttonDelete" Content="Delete" HorizontalAlignment="Left" Margin="516,82,0,0" VerticalAlignment="Top" Width="79" FontWeight="Bold" FontSize="14" Click="buttonDelete_Click" Height="31"/>
         <Label x:Name="label2" Content="DAMAGE ITEMS" HorizontalAlignment="Left" Margin="320,8,0,0" VerticalAlignment="Top" Width="161" FontSize="20" FontWeight="Bold" Height="32"/>
     </Grid>
 </Page>

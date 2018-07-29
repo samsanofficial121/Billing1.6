@@ -23,31 +23,33 @@ namespace Billing
     {
         public static string genVendorId;
         public static int vendorId;
-        public static List<string> vendorIdList = new List<string>();
         ConnectionClass cc = new ConnectionClass();
         
         public SaveVendor()
         {
             InitializeComponent();
-            vendorIdList.Clear();
             readVendorId();
         }
 
         private void readVendorId()
         {
-            string vendorIdPath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Config\Config.txt");
-            string vendorIdValue = File.ReadAllText(vendorIdPath);
-            if (vendorIdValue.Contains("VendorId"))
+            cc.OpenConnection();
+            cc.DataReader("select ConfigValue from ConfigTable where ConfigId = 6 ");
+            while (cc.reader.Read())
             {
-                string[] val = vendorIdValue.Substring(vendorIdValue.IndexOf("VendorId") + 10).Split(Convert.ToChar("'"));
-                vendorIdList.Add(val[0].ToString());
-                foreach (var number in vendorIdList)
-                {
-                    genVendorId = Convert.ToString(number);
-                    txt_Vendor_Id.Text = genVendorId;
-                    txt_Vendor_Name.Focus();
-                }
+                genVendorId = cc.reader["ConfigValue"].ToString();
             }
+            cc.CloseReader();
+            cc.CloseConnection();
+            txt_Vendor_Id.Text = genVendorId;
+            txt_Vendor_Name.Focus();
+        }
+
+        private void writeVendorId()
+        {
+            cc.OpenConnection();
+            cc.ExecuteQuery("update ConfigTable set ConfigValue=" + vendorId + " where ConfigId = 6 ");
+            cc.CloseConnection();
         }
 
         public class DialogInputEventArgs : EventArgs
@@ -75,21 +77,8 @@ namespace Billing
                 InputChanged(this, new DialogInputEventArgs() { Input = this.txt_Vendor_Name.Text });
                 clearVendorDetails();
                 txt_Vendor_Name.Focus();
+                SystemCommands.CloseWindow(this);
             }
-        }
-
-        private void writeVendorId()
-        {
-            string configFilePath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Config\Config.txt");
-            string[] configValues = File.ReadAllLines(configFilePath);
-            for (int i = 0; i < configValues.Length; i++)
-            {
-                if (configValues[i] == "VendorId '" + genVendorId + "'")
-                {
-                    configValues[i] = "VendorId '" + vendorId + "'";
-                }
-            }
-            File.WriteAllLines(configFilePath, configValues);
         }
 
         private void clearVendorDetails()
@@ -102,6 +91,30 @@ namespace Billing
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
             SystemCommands.CloseWindow(this);
+        }
+
+        private void txt_Vendor_Name_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Return)
+            {
+                txt_Vendor_Place.Focus();
+            }
+        }
+
+        private void txt_Vendor_Place_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Return)
+            {
+                txt_Vendor_Phone.Focus();
+            }
+        }
+
+        private void txt_Vendor_Phone_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Return)
+            {
+                btn_Save.Focus();
+            }
         }
     }
 }

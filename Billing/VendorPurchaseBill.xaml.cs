@@ -32,7 +32,21 @@ namespace Billing
         private void ShowGrid()
         {
             ShowDetails();
-            cc.DataGridDisplay("select itemid,iname,rate,purchaseQty,total,sprice,gst_percent,gst_amount from Stock where Bno = "+billNumber+" ");
+            if(MainWindow.userName=="admin")
+            {
+                if(MainWindow.isgst==1)
+                {
+                    cc.DataGridDisplay("select itemid,iname,rate,purchaseQty,total,sprice,gst_percent,gst_amount from Stock where Bno = " + billNumber + " and BillType='GST' ");
+                }
+                else
+                {
+                    cc.DataGridDisplay("select itemid,iname,rate,purchaseQty,total,sprice,gst_percent,gst_amount from Stock where Bno = " + billNumber + " and BillType='NON_GST' ");
+                }
+            }
+            else
+            {
+                cc.DataGridDisplay("select itemid,iname,rate,purchaseQty,total,sprice,gst_percent,gst_amount from Stock where Bno = " + billNumber + " and BillType='GST' ");
+            }
             dataGridVendorBill.ItemsSource = cc.dt.AsDataView();
             dataGridVendorBill.Visibility = System.Windows.Visibility.Visible;
         }
@@ -40,12 +54,26 @@ namespace Billing
         private void ShowDetails()
         {
             cc.OpenConnection();
-            cc.CreateView("CREATE VIEW PurchaseBill AS Select Distinct Stock.Bno,Stock.gtotal,TransactionDetails.PurchaseDate,TransactionDetails.CreditAmount,TransactionDetails.PaymentType from Stock,TransactionDetails where Stock.Bno=TransactionDetails.Bno");
+            if (MainWindow.userName == "admin")
+            {
+                if(MainWindow.isgst==1)
+                {
+                    cc.CreateView("CREATE VIEW PurchaseBill AS Select Distinct Stock.Bno,Stock.gtotal,FORMAT(TransactionDetails.PurchaseDate,'dd-MMM-yyyy') as PDate,TransactionDetails.CreditAmount,TransactionDetails.PaymentType,TransactionDetails.GstAmount from Stock,TransactionDetails where Stock.Bno=TransactionDetails.Bno and Stock.BillType='GST' and TransactionDetails.BillType='GST'");
+                }
+                else
+                {
+                    cc.CreateView("CREATE VIEW PurchaseBill AS Select Distinct Stock.Bno,Stock.gtotal,FORMAT(TransactionDetails.PurchaseDate,'dd-MMM-yyyy') as PDate,TransactionDetails.CreditAmount,TransactionDetails.PaymentType,TransactionDetails.GstAmount from Stock,TransactionDetails where Stock.Bno=TransactionDetails.Bno and Stock.BillType='NON_GST' and TransactionDetails.BillType='NON_GST'");
+                }
+            }
+            else
+            {
+                cc.CreateView("CREATE VIEW PurchaseBill AS Select Distinct Stock.Bno,Stock.gtotal,FORMAT(TransactionDetails.PurchaseDate,'dd-MMM-yyyy') as PDate,TransactionDetails.CreditAmount,TransactionDetails.PaymentType,TransactionDetails.GstAmount from Stock,TransactionDetails where Stock.Bno=TransactionDetails.Bno and Stock.BillType='GST' and TransactionDetails.BillType='GST'");
+            }
             cc.DataReader("select * from PurchaseBill where Bno = " + billNumber + "");
             while (cc.reader.Read())
             {
                 txt_Bill_Number.Text = cc.reader["Bno"].ToString();
-                txt_Sale_Date.Text = cc.reader["PurchaseDate"].ToString();
+                txt_Sale_Date.Text = cc.reader["PDate"].ToString();
                 txt_Grant_Total.Text = "₹ " + cc.reader["gtotal"].ToString();
                 textBox_Credit.Text = cc.reader["CreditAmount"].ToString();
                 txt_Payment_Type.Text = cc.reader["PaymentType"].ToString();
@@ -58,24 +86,6 @@ namespace Billing
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
             SystemCommands.CloseWindow(this);
-        }
-
-        private void textBox_Credit_PreviewKeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Return)
-            {
-                if (textBox_Credit.Text == "")
-                    textBox_Credit.Text = "0";
-                cc.OpenConnection();
-                cc.ExecuteQuery("update TransactionDetails set CreditAmount=" + textBox_Credit.Text + " where Bno=" + billNumber + "");
-                cc.CloseConnection();
-                MessageBox.Show("Credit Updated");
-            }
-        }
-
-        private void textBox_Credit_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            textBox_Credit.ToolTip = "Changes in here will be saved...";
         }
 
         private void dataGridVendorBill_LoadingRow(object sender, DataGridRowEventArgs e)

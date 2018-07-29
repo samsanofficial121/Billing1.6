@@ -5,45 +5,58 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:Billing"
       xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+      xmlns:sys="clr-namespace:System;assembly=mscorlib"
       mc:Ignorable="d" 
       d:DesignHeight="600"
-      Title="PurchasePage" Width="1000">
+      Title="PurchasePage" Width="1000" Loaded="Page_Loaded">
 
     <Grid Background="White" Margin="0,2,0,-2">
-        <TextBox x:Name="txtItemName" HorizontalAlignment="Left" Height="29" Margin="30,221,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="86" CharacterCasing="Upper"/>
-        <TextBox x:Name="txtItemRate" HorizontalAlignment="Left" Height="29" Margin="117,221,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="87" TextChanged="txtItemRate_TextChanged" PreviewTextInput="txtItemRate_PreviewTextInput"/>
-        <TextBox x:Name="txtItemQty" HorizontalAlignment="Left" Height="29" Margin="206,221,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="86" TextChanged="txtItemQty_TextChanged" PreviewTextInput="txtItemQty_PreviewTextInput"/>
-        <TextBox x:Name="txtItemSQty" HorizontalAlignment="Left" Height="29" Margin="293,221,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="86" PreviewTextInput="txtItemSQty_PreviewTextInput"/>
-        <TextBox x:Name="txtItemProfit" HorizontalAlignment="Left" Height="29" Margin="463,221,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="86" TextChanged="txtItemProfit_TextChanged" PreviewKeyDown="txtItemProfit_PreviewKeyDown" PreviewTextInput="txtItemProfit_PreviewTextInput"/>
-        <TextBox x:Name="txtSellingPrice" HorizontalAlignment="Left" Height="29" Margin="552,221,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="87" TextChanged="txtSellingPrice_TextChanged" PreviewKeyDown="txtSellingPrice_PreviewKeyDown" PreviewTextInput="txtSellingPrice_PreviewTextInput"/>
-        <TextBox x:Name="txtGstPercent" HorizontalAlignment="Left" Height="28" Margin="644,221,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="87" TextChanged="txtGstPercent_TextChanged" PreviewKeyDown="txtGstPercent_PreviewKeyDown" GotFocus="txtGstPercent_GotFocus" PreviewTextInput="txtGstPercent_PreviewTextInput"/>
-        <Button x:Name="btn_Add" Content="Add" HorizontalAlignment="Left" Margin="817,217,0,0" VerticalAlignment="Top" Width="110" Click="btn_Add_Click" FontSize="20" FontWeight="Bold" Height="41"/>
-        <DataGrid x:Name="dataGrid" IsReadOnly="True" HorizontalAlignment="Left" Margin="31,266,0,0" VerticalAlignment="Top" Height="310" Width="673" ColumnWidth="*" ItemsSource="{Binding}" AutoGenerateColumns="False" LoadingRow="dataGrid_LoadingRow">
+        <DatePicker x:Name="datePicker" HorizontalAlignment="Left" Margin="817,132,0,0" VerticalAlignment="Top" FontSize="14" Width="110"/>
+        <TextBox x:Name="txtBarcode" HorizontalAlignment="Left" Height="20" Margin="35,221,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="60" FontSize="11" PreviewKeyDown="txtBarcode_PreviewKeyDown"/>
+        <TextBox x:Name="txtItemName" HorizontalAlignment="Left" Height="20" Margin="96,221,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="86" CharacterCasing="Upper" FontSize="11" PreviewKeyDown="txtItemName_PreviewKeyDown"/>
+        <TextBox x:Name="txtItemRate" HorizontalAlignment="Left" Height="20" Margin="183,221,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="60" TextChanged="txtItemRate_TextChanged" PreviewTextInput="txtItemRate_PreviewTextInput" FontSize="11" PreviewKeyDown="txtItemRate_PreviewKeyDown"/>
+        <TextBox x:Name="txtGstPercent" HorizontalAlignment="Left" Height="20" Margin="244,221,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="60" TextChanged="txtGstPercent_TextChanged" GotFocus="txtGstPercent_GotFocus" PreviewTextInput="txtGstPercent_PreviewTextInput" FontSize="11" PreviewKeyDown="txtGstPercent_PreviewKeyDown"/>
+        <TextBox x:Name="txtGstAmount" Text="" HorizontalAlignment="Left" Margin="305,221,0,0" VerticalAlignment="Top" Width="60" Height="20" FontSize="11" BorderThickness="1" Foreground="#FF0C0202" Background="White" BorderBrush="#FFABADB3" IsReadOnly="True" PreviewKeyDown="txtGstAmount_PreviewKeyDown"/>
+        <TextBox x:Name="txtItemQty" HorizontalAlignment="Left" Height="20" Margin="366,221,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="60" TextChanged="txtItemQty_TextChanged" PreviewTextInput="txtItemQty_PreviewTextInput" FontSize="11" PreviewKeyDown="txtItemQty_PreviewKeyDown"/>
+        <TextBox x:Name="txtItemSQty" HorizontalAlignment="Left" Height="20" Margin="487,221,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="60" PreviewTextInput="txtItemSQty_PreviewTextInput" FontSize="11" PreviewKeyDown="txtItemSQty_PreviewKeyDown"/>
+        <TextBox x:Name="txtTotalPrice" Text="" HorizontalAlignment="Left" Margin="548,221,0,0" VerticalAlignment="Top" Width="60" Height="20" FontSize="11" BorderThickness="1" Foreground="#FF0C0202" Background="White" BorderBrush="#FFABADB3" PreviewKeyDown="txtTotalPrice_PreviewKeyDown" IsReadOnly="True"/>
+        <TextBox x:Name="txtItemProfit" HorizontalAlignment="Left" Height="20" Margin="609,221,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="60" TextChanged="txtItemProfit_TextChanged" PreviewKeyDown="txtItemProfit_PreviewKeyDown" PreviewTextInput="txtItemProfit_PreviewTextInput" FontSize="11"/>
+        <TextBox x:Name="txtSellingPrice" HorizontalAlignment="Left" Height="20" Margin="670,221,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="60" TextChanged="txtSellingPrice_TextChanged" PreviewKeyDown="txtSellingPrice_PreviewKeyDown" PreviewTextInput="txtSellingPrice_PreviewTextInput" FontSize="11"/>
+        <TextBox x:Name="txtSaleGstPercent" HorizontalAlignment="Left" Height="20" Margin="731,221,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="60" TextChanged="txtSaleGstPercent_TextChanged" GotFocus="txtSaleGstPercent_GotFocus" PreviewTextInput="txtSaleGstPercent_PreviewTextInput" PreviewKeyDown="txtSaleGstPercent_PreviewKeyDown" FontSize="11"/>
+        <TextBox x:Name="txtSaleGstAmount" Text="" HorizontalAlignment="Left" Margin="792,221,0,0" VerticalAlignment="Top" Width="60" Height="20" FontSize="11" BorderThickness="1" Foreground="#FF0C0202" Background="White" BorderBrush="#FFABADB3" IsReadOnly="True"/>
+        <DataGrid x:Name="dataGrid" IsReadOnly="True" HorizontalAlignment="Left" Margin="31,266,0,0" VerticalAlignment="Top" Height="310" Width="673" ColumnWidth="*" ItemsSource="{Binding}" AutoGenerateColumns="False" LoadingRow="dataGrid_LoadingRow" PreviewKeyDown="dataGrid_PreviewKeyDown">
+            <DataGrid.Resources>
+                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#FF76C6CC"/>
+            </DataGrid.Resources>
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Sno" Width="*" Binding="{Binding Sno}"/>
-                <DataGridTextColumn Header="Item Id" Width="*" Binding="{Binding Item_ID}"/>
-                <DataGridTextColumn Header="Item Name" Width="*" Binding="{Binding Item_Name}"/>
-                <DataGridTextColumn Header="Rate" Width="*" Binding="{Binding Rate,ConverterCulture=gu-in, StringFormat=C}"/>
-                <DataGridTextColumn Header="Quantity" Width="*" Binding="{Binding Quantity}"/>
-                <DataGridTextColumn Header="Total" Width="*" Binding="{Binding Total,ConverterCulture=gu-in, StringFormat=C}"/>
-                <DataGridTextColumn Header="Selling Price" Width="*" Binding="{Binding Selling_Price,ConverterCulture=gu-in, StringFormat=C}"/>
-                <DataGridTextColumn Header="GST (%)" Width="*" Binding="{Binding Gst_Percent}"/>
-                <DataGridTextColumn Header="GST Rate" Width="*" Binding="{Binding Gst_Amount,ConverterCulture=gu-in, StringFormat=C}"/>
+                <DataGridTextColumn Header="Item Id" Width="80" Binding="{Binding Item_ID}"/>
+                <DataGridTextColumn Header="Item Name" Width="80" Binding="{Binding Item_Name}"/>
+                <DataGridTextColumn Header="Rate" Width="80" Binding="{Binding Rate,ConverterCulture=gu-in, StringFormat=C}"/>
+                <DataGridTextColumn Header="GST (%)" Width="80" Binding="{Binding Gst_Percent}"/>
+                <DataGridTextColumn Header="GST Rate" Width="80" Binding="{Binding Gst_Amount,ConverterCulture=gu-in, StringFormat=C}"/>
+                <DataGridTextColumn Header="Quantity" Width="80" Binding="{Binding Quantity}"/>
+                <DataGridTextColumn Header="Scale" Width="80" Binding="{Binding Scale}"/>
+                <DataGridTextColumn Header="Total" Width="80" Binding="{Binding Total,ConverterCulture=gu-in, StringFormat=C}"/>
+                <DataGridTextColumn Header="Selling Price" Width="80" Binding="{Binding Selling_Price,ConverterCulture=gu-in, StringFormat=C}"/>
+                <DataGridTextColumn Header="Sale GST (%)" Width="80" Binding="{Binding Gst_SPercent}"/>
+                <DataGridTextColumn Header="Sale GST Rate" Width="85" Binding="{Binding Gst_SAmount,ConverterCulture=gu-in, StringFormat=C}"/>
             </DataGrid.Columns>
         </DataGrid>
-        <Button x:Name="btn_Update" Content="Update" HorizontalAlignment="Left" Margin="713,509,0,0" VerticalAlignment="Top" Width="131" Click="btn_Update_Click" FontSize="20" FontWeight="Bold" Height="67"/>
-        <Label x:Name="label_Copy" Content="Item Name" HorizontalAlignment="Left" Margin="25,180,0,0" VerticalAlignment="Top" Width="91" FontSize="13" FontWeight="Bold" Height="40"/>
-        <Label x:Name="label_Copy1" Content="Rate" HorizontalAlignment="Left" Margin="114,179,0,0" VerticalAlignment="Top" Width="65" FontSize="13" FontWeight="Bold" Height="40"/>
-        <Label x:Name="label_Copy2" Content="Quantity" HorizontalAlignment="Left" Margin="198,180,0,0" VerticalAlignment="Top" Width="71" FontSize="13" FontWeight="Bold" Height="40"/>
-        <Label x:Name="label_Sqty" Content="S Quantity" HorizontalAlignment="Left" Margin="288,180,0,0" VerticalAlignment="Top" Width="91" FontSize="13" FontWeight="Bold" Height="40"/>
-        <Label x:Name="label_Copy3" Content="Total" HorizontalAlignment="Left" Margin="376,181,0,0" VerticalAlignment="Top" Width="50" FontSize="13" FontWeight="Bold" Height="37"/>
-        <Label x:Name="label_Copy4" Content="Sell Price" HorizontalAlignment="Left" Margin="546,180,0,0" VerticalAlignment="Top" Width="79" FontSize="13" FontWeight="Bold" Height="40"/>
-        <Label x:Name="lblTotalPrice" Content="" HorizontalAlignment="Left" Margin="382,221,0,0" VerticalAlignment="Top" Width="80" Height="29" FontSize="13" BorderThickness="1" Foreground="#FF0C0202" Background="Transparent" BorderBrush="#FFAAA3A3"/>
-        <Label x:Name="lblGstAmount" Content="" HorizontalAlignment="Left" Margin="734,221,0,0" VerticalAlignment="Top" Width="80" Height="28" FontSize="13" BorderThickness="1" Foreground="#FF0C0202" Background="Transparent" BorderBrush="#FFAAA3A3"/>
+        <Button x:Name="btn_Update" Content="Update" HorizontalAlignment="Left" Margin="706,509,0,0" VerticalAlignment="Top" Width="131" Click="btn_Update_Click" FontSize="20" FontWeight="Bold" Height="67"/>
+        <Label x:Name="label_Copy" Content="Item Name" HorizontalAlignment="Left" Margin="92,198,0,0" VerticalAlignment="Top" Width="69" FontSize="11" FontWeight="Bold" Height="25"/>
+        <Label x:Name="label_Copy1" Content="Pur. Rate" HorizontalAlignment="Left" Margin="180,198,0,0" VerticalAlignment="Top" Width="56" FontSize="11" FontWeight="Bold" Height="25"/>
+        <Label x:Name="label_Quantity" Content="Quantity" HorizontalAlignment="Left" Margin="363,198,0,0" VerticalAlignment="Top" Width="55" FontSize="11" FontWeight="Bold" Height="25"/>
+        <Label x:Name="label_Sqty" Content="S Quantity" HorizontalAlignment="Left" Margin="482,198,0,0" VerticalAlignment="Top" Width="64" FontSize="11" FontWeight="Bold" Height="25"/>
+        <Label x:Name="label_Total" Content="Total" HorizontalAlignment="Left" Margin="542,198,0,0" VerticalAlignment="Top" Width="35" FontSize="11" FontWeight="Bold" Height="25"/>
+        <Label x:Name="label_Sellp" Content="Sell Price" HorizontalAlignment="Left" Margin="664,198,0,0" VerticalAlignment="Top" Width="60" FontSize="11" FontWeight="Bold" Height="25"/>
         <Label x:Name="label2" Content="STOCK PURCHASE FORM" HorizontalAlignment="Left" Margin="374,22,0,0" VerticalAlignment="Top" Width="249" FontSize="20" FontWeight="Bold" Height="32"/>
-        <Label x:Name="grantt" Content="Grant Total : " HorizontalAlignment="Left" Margin="756,367,0,0" VerticalAlignment="Top" Width="106" FontSize="16" FontWeight="Bold" Height="30"/>
-        <Label x:Name="lblGrantTotal" Content="" HorizontalAlignment="Left" Margin="867,367,0,0" VerticalAlignment="Top" Width="100" Height="29" FontSize="16" BorderThickness="1" Foreground="#FF0C0202" Background="Transparent" BorderBrush="#FFAAA3A3"/>
-        <Button x:Name="backbutton" Content="Back To Home" HorizontalAlignment="Left" Margin="18,16,0,0" VerticalAlignment="Top" Width="116" Height="32" FontWeight="Bold" FontSize="14" Click="backbutton_Click"/>
+        <Label x:Name="grantt" Content="Grant Total : " HorizontalAlignment="Left" Margin="709,386,0,0" VerticalAlignment="Top" Width="106" FontSize="16" FontWeight="Bold" Height="30"/>
+        <Button x:Name="backbutton" HorizontalAlignment="Left" Margin="18,20,0,0" VerticalAlignment="Top" Width="90" Height="33" Click="backbutton_Click" Foreground="{x:Null}" BorderBrush="{x:Null}" Background="{x:Null}">
+            <StackPanel Orientation="Horizontal" Width="105" Height="40" Background="White">
+                <materialDesign:PackIcon Kind="StepBackward" Width="28" Height="30" Foreground="Black" Background="White"/>
+                <TextBlock Text="BACK" FontSize="20" Foreground="Black"/>
+            </StackPanel>
+        </Button>
         <ComboBox x:Name="vendorNameComboBox" HorizontalAlignment="Left" Margin="33,132,0,0" VerticalAlignment="Top" Width="125" Height="29" SelectionChanged="vendorNameComboBox_SelectionChanged" IsTextSearchEnabled="False" IsEditable="True" ItemsSource="{Binding DataSource}" StaysOpenOnEdit="True" GotFocus="vendorNameComboBox_GotFocus" KeyUp="vendorNameComboBox_KeyUp"/>
         <Button x:Name="btn_New" HorizontalAlignment="Left" Margin="158,132,0,0" VerticalAlignment="Top" Width="30" Click="btn_New_Click" Height="29" FontSize="20" FontWeight="Bold" ToolTip="Click to add new Vendor">
             <StackPanel Width="30" Height="29">
@@ -57,16 +70,23 @@
         <TextBox x:Name="txtVendorPhone" HorizontalAlignment="Left" Height="29" Margin="324,132,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="132" IsReadOnly="True"/>
         <Label x:Name="label_Copy7" Content="Vendor Place" HorizontalAlignment="Left" Margin="478,96,0,0" VerticalAlignment="Top" Width="111" FontSize="16" FontWeight="Bold"/>
         <TextBox x:Name="txtVendorPlace" HorizontalAlignment="Left" Height="29" Margin="482,132,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="111" IsReadOnly="True"/>
-        <Button x:Name="btn_Purchase_History" Content="Purchase&#xD;&#xA; History" HorizontalAlignment="Left" Margin="851,509,0,0" VerticalAlignment="Top" Width="131" RenderTransformOrigin="0.493,0.5" Height="67" FontWeight="Bold" Click="btn_Purchase_History_Click" FontSize="20"/>
-        <Label x:Name="label_Copy8" Content="GST (%)" HorizontalAlignment="Left" Margin="638,180,0,0" VerticalAlignment="Top" Width="63" FontSize="13" FontWeight="Bold" Height="40"/>
-        <Label x:Name="label_Copy9" Content="GST Amount" HorizontalAlignment="Left" Margin="725,180,0,0" VerticalAlignment="Top" Width="87" FontSize="13" FontWeight="Bold" Height="40"/>
-        <Label x:Name="label_Copy10" Content="Profit (%)" HorizontalAlignment="Left" Margin="462,180,0,0" VerticalAlignment="Top" Width="79" FontSize="13" FontWeight="Bold" Height="40"/>
-        <ComboBox x:Name="comboBoxPaymentVendor" HorizontalAlignment="Left" Margin="758,324,0,0" VerticalAlignment="Top" Width="208" FontSize="16" FontWeight="Bold" SelectedIndex="0" SelectionChanged="comboBoxPaymentVendor_SelectionChanged" Height="33" RenderTransformOrigin="0.5,0.5">
+        <Button x:Name="btn_Purchase_History" Content="Purchase&#xD;&#xA; History" HorizontalAlignment="Left" Margin="842,509,0,0" VerticalAlignment="Top" Width="124" RenderTransformOrigin="0.493,0.5" Height="67" FontWeight="Bold" Click="btn_Purchase_History_Click" FontSize="20"/>
+        <Label x:Name="label_GP" Content="GST (%)" HorizontalAlignment="Left" Margin="239,198,0,0" VerticalAlignment="Top" Width="53" FontSize="11" FontWeight="Bold" Height="25"/>
+        <Label x:Name="label_GA" Content="GST Amnt" HorizontalAlignment="Left" Margin="300,198,0,0" VerticalAlignment="Top" Width="62" FontSize="11" FontWeight="Bold" Height="25"/>
+        <Label x:Name="label_Profit" Content="Profit (%)" HorizontalAlignment="Left" Margin="604,198,0,0" VerticalAlignment="Top" Width="60" FontSize="11" FontWeight="Bold" Height="25"/>
+        <ComboBox x:Name="comboBoxPaymentVendor" HorizontalAlignment="Left" Margin="758,330,0,0" VerticalAlignment="Top" Width="208" FontSize="16" FontWeight="Bold" SelectedIndex="0" SelectionChanged="comboBoxPaymentVendor_SelectionChanged" Height="33" RenderTransformOrigin="0.5,0.5">
             <ComboBoxItem Visibility="Collapsed" Content="Payment Mode" FontSize="20" FontWeight="Bold"/>
         </ComboBox>
-        <Label x:Name="cashPay" Content="Cash Paid    : " HorizontalAlignment="Left" Margin="756,401,0,0" VerticalAlignment="Top" Width="106" FontSize="16" FontWeight="Bold" Height="30"/>
-        <TextBox x:Name="txtBox_CashPaid" HorizontalAlignment="Left" Height="30" Margin="867,403,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="100" TextChanged="txtBox_CashPaid_TextChanged"/>
-        <Label x:Name="balance" Content="Balance       : " HorizontalAlignment="Left" Margin="758,436,0,0" VerticalAlignment="Top" Width="106" FontSize="16" FontWeight="Bold" Height="30"/>
-        <Label x:Name="Label_BalanceAmnt" Content="" HorizontalAlignment="Left" Margin="867,440,0,0" VerticalAlignment="Top" Width="100" Height="29" FontSize="16" BorderThickness="1" Foreground="#FF0C0202" Background="Transparent" BorderBrush="#FFAAA3A3"/>
+        <Label x:Name="cashPay" Content="Cash Paid    : " HorizontalAlignment="Left" Margin="706,431,0,0" VerticalAlignment="Top" Width="106" FontSize="16" FontWeight="Bold" Height="30"/>
+        <TextBox x:Name="txtBox_CashPaid" HorizontalAlignment="Left" Height="30" Margin="817,433,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="100" TextChanged="txtBox_CashPaid_TextChanged" PreviewKeyDown="txtBox_CashPaid_PreviewKeyDown" GotFocus="txtBox_CashPaid_GotFocus"/>
+        <Label x:Name="balance" Content="Balance       : " HorizontalAlignment="Left" Margin="708,466,0,0" VerticalAlignment="Top" Width="106" FontSize="16" FontWeight="Bold" Height="30"/>
+        <Label x:Name="Label_BalanceAmnt" Content="" HorizontalAlignment="Left" Margin="817,470,0,0" VerticalAlignment="Top" Width="100" Height="29" FontSize="16" BorderThickness="1" Foreground="#FF0C0202" Background="Transparent" BorderBrush="#FFAAA3A3"/>
+        <TextBlock x:Name="txtBlkNetAmount" Text="" TextWrapping="Wrap" HorizontalAlignment="Left" Margin="807,380,0,0" VerticalAlignment="Top" Width="160" Height="46" FontSize="36" FontWeight="Bold" Background="#FFE8E3E3"/>
+        <Button x:Name="btn_Clear" Content="Clear" HorizontalAlignment="Left" Margin="709,266,0,0" VerticalAlignment="Top" Width="66" Height="29" FontWeight="Bold" FontSize="18" Click="btn_Clear_Click"/>
+        <ComboBox x:Name="comboBoxScale" HorizontalAlignment="Left" Margin="427,221,0,0" VerticalAlignment="Top" Width="59" Height="20" FontSize="11"/>
+        <Label x:Name="label_Barcode" Content="Barcode" HorizontalAlignment="Left" Margin="31,198,0,0" VerticalAlignment="Top" Width="52" FontSize="11" FontWeight="Bold" Height="25"/>
+        <Label x:Name="label_SGP" Content="GST (%)" HorizontalAlignment="Left" Margin="726,198,0,0" VerticalAlignment="Top" Width="53" FontSize="11" FontWeight="Bold" Height="25"/>
+        <Label x:Name="label_SGA" Content="GST Amnt" HorizontalAlignment="Left" Margin="786,198,0,0" VerticalAlignment="Top" Width="62" FontSize="11" FontWeight="Bold" Height="25"/>
+        <CheckBox x:Name="checkBoxGST" Content="GST" HorizontalAlignment="Left" Margin="604,132,0,0" VerticalAlignment="Top" FontSize="14" FontWeight="Bold" Checked="checkBoxGST_Checked" Unchecked="checkBoxGST_Unchecked"/>
     </Grid>
 </Page>

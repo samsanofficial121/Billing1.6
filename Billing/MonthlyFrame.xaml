@@ -1,0 +1,14 @@
+﻿<Window x:Class="Billing.MonthlyFrame"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Billing"
+        mc:Ignorable="d"
+        Title="MonthlyFrame" Height="600" Width="1000" ResizeMode="NoResize" WindowStyle="None" WindowState="Normal" WindowStartupLocation="CenterScreen" Background="White">
+    <Grid>
+        <Frame x:Name="frame" Content="" NavigationUIVisibility="Hidden"/>
+        <Button x:Name="closebtn" Content="X" Margin="972,6,8,0" VerticalAlignment="Top" Height="27" FontWeight="Bold" FontSize="16" BorderThickness="0" BorderBrush="Transparent" Background="Transparent" Click="closebtn_Click"/>
+
+    </Grid>
+</Window>

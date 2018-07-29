@@ -9,7 +9,7 @@
       Title="CustomerTab" Background="White">
 
     <Grid>
-        <Rectangle Fill="#FF028502" Stroke="Black" Margin="0,0,0,367"/>
+        <Rectangle Fill="#76C6CC" Stroke="Black" Margin="0,0,0,367"/>
         <Button x:Name="btn_CustomerList" Background="Transparent"  HorizontalAlignment="Left" VerticalAlignment="Top" Height="190" Width="205" Margin="0,228,0,0" Click="btn_CustomerList_Click">
             <Image Source="Resources\CustomerList.png" Height="187" Width="202"/>
         </Button>
@@ -18,6 +18,9 @@
         </Button>
         <Button x:Name="btn_CustomerPayment" Background="Transparent"  HorizontalAlignment="Left" VerticalAlignment="Top" Height="190" Width="205" Margin="415,228,0,0" Click="btn_CustomerPayment_Click">
             <Image Source="Resources\CustomerPayment.png" Height="187" Width="202"/>
+        </Button>
+        <Button Background="Transparent" Height="190" HorizontalAlignment="Left" Margin="621,228,0,0" Name="btn_CustomerReport" VerticalAlignment="Top" Width="205" Click="btn_CustomerReport_Click">
+            <Image Source="Resources\CustomerReport.png" Height="166"/>
         </Button>
     </Grid>
 </Page>

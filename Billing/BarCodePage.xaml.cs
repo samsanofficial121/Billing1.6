@@ -16,6 +16,7 @@ using System.Data;
 using System.Data.OleDb;
 using System.Configuration;
 using System.IO;
+using System.Reflection;
 
 namespace Billing
 {
@@ -24,16 +25,17 @@ namespace Billing
     /// </summary>
     public partial class BarCodePage : Page
     {
-        public static string readText;
-        public static int writeText;
+        public static string companyName;
+        public static int writeText, billNumber, sqtyCount;
         public static List<int> idList = new List<int>();
         public static List<string> nameList = new List<string>();
         public static List<int> sqtyList = new List<int>();
-        public static int sqtyCount;
+        ConnectionClass cc = new ConnectionClass();
 
         public BarCodePage()
         {
             InitializeComponent();
+            billNumber = PurchasePage.bno;
             barCodeGenerate();
         }
 
@@ -54,9 +56,15 @@ namespace Billing
         private void barCodeGenerate()
         {
             BarCodeDataSet barcodeDetails = new BarCodeDataSet();
-            DataTable datatable = barcodeDetails.BarCodeTable;
             BarCodeReport Report = new BarCodeReport();
+            DataTable dTable = barcodeDetails.CompanyDetails;
+            readCompanyDetails();
+            DataRow dr = dTable.NewRow();
+            dr["CompanyName"] = companyName;
+            dTable.Rows.Add(dr);
+            Report.Database.Tables["CompanyDetails"].SetDataSource((DataTable)dTable);
             storeLists();
+            DataTable datatable = barcodeDetails.BarCodeTable;
             for (int i = 0; i < idList.Count; i++)
             {
                 sqtyCount = sqtyList[i];
@@ -77,17 +85,29 @@ namespace Billing
             barcodeReportViewer.ViewerCore.ReportSource = Report;
         }
 
+        private void readCompanyDetails()
+        {
+            cc.OpenConnection();
+            cc.DataReader("select ConfigValue from ConfigTable where ConfigId = 1");
+            while (cc.reader.Read())
+            {
+                companyName = cc.reader["ConfigValue"].ToString();
+            }
+            cc.CloseReader();
+            cc.CloseConnection();
+        }
+
         public static void storeLists()
         {
             ConnectionClass cc = new ConnectionClass();
             cc.OpenConnection();
-            cc.DataReader("select Item_ID,Item_Name,SQuantity from Purchase");
+            cc.DataReader("select itemid,iname,squantity from Stock where Bno=" + billNumber + "");
             while (cc.reader.Read())
             {
-                 idList.Add(Convert.ToInt32(cc.reader["Item_ID"]));
-                 nameList.Add(Convert.ToString(cc.reader["Item_Name"]));
-                 sqtyList.Add(Convert.ToInt32(cc.reader["SQuantity"]));
-             }
+                idList.Add(Convert.ToInt32(cc.reader["itemid"]));
+                nameList.Add(Convert.ToString(cc.reader["iname"]));
+                sqtyList.Add(Convert.ToInt32(cc.reader["squantity"]));
+            }
             cc.CloseReader();
             cc.CloseConnection();
         }

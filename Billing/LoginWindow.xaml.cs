@@ -22,56 +22,66 @@ namespace Billing
     {
         ConnectionClass cc = new ConnectionClass();
         private int userExist;
-        public static string Mac;
+        public static string Mac, passwordCheck, username,password;
 
         public LoginWindow()
         {
             InitializeComponent();
             btnSubmit.Focus();
-            //GetMacAddress();
         }
 
         private void GetMacAddress()
         {
             string mac = "";
-            foreach (NetworkInterface nic in NetworkInterface.GetAllNetworkInterfaces())
+            NetworkInterface[] nics = NetworkInterface.GetAllNetworkInterfaces();
+            foreach (NetworkInterface adapter in nics)
             {
-
-                if (nic.OperationalStatus == OperationalStatus.Up && (!nic.Description.Contains("Virtual") && !nic.Description.Contains("Pseudo")))
+                if (mac == "")
                 {
-                    if (nic.GetPhysicalAddress().ToString() != "")
-                    {
-                        mac = nic.GetPhysicalAddress().ToString();
-                    }
+                    IPInterfaceProperties properties = adapter.GetIPProperties();
+                    mac = adapter.GetPhysicalAddress().ToString();
                 }
             }
-            string result = mac.Substring(0, 3);
+
+            string result = mac.Substring(1, 1) + mac.Substring(10, 1);
             Mac = result;
         }
 
         private void btnSubmit_Click(object sender, RoutedEventArgs e)
         {
             cc.OpenConnection();
-            try
-            {
+                string userPassword = txtPassword.Password;
+                string exactPassword = userPassword.Substring(0, 4);
                 GetMacAddress();
-                if (cc.UserAuthentication("select Count(1) from LoginTable where Username=@username And Password=@password", "@username", txtUsername.Text, "@password", txtPassword.Password+Mac, userExist) > 0)
+                if (cc.UserAuthentication("select Count(1) from LoginTable where Username=@username And Password=@password", "@username", txtUsername.Text, "@password", exactPassword, userExist) > 0)
                 {
-                    MainWindow mw = new MainWindow();
-                    mw.Show();
-                    this.Close();
+                    cc.DataReader("select Password from LoginTable where Username='" + txtUsername.Text + "'");
+                    while (cc.reader.Read())
+                    {
+                        passwordCheck = cc.reader["Password"].ToString();
+                    }
+                    cc.CloseReader();
+                    if (txtPassword.Password == passwordCheck+Mac)
+                    {
+                        username = txtUsername.Text;
+                        password = txtPassword.Password.Substring(0,4);
+                        MainWindow mw = new MainWindow(username,password);
+                        mw.Show();
+                        this.Close();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Incorrect Password");
+                        txtPassword.Clear();
+                        txtPassword.Focus();
+                    }
                 }
                 else
                 {
-                    MessageBox.Show("Incorrect username/password");
-                    txtPassword.Clear();
+                    MessageBox.Show("Incorrect Username");
                     txtUsername.Focus();
                 }
-            }
-            catch(Exception)
-            {
-                MessageBox.Show("Something went wrong");
-            }
+                //MessageBox.Show("Something went wrong");
             cc.CloseConnection();
         }
 

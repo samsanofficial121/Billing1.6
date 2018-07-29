@@ -5,10 +5,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Billing"
         mc:Ignorable="d"
-        Title="VendorPurchaseBill" Height="362" Width="823" WindowStyle="None" WindowState="Normal" WindowStartupLocation="CenterScreen">
+        Title="VendorPurchaseBill" Height="362" Width="823" WindowStyle="None" WindowState="Normal" WindowStartupLocation="CenterScreen" AllowsTransparency="True" BorderThickness="3" BorderBrush="#FF76C6CC">
     <Grid>
-        <Button x:Name="CloseButton" Content="X" HorizontalAlignment="Left" Margin="781,0,0,0" VerticalAlignment="Top" Width="28" Height="27" FontWeight="Bold" FontSize="16" BorderThickness="0" BorderBrush="Transparent" Background="Transparent" Click="CloseButton_Click" />
-        <DataGrid x:Name="dataGridVendorBill" ColumnWidth="*" ItemsSource="{Binding}" AutoGenerateColumns="False" FontSize="14" FontWeight="Bold" Margin="0,60,0,75" IsReadOnly="True" LoadingRow="dataGridVendorBill_LoadingRow">
+        <Button x:Name="CloseButton" Content="X" HorizontalAlignment="Left" Margin="786,3,0,0" VerticalAlignment="Top" Width="28" Height="27" FontWeight="Bold" FontSize="16" BorderThickness="0" BorderBrush="Transparent" Background="Transparent" Click="CloseButton_Click" />
+        <DataGrid x:Name="dataGridVendorBill" ColumnWidth="*" ItemsSource="{Binding}" AutoGenerateColumns="False" FontSize="14" FontWeight="Bold" Margin="0,81,0,54" IsReadOnly="True" LoadingRow="dataGridVendorBill_LoadingRow">
+            <DataGrid.Resources>
+                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#FF76C6CC"/>
+            </DataGrid.Resources>
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Item Number" Width="*" FontSize="14" FontWeight="Normal" Binding="{Binding itemid}"/>
                 <DataGridTextColumn Header="Item Name" Width="*" FontSize="14" FontWeight="Normal" Binding="{Binding iname}"/>
@@ -20,15 +23,15 @@
                 <DataGridTextColumn Header="Total" Width="*" FontSize="14" FontWeight="Normal" Binding="{Binding total,ConverterCulture=gu-in, StringFormat=C}"/>
             </DataGrid.Columns>
         </DataGrid>
-        <Label x:Name="lbl_Bill_Number" Content="Bill Number : " HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" FontSize="16" FontWeight="Bold" Width="110"/>
-        <TextBlock x:Name="txt_Bill_Number" HorizontalAlignment="Left" Margin="125,15,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="31" Width="194" FontSize="16" FontWeight="Bold"/>
-        <Label x:Name="lbl_Sale_Date" Content="Sale Date : " HorizontalAlignment="Left" Margin="529,5,0,0" VerticalAlignment="Top" Height="31" Width="91" FontWeight="Bold" FontSize="16"/>
-        <TextBlock x:Name="txt_Sale_Date" HorizontalAlignment="Left" Margin="625,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="31" Width="151" FontSize="16" FontWeight="Bold"/>
-        <Label x:Name="lbl_Grant_Total" Content="Grant Total :" HorizontalAlignment="Left" Margin="590,298,0,0" VerticalAlignment="Top" FontSize="16" FontWeight="Bold" Width="105"/>
-        <TextBlock x:Name="txt_Grant_Total" HorizontalAlignment="Left" Margin="700,303,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="31" Width="105" FontSize="16" FontWeight="Bold"/>
-        <Label x:Name="lbl_Credit" Content="Credit :" HorizontalAlignment="Left" Margin="366,298,0,0" VerticalAlignment="Top" FontSize="16" FontWeight="Bold" Width="67"/>
-        <TextBox x:Name="textBox_Credit" HorizontalAlignment="Left" Height="27" Margin="445,300,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="84" FontSize="14" FontWeight="Bold" PreviewKeyDown="textBox_Credit_PreviewKeyDown" TextChanged="textBox_Credit_TextChanged"/>
-        <Label x:Name="lbl_Payment_Type" Content="Payment Type :" HorizontalAlignment="Left" Margin="14,298,0,0" VerticalAlignment="Top" FontSize="16" FontWeight="Bold" Width="125"/>
-        <TextBlock x:Name="txt_Payment_Type" HorizontalAlignment="Left" Margin="143,303,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="31" Width="145" FontSize="16" FontWeight="Bold"/>
+        <Label x:Name="lbl_Bill_Number" Content="Bill Number : " HorizontalAlignment="Left" Margin="10,39,0,0" VerticalAlignment="Top" FontSize="16" FontWeight="Bold" Width="110"/>
+        <TextBlock x:Name="txt_Bill_Number" HorizontalAlignment="Left" Margin="125,44,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="31" Width="194" FontSize="16" FontWeight="Bold"/>
+        <Label x:Name="lbl_Sale_Date" Content="Sale Date : " HorizontalAlignment="Left" Margin="549,34,0,0" VerticalAlignment="Top" Height="31" Width="91" FontWeight="Bold" FontSize="16"/>
+        <TextBlock x:Name="txt_Sale_Date" HorizontalAlignment="Left" Margin="645,39,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="31" Width="131" FontSize="16" FontWeight="Bold"/>
+        <Label x:Name="lbl_Grant_Total" Content="Grant Total :" HorizontalAlignment="Left" Margin="552,308,0,0" VerticalAlignment="Top" FontSize="16" FontWeight="Bold" Width="105"/>
+        <TextBlock x:Name="txt_Grant_Total" HorizontalAlignment="Left" Margin="662,313,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="31" Width="143" FontSize="16" FontWeight="Bold"/>
+        <Label x:Name="lbl_Credit" Content="Credit :" HorizontalAlignment="Left" Margin="320,308,0,0" VerticalAlignment="Top" FontSize="16" FontWeight="Bold" Width="67"/>
+        <TextBlock x:Name="textBox_Credit" HorizontalAlignment="Left" Height="26" Margin="399,313,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="148" FontSize="14" FontWeight="Bold"/>
+        <Label x:Name="lbl_Payment_Type" Content="Payment Type :" HorizontalAlignment="Left" Margin="14,308,0,0" VerticalAlignment="Top" FontSize="16" FontWeight="Bold" Width="125"/>
+        <TextBlock x:Name="txt_Payment_Type" HorizontalAlignment="Left" Margin="143,313,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="31" Width="145" FontSize="16" FontWeight="Bold"/>
     </Grid>
 </Window>

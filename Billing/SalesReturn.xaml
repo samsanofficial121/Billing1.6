@@ -6,12 +6,13 @@
         xmlns:local="clr-namespace:Billing"
         mc:Ignorable="d"
         Loaded="Window_Loaded"
-        Title="SalesReturn" Height="500" Width="823" WindowStyle="None" WindowState="Normal" WindowStartupLocation="CenterScreen" Background="White">
+        Title="SalesReturn" Height="500" Width="823" WindowStyle="None" WindowState="Normal" WindowStartupLocation="CenterScreen" Background="White" AllowsTransparency="True" BorderThickness="3" BorderBrush="#FF76C6CC">
     <Grid>
-        <Button x:Name="CloseButton" Content="X" Margin="783,0,4,459" VerticalAlignment="Bottom" Height="27" FontWeight="Bold" FontSize="16" BorderThickness="0" BorderBrush="Transparent" Background="Transparent" Click="CloseButton_Click"/>
-        <DataGrid x:Name="dataGrid1" HorizontalAlignment="Left" Margin="10,152,0,0" VerticalAlignment="Top" Height="264" Width="578" ColumnWidth="*" ItemsSource="{Binding}" AutoGenerateColumns="False" LoadingRow="dataGrid1_LoadingRow"
-                  CellEditEnding="dataGrid1_CellEditEnding"
-                   SelectionChanged="dataGrid1_SelectionChanged">
+        <Button x:Name="CloseButton" Content="X" Margin="783,0,4,463" VerticalAlignment="Bottom" Height="27" FontWeight="Bold" FontSize="16" BorderThickness="0" BorderBrush="Transparent" Background="Transparent" Click="CloseButton_Click"/>
+        <DataGrid x:Name="dataGrid1" HorizontalAlignment="Left" Margin="10,152,0,0" VerticalAlignment="Top" Height="264" Width="578" ColumnWidth="*" ItemsSource="{Binding}" AutoGenerateColumns="False" LoadingRow="dataGrid1_LoadingRow" CellEditEnding="dataGrid1_CellEditEnding" PreviewKeyDown="dataGrid1_PreviewKeyDown">
+            <DataGrid.Resources>
+                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#FF76C6CC"/>
+            </DataGrid.Resources>
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Item Id" Width="*" Binding="{Binding Id}" IsReadOnly="True"/>
                 <DataGridTextColumn Header="Item Name" Width="*" Binding="{Binding Name}" IsReadOnly="True"/>
@@ -24,11 +25,11 @@
         </DataGrid>
         <Label x:Name="label" Content="ITEM ID : " HorizontalAlignment="Left" Margin="31,99,0,0" VerticalAlignment="Top" Width="77" FontSize="16" FontWeight="Bold" Height="29"/>
         <TextBox x:Name="txtItemId" HorizontalAlignment="Left" Height="28" Margin="110,101,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="140" FontSize="16" PreviewKeyDown="txtItemId_PreviewKeyDown" PreviewTextInput="txtItemId_PreviewTextInput"/>
-        <Label x:Name="label_Copy" Content="Net Amount : " HorizontalAlignment="Left" Margin="593,319,0,0" VerticalAlignment="Top" Width="105" FontSize="16" FontWeight="Bold" Height="32"/>
         <Button x:Name="btn_Save" Content="Save" HorizontalAlignment="Left" Margin="593,382,0,0" VerticalAlignment="Top" Width="115" Height="34" FontWeight="Bold" FontSize="20" Click="btn_Save_Click"/>
-        <TextBox x:Name="labelNetAmount" Text="" HorizontalAlignment="Left" Margin="706,319,0,0" VerticalAlignment="Top" Width="95" Height="32" FontSize="16" FontWeight="Bold" IsReadOnly="True"/>
         <Button x:Name="buttonClearGrid" Content="Clear" HorizontalAlignment="Left" Margin="623,180,0,0" VerticalAlignment="Top" Width="57" Height="42" FontSize="16" FontWeight="Bold" Click="buttonClearGrid_Click"/>
         <Label x:Name="salehead" Content="SALES RETURN FORM" HorizontalAlignment="Left" Margin="298,10,0,0" VerticalAlignment="Top" Width="215" FontSize="20" Height="44" FontWeight="Bold"/>
+        <Label x:Name="label_Copy1" Content="₹ :" HorizontalAlignment="Left" Margin="591,309,0,0" VerticalAlignment="Top" Width="54" FontSize="36" FontWeight="Bold" Height="52"/>
+        <TextBlock x:Name="txtBlkNetAmount" Text="" HorizontalAlignment="Left" Margin="651,314,0,0" VerticalAlignment="Top" Width="160" Height="46" FontSize="36" FontWeight="Bold" Background="#FFE8E3E3"/>
 
     </Grid>
 </Window>

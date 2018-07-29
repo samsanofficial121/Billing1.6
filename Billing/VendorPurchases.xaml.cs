@@ -44,7 +44,22 @@ namespace Billing
         private void calculateCashPaid()
         {
             cc.OpenConnection();
-            cc.DataReader("select sum(Payment) as CashPaid from TransactionDetails where Vid=" + vendorID + "");
+            if (MainWindow.userName=="admin")
+            {
+                if(MainWindow.isgst==1)
+                {
+                    cc.DataReader("select sum(Payment) as CashPaid from TransactionDetails where Vid=" + vendorID + " and BillType='GST'");
+                }
+                else
+                {
+                    cc.DataReader("select sum(Payment) as CashPaid from TransactionDetails where Vid=" + vendorID + " and BillType='NON_GST'");
+                }
+
+            }
+            else
+            {
+                cc.DataReader("select sum(Payment) as CashPaid from TransactionDetails where Vid=" + vendorID + " and BillType='GST'");
+            }
             while (cc.reader.Read())
             {
                 cashPaid = Convert.ToInt32(cc.reader["CashPaid"]);
@@ -56,7 +71,22 @@ namespace Billing
         private void calculateGrantTotal()
         {
             cc.OpenConnection();
-            cc.DataReader("select sum(gtotal) as BillAmount from TransactionDetails where Vid=" + vendorID + "");
+            if (MainWindow.userName == "admin")
+            {
+                if (MainWindow.isgst == 1)
+                {
+                    cc.DataReader("select sum(gtotal) as BillAmount from TransactionDetails where Vid=" + vendorID + " and BillType='GST'");
+                }
+                else
+                {
+                    cc.DataReader("select sum(gtotal) as BillAmount from TransactionDetails where Vid=" + vendorID + " and BillType='NON_GST'");
+                }
+
+            }
+            else
+            {
+                cc.DataReader("select sum(gtotal) as BillAmount from TransactionDetails where Vid=" + vendorID + " and BillType='GST'");
+            }
             while (cc.reader.Read())
             {
                 grantTotal = Convert.ToInt32(cc.reader["BillAmount"]);
@@ -68,13 +98,33 @@ namespace Billing
         private void ShowGrid()
         {
             LoadVendor();
-            cc.OpenConnection();
-            cc.CreateView("CREATE VIEW StockTransaction AS Select distinct Stock.Bno,Stock.gtotal,TransactionDetails.Vid,TransactionDetails.PurchaseDate,TransactionDetails.CashPaid from Stock,TransactionDetails where Stock.Bno=TransactionDetails.Bno");
-            cc.DataGridDisplay("Select * from StockTransaction where Vid=" + vendorID + "");
-            dataGridPurchasedVendor.ItemsSource = cc.dt.AsDataView();
-            dataGridPurchasedVendor.Visibility = System.Windows.Visibility.Visible;
-            cc.DropView("DROP VIEW StockTransaction");
-            cc.CloseConnection();
+            if(MainWindow.userName=="admin")
+            {
+                if(MainWindow.isgst==1)
+                {
+                    cc.OpenConnection();
+                    cc.DataGridDisplay("Select Bno,gtotal,Vid,FORMAT(PurchaseDate,'dd-MMM-yyyy') as PDate,Payment from TransactionDetails where Vid=" + vendorID + " and BillType='GST'");
+                    dataGridPurchasedVendor.ItemsSource = cc.dt.AsDataView();
+                    dataGridPurchasedVendor.Visibility = System.Windows.Visibility.Visible;
+                    cc.CloseConnection();
+                }
+                else
+                {
+                    cc.OpenConnection();
+                    cc.DataGridDisplay("Select Bno,gtotal,Vid,FORMAT(PurchaseDate,'dd-MMM-yyyy') as PDate,Payment from TransactionDetails where Vid=" + vendorID + " and BillType='NON_GST'");
+                    dataGridPurchasedVendor.ItemsSource = cc.dt.AsDataView();
+                    dataGridPurchasedVendor.Visibility = System.Windows.Visibility.Visible;
+                    cc.CloseConnection();
+                }
+            }
+            else
+            {
+                cc.OpenConnection();
+                cc.DataGridDisplay("Select Bno,gtotal,Vid,FORMAT(PurchaseDate,'dd-MMM-yyyy') as PDate,Payment from TransactionDetails where Vid=" + vendorID + " and BillType='GST'");
+                dataGridPurchasedVendor.ItemsSource = cc.dt.AsDataView();
+                dataGridPurchasedVendor.Visibility = System.Windows.Visibility.Visible;
+                cc.CloseConnection();
+            }
         }
 
         private void dataGridPurchasedVendor_LoadingRow(object sender, DataGridRowEventArgs e)
@@ -86,11 +136,20 @@ namespace Billing
         {
             vendorName = textBlockVName.Text;
             VendorPayment vp = new VendorPayment();
+            vp.InputChanged += OnDialogInputChanged;
             vp.lblHeading.Visibility = Visibility.Collapsed;
             vp.comboBoxVendorName.Visibility = Visibility.Collapsed;
             vp.lblName.Visibility = Visibility.Visible;
             vp.labelVendorName.Visibility = Visibility.Visible;
-            vp.ShowDialog();
+            vp.Show();
+        }
+
+        private void OnDialogInputChanged(object sender, VendorPayment.DialogInputEventArgs e)
+        {
+            var vp = sender as VendorPayment;
+            string balancePayment = vp.txtBalance.Text;
+            txtBalance.Text = balancePayment;
+            ShowGrid();
         }
 
         private void dataGridPurchasedVendor_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -99,14 +158,6 @@ namespace Billing
             {
                 billNo = ((DataRowView)dataGridPurchasedVendor.SelectedItem).Row["Bno"].ToString();
                 VendorPurchaseBill vpb = new VendorPurchaseBill();
-                vpb.WindowStyle = WindowStyle.None;
-                vpb.AllowsTransparency = true;
-                vpb.Background = Brushes.Green;
-                DoubleAnimation animFadeIn = new DoubleAnimation();
-                animFadeIn.From = 0;
-                animFadeIn.To = 1;
-                animFadeIn.Duration = new Duration(TimeSpan.FromSeconds(0.4));
-                vpb.BeginAnimation(Window.OpacityProperty, animFadeIn);
                 vpb.ShowDialog();
             }
             catch (Exception)
@@ -123,7 +174,7 @@ namespace Billing
         private void LoadVendor()
         {
             cc.OpenConnection();
-            cc.DataReader("select Vid,Vname,Vphone,Vplace from TransactionDetails where Vid=" + vendorID+"");
+            cc.DataReader("select Vid,Vname,Vphone,Vplace from VendorDetails where Vid=" + vendorID +"");
             while (cc.reader.Read())
             {
                 textBlockVId.Text = cc.reader["Vid"].ToString();

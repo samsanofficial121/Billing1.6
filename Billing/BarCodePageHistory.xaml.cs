@@ -13,6 +13,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Data;
+using System.Reflection;
+using System.IO;
 
 namespace Billing
 {
@@ -25,6 +27,8 @@ namespace Billing
         public static List<string> nameList = new List<string>();
         public static List<int> sqtyList = new List<int>();
         public static int sqtyCount, billNumber;
+        public static string companyName;
+        ConnectionClass cc = new ConnectionClass();
 
         public BarCodePageHistory()
         {
@@ -50,8 +54,14 @@ namespace Billing
         private void barCodeGenerate()
         {
             BarCodeDataSet barcodeDetails = new BarCodeDataSet();
-            DataTable datatable = barcodeDetails.BarCodeTable;
             BarCodeReport Report = new BarCodeReport();
+            DataTable dTable = barcodeDetails.CompanyDetails;
+            readCompanyDetails();
+            DataRow dr = dTable.NewRow();
+            dr["CompanyName"] = companyName;
+            dTable.Rows.Add(dr);
+            Report.Database.Tables["CompanyDetails"].SetDataSource((DataTable)dTable);
+            DataTable datatable = barcodeDetails.BarCodeTable;
             storeLists();
             for (int i = 0; i < idList.Count; i++)
             {
@@ -71,6 +81,18 @@ namespace Billing
             }
             Report.Database.Tables["BarCodeTable"].SetDataSource((DataTable)datatable);
             barCodeHistoryViewer.ViewerCore.ReportSource = Report;
+        }
+
+        private void readCompanyDetails()
+        {
+            cc.OpenConnection();
+            cc.DataReader("select ConfigValue from ConfigTable where ConfigId = 1");
+            while (cc.reader.Read())
+            {
+                companyName = cc.reader["ConfigValue"].ToString();
+            }
+            cc.CloseReader();
+            cc.CloseConnection();
         }
 
         public static void storeLists()

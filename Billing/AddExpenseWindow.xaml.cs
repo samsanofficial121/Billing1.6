@@ -24,14 +24,12 @@ namespace Billing
 
         public static string genExpenseId;
         public static int expenseId;
-        public static List<string> expenseIdList = new List<string>();
         ConnectionClass cc = new ConnectionClass();
 
         public AddExpenseWindow()
         {
             InitializeComponent();
-            expenseIdList.Clear();
-            readVendorId();
+            readExpenseId();
         }
 
         public class DialogInputEventArgs : EventArgs
@@ -40,26 +38,30 @@ namespace Billing
         }
         //public event EventHandler<DialogInputEventArgs> InputChanged = delegate { };
 
-        private void readVendorId()
+        private void readExpenseId()
         {
-            string vendorIdPath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Config\Config.txt");
-            string vendorIdValue = File.ReadAllText(vendorIdPath);
-            if (vendorIdValue.Contains("ExpenseId"))
+            cc.OpenConnection();
+            cc.DataReader("select ConfigValue from ConfigTable where ConfigId = 7 ");
+            while (cc.reader.Read())
             {
-                string[] val = vendorIdValue.Substring(vendorIdValue.IndexOf("ExpenseId") + 11).Split(Convert.ToChar("'"));
-                expenseIdList.Add(val[0].ToString());
-                foreach (var number in expenseIdList)
-                {
-                    genExpenseId = Convert.ToString(number);
-                    txt_Expense_Id.Text = genExpenseId;
-                    txt_Expense_Name.Focus();
-                }
+                genExpenseId = cc.reader["ConfigValue"].ToString();
             }
+            cc.CloseReader();
+            cc.CloseConnection();
+            txt_Expense_Id.Text = genExpenseId;
+            txt_Expense_Name.Focus();
         }
+
+        private void writeExpenseId()
+        {
+            cc.OpenConnection();
+            cc.ExecuteQuery("update ConfigTable set ConfigValue=" + expenseId + " where ConfigId = 7 ");
+            cc.CloseConnection();
+        }
+
         private void clearExpenseDetails()
         {
             txt_Expense_Name.Text = "";
-
         }
 
         private void btn_Expense_CloseButton_Click(object sender, RoutedEventArgs e)
@@ -81,24 +83,18 @@ namespace Billing
                 cc.CloseConnection();
                 MessageBox.Show("Expense Details Added");
                 writeExpenseId();
-                readVendorId();
-                // InputChanged(this, new DialogInputEventArgs() { Input = this.txt_Expense_Name });
+                readExpenseId();
                 clearExpenseDetails();
-                txt_Expense_Name.Focus();
+                SystemCommands.CloseWindow(this);
             }
         }
-        private void writeExpenseId()
+
+        private void txt_Expense_Name_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-            string configFilePath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Config\Config.txt");
-            string[] configValues = File.ReadAllLines(configFilePath);
-            for (int i = 0; i < configValues.Length; i++)
+            if (e.Key == Key.Return)
             {
-                if (configValues[i] == "ExpenseId '" + genExpenseId + "'")
-                {
-                    configValues[i] = "ExpenseId '" + expenseId + "'";
-                }
+                btn_Expense_Save.Focus();
             }
-            File.WriteAllLines(configFilePath, configValues);
         }
     }
 }

@@ -21,12 +21,14 @@ namespace Billing
     {
         ConnectionClass cc = new ConnectionClass();
         public static string totalBillAmount, totalPayment, comboName, vName = null;
-        public static int billAmount, paymentAmount, balanceAmount, textPayment, vendorId, vidExist;
+        public static int textPayment, vendorId, vidExist;
+        public double billAmount, paymentAmount, balanceAmount;
         public static List<string> vendorList = new List<string>();
 
         public VendorPayment()
         {
             InitializeComponent();
+            txtPayment.Focus();
             vName = VendorPurchases.vendorName;
             if (vName != null)
             {
@@ -44,6 +46,13 @@ namespace Billing
             vendorList.Clear();
         }
 
+        public class DialogInputEventArgs : EventArgs
+        {
+            public string Input { get; set; }
+        }
+
+        public event EventHandler<DialogInputEventArgs> InputChanged = delegate { };
+
         private void btn_Update_Click(object sender, RoutedEventArgs e)
         {
             if (comboBoxVendorName.SelectedItem != null)
@@ -56,6 +65,9 @@ namespace Billing
                     updateBalance();
                     MessageBox.Show("Balance amount updated");
                     txtBalance.Text = Convert.ToString(balanceAmount);
+                    InputChanged(this, new DialogInputEventArgs() { Input = this.txtBalance.Text });
+                    SystemCommands.CloseWindow(this);
+                    vendorList.Clear();
                 }
                 else
                 {
@@ -91,10 +103,18 @@ namespace Billing
             itemsViewOriginal.Refresh();
         }
 
+        private void txtPayment_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Return)
+            {
+                btn_Update.Focus();
+            }
+        }
+
         private void updateBalance()
         {
             var date = DateTime.Now;
-            string today = date.ToString("dd-MMM-yy");
+            string today = date.ToString("dd-MMM-yy hh:mm:ss tt");
             cc.OpenConnection();
             cc.ExecuteQuery("insert into TransactionDetails(Vid,Vname,Bno,gtotal,Payment,PurchaseDate) values(" + vendorId + ",'" + comboBoxVendorName.SelectedItem + "',0,0," + textPayment + ",'" + today + "')");
             cc.CloseConnection();
@@ -117,17 +137,35 @@ namespace Billing
             try
             {
                 cc.OpenConnection();
-                if (cc.BillPreview("select Count(*) from TransactionDetails where Vname=@vname", "@vname", comboBoxVendorName.SelectedItem.ToString(), vidExist) > 0)
+                if(MainWindow.userName=="admin")
                 {
-                    calculateBillAmount();
-                    calculateTotalPayment();
-                    balanceAmount = billAmount - paymentAmount;
-                    txtBalance.Text = Convert.ToString(balanceAmount);
-                    txtPayment.Text = "";
+                    if (cc.BillPreview("select Count(*) from TransactionDetails where Vname=@vname", "@vname", comboBoxVendorName.SelectedItem.ToString(), vidExist) > 0)
+                    {
+                        calculateBillAmount();
+                        calculateTotalPayment();
+                        balanceAmount = billAmount - paymentAmount;
+                        txtBalance.Text = Convert.ToString(balanceAmount);
+                        txtPayment.Text = "";
+                    }
+                    else
+                    {
+                        MessageBox.Show("No transaction with " + comboBoxVendorName.SelectedItem.ToString());
+                    }
                 }
                 else
                 {
-                    MessageBox.Show("No transaction with " + comboBoxVendorName.SelectedItem.ToString());
+                    if (cc.BillPreview("select Count(*) from TransactionDetails where Vname=@vname and GstAmount != 0", "@vname", comboBoxVendorName.SelectedItem.ToString(), vidExist) > 0)
+                    {
+                        calculateBillAmount();
+                        calculateTotalPayment();
+                        balanceAmount = billAmount - paymentAmount;
+                        txtBalance.Text = Convert.ToString(balanceAmount);
+                        txtPayment.Text = "";
+                    }
+                    else
+                    {
+                        MessageBox.Show("No transaction with " + comboBoxVendorName.SelectedItem.ToString());
+                    }
                 }
             }
 
@@ -137,6 +175,7 @@ namespace Billing
             }
             cc.CloseConnection();
             comboBoxVendorName.IsDropDownOpen = true;
+            txtPayment.Focus();
         }
 
         private void vendorName()
@@ -158,14 +197,21 @@ namespace Billing
             {
                 cc.OpenConnection();
                 comboName = comboBoxVendorName.SelectedItem.ToString();
-                cc.DataReader("select sum(gtotal) as BillAmount from TransactionDetails where Vname='" + comboName + "'");
+                if(MainWindow.userName=="admin")
+                {
+                    cc.DataReader("select sum(gtotal) as BillAmount from TransactionDetails where Vname='" + comboName + "'");
+                }
+                else
+                {
+                    cc.DataReader("select sum(gtotal) as BillAmount from TransactionDetails where Vname='" + comboName + "' and GstAmount != 0");
+                }
                 while (cc.reader.Read())
                 {
                     totalBillAmount = cc.reader["BillAmount"].ToString();
                 }
                 cc.CloseReader();
                 cc.CloseConnection();
-                billAmount = Convert.ToInt32(totalBillAmount);
+                billAmount = Convert.ToDouble(totalBillAmount);
             }
             else
             {
@@ -202,7 +248,7 @@ namespace Billing
                 }
                 else
                 {
-                    paymentAmount = Convert.ToInt32(totalPayment);
+                    paymentAmount = Convert.ToDouble(totalPayment);
                 }
             }
             else

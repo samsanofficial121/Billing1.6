@@ -39,8 +39,15 @@ namespace Billing
 
         private void btn_CustomerPayment_Click(object sender, RoutedEventArgs e)
         {
+            CustomerDetails.customerName = null;
             CustomerPayment cp = new CustomerPayment();
             cp.ShowDialog();
+        }
+
+        private void btn_CustomerReport_Click(object sender, RoutedEventArgs e)
+        {
+            CustomerReportViewer crv = new CustomerReportViewer();
+            this.NavigationService.Navigate(crv);
         }
     }
 }

@@ -59,6 +59,7 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>true</Prefer32Bit>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <OutputPath>bin\x86\Release\</OutputPath>
@@ -79,8 +80,16 @@
     <Reference Include="CrystalDecisions.Enterprise.Viewing.ReportSource, Version=13.0.2000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=MSIL">
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
+    <Reference Include="CrystalDecisions.ReportAppServer.Controllers, Version=13.0.2000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=MSIL">
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="CrystalDecisions.ReportAppServer.DataSetConversion, Version=13.0.2000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=MSIL" />
+    <Reference Include="CrystalDecisions.ReportAppServer.XmlSerialize, Version=13.0.2000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=MSIL">
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
     <Reference Include="CrystalDecisions.ReportSource, Version=13.0.2000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=MSIL" />
     <Reference Include="CrystalDecisions.Shared, Version=13.0.2000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=MSIL" />
+    <Reference Include="CrystalDecisions.VSDesigner, Version=13.0.2000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=MSIL" />
     <Reference Include="MaterialDesignColors, Version=1.1.3.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MaterialDesignColors.1.1.3\lib\net45\MaterialDesignColors.dll</HintPath>
       <Private>True</Private>
@@ -116,6 +125,10 @@
     <Reference Include="System.Printing" />
     <Reference Include="System.Web" />
     <Reference Include="System.Windows" />
+    <Reference Include="System.Windows.Controls.DataVisualization.Toolkit, Version=4.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Windows.Controls.DataVisualization.Toolkit.4.0.0.0\lib\net40-Client\System.Windows.Controls.DataVisualization.Toolkit.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
@@ -129,6 +142,10 @@
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
+    <Reference Include="WPFTextBoxAutoComplete, Version=1.0.0.2, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\WPFTextBoxAutoComplete.1.0.5\lib\net40\WPFTextBoxAutoComplete.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="WPF_AutoCompleteComboBox">
       <HintPath>..\..\..\..\..\Desktop\AutoComplete\WPF_AutoCompleteComboBox_dll\WPF_AutoCompleteComboBox.dll</HintPath>
     </Reference>
@@ -172,8 +189,16 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>BillingReportData.xsd</DependentUpon>
     </Compile>
-    <Compile Include="Class1.cs" />
+    <Compile Include="ChartPage.xaml.cs">
+      <DependentUpon>ChartPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="CloseBilling.xaml.cs">
+      <DependentUpon>CloseBilling.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ConnectionClass.cs" />
+    <Compile Include="CustomerAddWindow.xaml.cs">
+      <DependentUpon>CustomerAddWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="CustomerBill.xaml.cs">
       <DependentUpon>CustomerBill.xaml</DependentUpon>
     </Compile>
@@ -205,6 +230,20 @@
     </Compile>
     <Compile Include="CustomerPayment.xaml.cs">
       <DependentUpon>CustomerPayment.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="CustomerReport.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>CustomerReport.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="CustomerReportData.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>CustomerReportData.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="CustomerReportViewer.xaml.cs">
+      <DependentUpon>CustomerReportViewer.xaml</DependentUpon>
     </Compile>
     <Compile Include="CustomerTab.xaml.cs">
       <DependentUpon>CustomerTab.xaml</DependentUpon>
@@ -243,6 +282,14 @@
     <Compile Include="ExpenseAccountPage.xaml.cs">
       <DependentUpon>ExpenseAccountPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ExpenseData.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ExpenseData.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="ExpenseFrame.xaml.cs">
+      <DependentUpon>ExpenseFrame.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ExpenseListPage.xaml.cs">
       <DependentUpon>ExpenseListPage.xaml</DependentUpon>
     </Compile>
@@ -252,8 +299,17 @@
     <Compile Include="ExpensePaymentWindow.xaml.cs">
       <DependentUpon>ExpensePaymentWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="FirstUI.xaml.cs">
-      <DependentUpon>FirstUI.xaml</DependentUpon>
+    <Compile Include="ExpenseReport.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ExpenseReport.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="ExpenseReportOption.xaml.cs">
+      <DependentUpon>ExpenseReportOption.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ExpenseReportViewer.xaml.cs">
+      <DependentUpon>ExpenseReportViewer.xaml</DependentUpon>
     </Compile>
     <Compile Include="HistoryPage.xaml.cs">
       <DependentUpon>HistoryPage.xaml</DependentUpon>
@@ -264,6 +320,9 @@
     </Compile>
     <Compile Include="LoginWindow.xaml.cs">
       <DependentUpon>LoginWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="MonthlyFrame.xaml.cs">
+      <DependentUpon>MonthlyFrame.xaml</DependentUpon>
     </Compile>
     <Compile Include="MonthlyReport.cs">
       <AutoGen>True</AutoGen>
@@ -278,6 +337,9 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>MonthlyReportData.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="MonthlyReportOption.xaml.cs">
+      <DependentUpon>MonthlyReportOption.xaml</DependentUpon>
     </Compile>
     <Compile Include="PurchasedVendor.xaml.cs">
       <DependentUpon>PurchasedVendor.xaml</DependentUpon>
@@ -297,7 +359,6 @@
     <Compile Include="ReportsPage.xaml.cs">
       <DependentUpon>ReportsPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ReturnClass.cs" />
     <Compile Include="SalesHistory.xaml.cs">
       <DependentUpon>SalesHistory.xaml</DependentUpon>
     </Compile>
@@ -312,6 +373,9 @@
     </Compile>
     <Compile Include="SaveVendor.xaml.cs">
       <DependentUpon>SaveVendor.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ScalePopUp.xaml.cs">
+      <DependentUpon>ScalePopUp.xaml</DependentUpon>
     </Compile>
     <Compile Include="StockReport.cs">
       <AutoGen>True</AutoGen>
@@ -360,9 +424,19 @@
     <Compile Include="StockPage.xaml.cs">
       <DependentUpon>StockPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="VendorGridClass.cs" />
-    <Compile Include="VendorList.xaml.cs">
-      <DependentUpon>VendorList.xaml</DependentUpon>
+    <Compile Include="TotalMonthlyData.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>TotalMonthlyData.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="TotalMonthlyReport.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>TotalMonthlyReport.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="TotalMonthlyReportViewer.xaml.cs">
+      <DependentUpon>TotalMonthlyReportViewer.xaml</DependentUpon>
     </Compile>
     <Compile Include="VendorPage.xaml.cs">
       <DependentUpon>VendorPage.xaml</DependentUpon>
@@ -385,6 +459,18 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="BarCodePageHistory.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ChartPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CloseBilling.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomerAddWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -412,6 +498,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="CustomerReportViewer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="CustomerTab.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -428,6 +518,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="ExpenseFrame.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="ExpenseListPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -440,7 +534,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="FirstUI.xaml">
+    <Page Include="ExpenseReportOption.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ExpenseReportViewer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -468,6 +566,14 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="MonthlyFrame.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="MonthlyReportOption.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="PurchasedVendor.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -516,6 +622,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="ScalePopUp.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="StockReportPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -536,7 +646,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="VendorList.xaml">
+    <Page Include="TotalMonthlyReportViewer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -583,6 +693,10 @@
       <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
       <LastGenOutput>CustomerOrderReport.cs</LastGenOutput>
     </EmbeddedResource>
+    <EmbeddedResource Include="CustomerReport.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>CustomerReport.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Include="DailyReport.rpt">
       <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
       <LastGenOutput>DailyReport.cs</LastGenOutput>
@@ -590,6 +704,10 @@
     <EmbeddedResource Include="DailySalesReport.rpt">
       <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
       <LastGenOutput>DailySalesReport.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ExpenseReport.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>ExpenseReport.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="MonthlyReport.rpt">
       <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
@@ -606,6 +724,10 @@
     <EmbeddedResource Include="SalesReporter.rpt">
       <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
       <LastGenOutput>SalesReporter.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TotalMonthlyReport.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>TotalMonthlyReport.cs</LastGenOutput>
     </EmbeddedResource>
     <None Include="BarCodeDataSet.xsc">
       <DependentUpon>BarCodeDataSet.xsd</DependentUpon>
@@ -640,6 +762,17 @@
     <None Include="CustomerOrderDataSet.xss">
       <DependentUpon>CustomerOrderDataSet.xsd</DependentUpon>
     </None>
+    <None Include="CustomerReportData.xsc">
+      <DependentUpon>CustomerReportData.xsd</DependentUpon>
+    </None>
+    <None Include="CustomerReportData.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>CustomerReportData.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="CustomerReportData.xss">
+      <DependentUpon>CustomerReportData.xsd</DependentUpon>
+    </None>
     <None Include="DailyReportData.xsc">
       <DependentUpon>DailyReportData.xsd</DependentUpon>
     </None>
@@ -661,6 +794,17 @@
     </None>
     <None Include="DailySalesData.xss">
       <DependentUpon>DailySalesData.xsd</DependentUpon>
+    </None>
+    <None Include="ExpenseData.xsc">
+      <DependentUpon>ExpenseData.xsd</DependentUpon>
+    </None>
+    <None Include="ExpenseData.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>ExpenseData.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="ExpenseData.xss">
+      <DependentUpon>ExpenseData.xsd</DependentUpon>
     </None>
     <None Include="MonthlyReportData.xsc">
       <DependentUpon>MonthlyReportData.xsd</DependentUpon>
@@ -700,6 +844,17 @@
     </None>
     <None Include="SalesReporterData.xss">
       <DependentUpon>SalesReporterData.xsd</DependentUpon>
+    </None>
+    <None Include="TotalMonthlyData.xsc">
+      <DependentUpon>TotalMonthlyData.xsd</DependentUpon>
+    </None>
+    <None Include="TotalMonthlyData.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>TotalMonthlyData.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="TotalMonthlyData.xss">
+      <DependentUpon>TotalMonthlyData.xsd</DependentUpon>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -933,6 +1088,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Add.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\CustomerReport.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -32,8 +32,9 @@ namespace Billing
             frameStock.NavigationService.Navigate(sp);
             ExpenseAccountPage eap = new ExpenseAccountPage();
             ExpenseFrame.NavigationService.Navigate(eap);
+            ChartPage cp = new ChartPage();
+            chartFrame.NavigationService.Navigate(cp);
         }
-
 
         private void btn_Sell_Click(object sender, RoutedEventArgs e)
         {
@@ -45,12 +46,6 @@ namespace Billing
         {
             PurchasePage pp = new PurchasePage();
             this.NavigationService.Navigate(pp);
-        }
-
-        private void btnListAllVendor_Click(object sender, RoutedEventArgs e)
-        {
-            VendorList vl = new VendorList();
-            vendorframe.NavigationService.Navigate(vl);
         }
 
         private void searchbtn_Click(object sender, RoutedEventArgs e)
@@ -65,6 +60,66 @@ namespace Billing
             this.NavigationService.Navigate(rp);
         }
 
+        private void StatisticsTab_GotFocus(object sender, RoutedEventArgs e)
+        {
+            ChartPage cp = new ChartPage();
+            chartFrame.NavigationService.Navigate(cp);
+        }
 
+        private void btn_Backup_Click(object sender, RoutedEventArgs e)
+        {
+            System.Windows.Forms.FolderBrowserDialog dlg = new System.Windows.Forms.FolderBrowserDialog();
+
+            dlg.Description = "Choose a directory to save the backup";
+
+            if (dlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                try
+                {
+                    string baseDirectory = dlg.SelectedPath;
+                    string saveFileName = "Billing";
+                    cc.OpenConnection();
+                    cc.ExecuteQuery("use master backup database Billing to disk = '" + baseDirectory + "\\" + saveFileName + ".bak'");
+                    cc.CloseConnection();
+                    MessageBox.Show("Backup Successful");
+                }
+                catch
+                {
+                    MessageBox.Show("Can't Backuped to this Location...!");
+                }
+            }
+        }
+
+        private void btn_Restore_Click(object sender, RoutedEventArgs e)
+        {
+            Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
+            dlg.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            dlg.DefaultExt = ".bak";
+            dlg.Filter = "(.bak)|*.bak";
+            Nullable<bool> result = dlg.ShowDialog();
+            if (result == true)
+            {
+                try
+                {
+                    string filename = dlg.FileName;
+                    cc.OpenConnection();
+                    cc.ExecuteQuery("ALTER DATABASE Billing SET SINGLE_USER WITH ROLLBACK IMMEDIATE use master restore database Billing from disk = '" + filename + "'");
+                    cc.CloseConnection();
+                    MessageBox.Show("Restore Successful");
+                }
+                catch
+                {
+                    MessageBox.Show("Restoring Failed...!");
+                }
+            }
+        }
+
+        private void LogoutTab_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            LoginWindow log = new LoginWindow();
+            log.Show();
+            var window = Window.GetWindow(this);
+            window.Close();
+        }
     }
 }

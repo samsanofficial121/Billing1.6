@@ -4,6 +4,10 @@
 
     partial class DailySalesData
     {
+        partial class ExpenseDataDataTable
+        {
+        }
+
         partial class DailyExpenseDataTable
         {
         }

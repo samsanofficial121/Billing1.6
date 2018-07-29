@@ -1,24 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Data;
-using System.Configuration;
-using System.Data.OleDb;
 using System.IO;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using System.Net.NetworkInformation;
 
 namespace Billing
 {
@@ -27,21 +16,12 @@ namespace Billing
     /// </summary>
     public partial class SellPage : Page
     {
-        private Class1.DataAccess objDs;
-        private Class1.BillTable objBillToAdd;
-        public static int idCount = 0;
-        public static string billNumber, billNo, storeBillNoPath, payCredit, payDebit, netAmount, selectedPayment, barcodeId, itemQuantity,paidCash,paymentType;
-        int BillNumber;
-        public static int convIntBill, stockQtyCheck, quantityNumber;
-        string oldQty;
-        public static string stockLeft, selectedItemGst, totalGst, itemId, selectedQuantity, billAmountString,getPhno;
-        public static int billExist, bno, billExistValue, isExist;
-        public static int billNumber1;
-        public static double gstTotal, returnAmnt, newBillAmnt, toPay;
-        public static List<string> BillList = new List<string>();
-        public static List<string> billNoList = new List<string>();
+        public static int idCount = 0, convIntBill, stockQtyCheck, BillNumber, billNumber1, quantityCell, billExist, bno, isExist, bNO, srbno, billExistValue;
+        public static string billNumber, storeBillNoPath, payCredit, payDebit, netAmount, selectedPayment, barcodeId, paidCash,paymentType, billType;
+        public static string itemi, itname, rat, quantyty, spric, gstper, gstam, cellqty, selectedRowId, stockLeftForCell, formattedDate, cellgstp;
+        public static string stockLeft, totalGst, getPhno, cnameSelected, customerName, customerPhone, oldQty, correctBillAmount, itemScale;
+        public static double gstTotal, returnAmnt, newBillAmnt, toPay, roundCorrectBill, roundAfterDiscount, Netgst, CardPoints, sellingPrice;
         public static List<string> customerList = new List<string>();
-        string[] QuantityArr = new string[] { };
         Id id = new Id();
         ConnectionClass cc = new ConnectionClass();
 
@@ -59,12 +39,31 @@ namespace Billing
         public static List<double> netAmountList = new List<double>();
         public static List<double> salesReturnList = new List<double>();
         public static List<string> saleDateList = new List<string>();
-        public static int bNO;
+        public static List<double> discountList = new List<double>();
+        public static string[] customerPh;
         public static BillingReport Report = new BillingReport();
+        DataTable dt = new DataTable();
+        DataTable dt1 = new DataTable();
 
         public SellPage()
         {
             InitializeComponent();
+            if(MainWindow.userName=="admin")
+            {
+                checkBoxGST.IsChecked = false;
+                billType = "NON_GST";
+                dataGrid1.Visibility = Visibility.Collapsed;
+                dataGrid2.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                checkBoxGST.IsChecked = true;
+                checkBoxGST.Visibility = Visibility.Collapsed;
+                billType = "GST";
+                dataGrid1.Visibility = Visibility.Visible;
+                dataGrid2.Visibility = Visibility.Collapsed;
+            }
+            comboBoxPayment.SelectedItem = "By Cash";
             CustomerSuggestion();
             textBoxCustomer.TextChanged += new TextChangedEventHandler(textBoxCustomer_TextChanged);
             returnAmnt = 0;
@@ -73,13 +72,11 @@ namespace Billing
             comboBoxPayment.Items.Add("By Cash");
             comboBoxPayment.Items.Add("By Credit");
             comboBoxPayment.Items.Add("Multi Payment");
-            DateTime today = DateTime.Today;
-            lblDate.Content = today;
+            var date = DateTime.Now;
+            string presentDate = date.ToString("dd-MMM-yy");
+            lblDate.Content = presentDate;
             txtItemId.Focus();
             ClearGrid();
-            ReadBillNo();
-            BillNumber = Convert.ToInt32(billNumber);
-            txtBillNo.Text = BillNumber.ToString();
         }
 
         private void textBoxCustomer_TextChanged(object sender, TextChangedEventArgs e)
@@ -133,10 +130,10 @@ namespace Billing
         private void CustomerSuggestion()
         {
             cc.OpenConnection();
-            cc.DataReader("select distinct CustomerName from BillStock where CustomerName not like 'Cust_%'");
+            cc.DataReader("select CustomerName,CustomerPhone from CustomerDetails");
             while (cc.reader.Read())
             {
-                customerList.Add(cc.reader["CustomerName"].ToString());
+                customerList.Add(cc.reader["CustomerName"].ToString()+"  "+cc.reader["CustomerPhone"]);
             }
             cc.CloseReader();
             cc.CloseConnection();
@@ -144,8 +141,10 @@ namespace Billing
 
         private void GetPhno()
         {
+            cnameSelected = lbSuggestion.SelectedItem.ToString();
+            customerPh = Regex.Split(cnameSelected, "  ");
             cc.OpenConnection();
-            cc.DataReader("select CustomerPhone from BillStock where CustomerName='"+lbSuggestion.SelectedItem+"'");
+            cc.DataReader("select CustomerPhone from CustomerDetails where CustomerPhone='"+customerPh[1]+"'");
             while (cc.reader.Read())
             {
                 getPhno = cc.reader["CustomerPhone"].ToString();
@@ -156,138 +155,204 @@ namespace Billing
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            objDs = new Class1.DataAccess();
-            Display();
-        }
-        private void dataGrid1_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            objBillToAdd = dataGrid1.SelectedItem as Class1.BillTable;
-        }
+            dt.Columns.Add("Id", typeof(string));
+            dt.Columns.Add("Name", typeof(string));
+            dt.Columns.Add("Rate", typeof(double));
+            dt.Columns.Add("Quantity", typeof(string));
+            dt.Columns.Add("GSTPercent", typeof(string));
+            dt.Columns.Add("AddedGST", typeof(double));
+            dt.Columns.Add("Amount", typeof(double));
 
-        private void dataGrid1_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
-        {
-            try
-            {
-                FrameworkElement element_Id = dataGrid1.Columns[0].GetCellContent(e.Row);
-                if (element_Id.GetType() == typeof(TextBox))
-                {
-                    var id = ((TextBox)element_Id).Text;
-                    objBillToAdd.Id = Convert.ToInt32(id);
-                }
-                FrameworkElement element_Name = dataGrid1.Columns[1].GetCellContent(e.Row);
-                if (element_Name.GetType() == typeof(TextBox))
-                {
-                    var name = ((TextBox)element_Name).Text;
-                    objBillToAdd.Name = name;
-                }
-                FrameworkElement element_Rate = dataGrid1.Columns[2].GetCellContent(e.Row);
-                if (element_Rate.GetType() == typeof(TextBox))
-                {
-                    var rate = ((TextBox)element_Rate).Text;
-                    objBillToAdd.Rate = Convert.ToInt32(rate);
-                }
-                FrameworkElement element_Quantity = dataGrid1.Columns[3].GetCellContent(e.Row);
-                if (element_Quantity.GetType() == typeof(TextBox))
-                {
-                    var qty = ((TextBox)element_Quantity).Text;
-                    objBillToAdd.Quantity = Convert.ToInt32(qty);
-                }
-                FrameworkElement element_Amount = dataGrid1.Columns[4].GetCellContent(e.Row);
-                if (element_Amount.GetType() == typeof(TextBox))
-                {
-                    var amount = ((TextBox)element_Amount).Text;
-                    objBillToAdd.Amount = Convert.ToInt32(amount);
-                }
-                FrameworkElement element_GSTPercent = dataGrid1.Columns[5].GetCellContent(e.Row);
-                if (element_GSTPercent.GetType() == typeof(TextBox))
-                {
-                    var per = ((TextBox)element_GSTPercent).Text;
-                    objBillToAdd.GSTPercent = per;
-                }
-                FrameworkElement element_AddedGST = dataGrid1.Columns[6].GetCellContent(e.Row);
-                if (element_AddedGST.GetType() == typeof(TextBox))
-                {
-                    var gst = ((TextBox)element_AddedGST).Text;
-                    objBillToAdd.AddedGST = Convert.ToInt32(gst);
-                }
-                objDs.InsertBill(objBillToAdd);
-                Display();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-
-        }
-        private void dataGrid1_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
-        {
-            //objDs.InsertBill(objBillToAdd);
+            dt1.Columns.Add("Id", typeof(string));
+            dt1.Columns.Add("Name", typeof(string));
+            dt1.Columns.Add("Rate", typeof(double));
+            dt1.Columns.Add("Quantity", typeof(string));
+            dt1.Columns.Add("Amount", typeof(double));
         }
         private void StoreId()
         {
             id.StoreIId(idCount);
         }
-        private void QtySelect()
+        
+        private void DisplayNetAmount()
+        {
+            if(checkBoxGST.IsChecked == true)
+            {
+                double NetA = Convert.ToDouble(dt.Compute("Sum(Amount)", ""));
+                Netgst = Convert.ToDouble(dt.Compute("Sum(AddedGST)", ""));
+                txtBlkNetAmount.Text = Convert.ToString(NetA + Netgst);
+            }
+            else
+            {
+                double NetA = Convert.ToDouble(dt1.Compute("Sum(Amount)", ""));
+                txtBlkNetAmount.Text = Convert.ToString(NetA);
+            }
+            if (txtBlkNetAmount.Text != "")
+            {
+                correctBillAmount = txtBlkNetAmount.Text;
+                roundCorrectBill = Convert.ToDouble(txtBlkNetAmount.Text);
+            }
+        }
+        public void UpdateGridRow()
+        {
+            if(checkBoxGST.IsChecked == true)
+            {
+                int index = -1;
+                DataRow[] rows = dt.Select("Id = " + txtItemId.Text + "");
+                if (rows.Count() > 0)
+                {
+                    index = dt.Rows.IndexOf(rows[0]);
+                }
+                quantityCell = Convert.ToInt32(dt.Rows[index][3]);
+                double gstpCell = Convert.ToDouble(dt.Rows[index][4]);
+                StockQuantityCheck();
+                if (stockQtyCheck <= 0)
+                {
+                    MessageBox.Show("Out Of Stock!.");
+                }
+                else
+                {
+                    DataRow dr = dt.Select("Id=" + txtItemId.Text + "").FirstOrDefault();
+                    if (dr != null)
+                    {
+                        dr["Quantity"] = quantityCell + 1;
+                        dr["AddedGST"] = (quantityCell + 1) * (((Convert.ToDouble(sellingPrice) + Convert.ToDouble(gstam)) / 100) * Convert.ToDouble(gstpCell));
+                        dr["Amount"] = (quantityCell + 1) * Convert.ToDouble(sellingPrice);
+                    }
+                }
+            }
+            else
+            {
+                int index = -1;
+                DataRow[] rows = dt1.Select("Id = " + txtItemId.Text + "");
+                if (rows.Count() > 0)
+                {
+                    index = dt1.Rows.IndexOf(rows[0]);
+                }
+                quantityCell = Convert.ToInt32(dt1.Rows[index][3]);
+                StockQuantityCheck();
+                if (stockQtyCheck <= 0)
+                {
+                    MessageBox.Show("Out Of Stock!.");
+                }
+                else
+                {
+                    DataRow dr = dt1.Select("Id=" + txtItemId.Text + "").FirstOrDefault();
+                    if (dr != null)
+                    {
+                        dr["Quantity"] = quantityCell + 1;
+                        dr["Amount"] = (quantityCell + 1) * Convert.ToDouble(spric);
+                    }
+                }
+            }
+        }
+        private void InsertNewRow()
+        {
+            if(checkBoxGST.IsChecked == true)
+            {
+                dt.Rows.Add(new string[] { itemi, itname, sellingPrice.ToString(), "1", gstper, gstam, sellingPrice.ToString() });
+                dataGrid1.ItemsSource = dt.DefaultView;
+            }
+            else
+            {
+                dt1.Rows.Add(new string[] { itemi, itname, spric, "1", spric });
+                dataGrid2.ItemsSource = dt1.DefaultView;
+            }
+        }
+
+        private void GetFromStock()
         {
             cc.OpenConnection();
-            cc.DataReader("select Quantity from BillTable where Id= " + idCount + " ");
+            cc.DataReader("select itemid,iname,quantity,sprice,salegstpercent,salegstamount from Stock where itemid= " + Convert.ToInt32(txtItemId.Text) + "");
             while (cc.reader.Read())
             {
-                oldQty = cc.reader["Quantity"].ToString();
+                itemi = cc.reader["itemid"].ToString();
+                itname = cc.reader["iname"].ToString();
+                quantyty = cc.reader["quantity"].ToString();
+                spric = cc.reader["sprice"].ToString();
+                gstper = cc.reader["salegstpercent"].ToString();
+                gstam = cc.reader["salegstamount"].ToString();
+            }
+            cc.CloseReader();
+            cc.CloseConnection();
+            sellingPrice = Convert.ToDouble(spric) - Convert.ToDouble(gstam);
+        }
+
+        private void dataGrid1_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
+        {
+            string col = ((DataGrid)sender).CurrentCell.Column.Header.ToString();
+            if (col == "Quantity")
+            {
+                DataRowView rowview = dataGrid1.SelectedItem as DataRowView;
+                string oldq = rowview.Row[3].ToString();
+                selectedRowId = rowview.Row[0].ToString();
+                FrameworkElement element_Quantity = dataGrid1.Columns[3].GetCellContent(e.Row);
+                if (element_Quantity.GetType() == typeof(TextBox))
+                {
+                    var qty = ((TextBox)element_Quantity).Text;
+                    cellqty = qty;
+                }
+                StockLeftForCellEdit();
+                int stk = Convert.ToInt32(stockLeftForCell);
+                int check = stk - Convert.ToInt32(cellqty);
+                if (stk <= 0)
+                {
+                    MessageBox.Show("Out Of Stock!.");
+                }
+                else if (check < 0)
+                {
+                    MessageBox.Show("Sorry...! Only " + stockLeftForCell + " Items Left ");
+                    DataRow dr = dt.Select("Id=" + selectedRowId + "").FirstOrDefault();
+                    if (dr != null)
+                    {
+                        dr["Quantity"] = Convert.ToInt32(oldq);
+                    }
+                }
+                else
+                {
+                    string cgstp = rowview.Row[4].ToString();
+                    DataRow dr = dt.Select("Id=" + selectedRowId + "").FirstOrDefault();
+                    if (dr != null)
+                    {
+                        dr["Quantity"] = Convert.ToInt32(cellqty);
+                        dr["AddedGST"] = Convert.ToInt32(cellqty) * (((Convert.ToDouble(sellingPrice) + Convert.ToDouble(gstam)) / 100) * Convert.ToDouble(cgstp));
+                        dr["Amount"] = Convert.ToInt32(cellqty) * Convert.ToDouble(sellingPrice);
+                    }
+                    DisplayNetAmount();
+                }
+            }
+             else
+            {
+                DataRowView rowview = dataGrid1.SelectedItem as DataRowView;
+                string oldq = rowview.Row[3].ToString();
+                selectedRowId = rowview.Row[0].ToString();
+                FrameworkElement element_GST = dataGrid1.Columns[4].GetCellContent(e.Row);
+                if (element_GST.GetType() == typeof(TextBox))
+                {
+                    var gstp = ((TextBox)element_GST).Text;
+                    cellgstp = gstp;
+                }
+                DataRow dr = dt.Select("Id=" + selectedRowId + "").FirstOrDefault();
+                if (dr != null)
+                {
+                    dr["AddedGST"] = ((Convert.ToDouble(spric)/100) * Convert.ToDouble(cellgstp))* Convert.ToInt32(oldq);
+                }
+                DisplayNetAmount();
+            }   
+        }
+
+        private void ScaleCheck()
+        {
+            cc.OpenConnection();
+            cc.DataReader("select scale from Stock where itemid = '" + txtItemId.Text + "'");
+            while (cc.reader.Read())
+            {
+                itemScale = cc.reader["scale"].ToString();
             }
             cc.CloseReader();
             cc.CloseConnection();
         }
-        private void UpdateQty()
-        {
-            QtySelect();
-            qty = Convert.ToInt32(oldQty) + 1;
-            cc.OpenConnection();
-            cc.UpdateBillTable("Update BillTable set Quantity=? where Id= " + idCount + " ", "Quantity", qty);
-            cc.CloseConnection();
-        }
-        private void UpdateAmount()
-        {
-            cc.OpenConnection();
-            cc.ExecuteQuery("Update BillTable set Amount = Rate * Quantity + AddedGST where Id = " + idCount + " ");
-            cc.CloseConnection();
-        }
-        public void UpdateGstAmount()
-        {
-            GetSelectedItemGst();
-            cc.OpenConnection();
-            cc.UpdateGST("Update BillTable set AddedGST=?*Quantity where Id= " + idCount + " ", "ItemGST", selectedItemGst);
-            cc.CloseConnection();
-        }
-        private void InsertBill()
-        {
-            cc.OpenConnection();
-            cc.InsertBill("insert into BillTable(Id,Name,Rate,Quantity,Amount,GSTPercent,AddedGST) select itemid,iname,sprice,?,sprice+gst_amount,gst_percent,gst_amount from Stock where itemid= " + txtItemId.Text + "", "Quantity", qty);
-            cc.CloseReader();
-            cc.CloseConnection();
-        }
 
-        private void Display()
-        {
-            cc.OpenConnection();
-            cc.DataGridDisplay("select * from BillTable");
-            cc.da.Update(cc.dt);
-            dataGrid1.ItemsSource = objDs.GetBill();
-            billAmountString = cc.dt.Compute("Sum(Amount)", "").ToString();
-            labelNetAmount.Content = billAmountString;
-            totalGst = cc.dt.Compute("Sum(AddedGST)", "").ToString();
-            cc.CloseConnection();
-        }
-
-        private void DisplayBill()
-        {
-            billNumber1 = Convert.ToInt32(txtBillNo.Text);
-            GetCustomerDetails();
-            cc.OpenConnection();
-            cc.ExecuteQuery("insert into BillTable(Id,Name,Rate,Quantity,Amount,GSTPercent,AddedGST) select ItemNo,Product,Price,ProductQuantity,TotalPrice,gstPercent,gstRate from BillStock where BillNo = " + billNumber1 + " ");
-            cc.CloseConnection();
-        }
-        int qty;
         private void EnterClicked(object sender, KeyEventArgs e)
         {
             try
@@ -297,32 +362,37 @@ namespace Billing
                     cc.OpenConnection();
                     if (cc.BillPreview("select COUNT(*) from Stock where itemid = @value ", "@value", txtItemId.Text, isExist) > 0)
                     {
-                        StockQuantityCheck();
-                        if (stockQtyCheck <= 0)
+                        cc.CloseConnection();
+                        ScaleCheck();
+                        if(itemScale == "Mtr")
                         {
-                            MessageBox.Show("Out Of Stock!.");
+                            ScalePopUp spu = new ScalePopUp();
+                            spu.Show();
                         }
                         else
                         {
-
                             idCount = Convert.ToInt32(txtItemId.Text);
-                            if (id.list.Contains(txtItemId.Text))
+                            StockLeft();
+                            if (Convert.ToInt32(stockLeft) <= 0)
                             {
-                                QtySelect();
-                                UpdateQty();
-                                UpdateGstAmount();
-                                UpdateAmount();
+                                MessageBox.Show("Out Of Stock!.");
                             }
                             else
                             {
-                                StoreId();
-                                QtySelect();
-                                qty = 1;
-                                InsertBill();
+                                GetFromStock();
+                                if (id.list.Contains(txtItemId.Text))
+                                {
+                                    UpdateGridRow();
+                                }
+                                else
+                                {
+                                    StoreId();
+                                    InsertNewRow();
+                                }
+                                DisplayNetAmount();
                             }
-                            Display();
+                            txtItemId.Text = "";
                         }
-                        Clearid();
                     }
                     else
                     {
@@ -330,7 +400,6 @@ namespace Billing
                         Clearid();
                         txtItemId.Focus();
                     }
-                    cc.CloseConnection();
                 }
             }
             catch (Exception)
@@ -341,18 +410,148 @@ namespace Billing
 
         }
 
-        private void StockQuantityCheck()
+        private void StockLeftForCellEdit()
         {
-            StockLeft();
             cc.OpenConnection();
-            int id = Convert.ToInt32(txtItemId.Text);
-            cc.DataReader("select Quantity from BillTable where Id= " + idCount + " ");
+            cc.DataReader("select quantity from Stock where itemid= " + selectedRowId + " ");
             while (cc.reader.Read())
             {
-                oldQty = cc.reader["Quantity"].ToString();
+                stockLeftForCell = cc.reader["quantity"].ToString();
             }
             cc.CloseReader();
             cc.CloseConnection();
+        }
+
+        private void dataGrid2_LoadingRow(object sender, DataGridRowEventArgs e)
+        {
+            e.Row.Header = (e.Row.GetIndex() + 1).ToString();
+        }
+
+        private void dataGrid2_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
+        {
+            DataRowView rowview = dataGrid2.SelectedItem as DataRowView;
+            string oldq = rowview.Row[3].ToString();
+            selectedRowId = rowview.Row[0].ToString();
+            FrameworkElement element_Quantity = dataGrid2.Columns[3].GetCellContent(e.Row);
+            if (element_Quantity.GetType() == typeof(TextBox))
+            {
+                var qty = ((TextBox)element_Quantity).Text;
+                cellqty = qty;
+            }
+            StockLeftForCellEdit();
+            int stk = Convert.ToInt32(stockLeftForCell);
+            int check = stk - Convert.ToInt32(cellqty);
+            if (stk <= 0)
+            {
+                MessageBox.Show("Out Of Stock!.");
+            }
+            else if (check < 0)
+            {
+                MessageBox.Show("Sorry...! Only " + stockLeftForCell + " Items Left ");
+                DataRow dr = dt1.Select("Id=" + selectedRowId + "").FirstOrDefault();
+                if (dr != null)
+                {
+                    dr["Quantity"] = Convert.ToInt32(oldq);
+                }
+            }
+            else
+            {
+                DataRow dr = dt1.Select("Id=" + selectedRowId + "").FirstOrDefault();
+                if (dr != null)
+                {
+                    dr["Quantity"] = Convert.ToInt32(cellqty);
+                    dr["Amount"] = Convert.ToInt32(cellqty) * Convert.ToDouble(spric);
+                }
+                DisplayNetAmount();
+            }
+        }
+
+        private void dataGrid2_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Delete)
+            {
+                try
+                {
+                    int selectedIndex = dataGrid2.SelectedIndex;
+                    if (dt1.Rows.Count == 1 && selectedIndex == 0)
+                    {
+                        dt1.Clear();
+                        txtBlkNetAmount.Text = "";
+                        id.list.Clear();
+                    }
+                    else if (dt1.Rows.Count > 1)
+                    {
+                        id.list.RemoveAt(selectedIndex);
+                        dt1.Rows.RemoveAt(selectedIndex);
+                        dataGrid2.ItemsSource = null;
+                        dataGrid2.ItemsSource = dt1.DefaultView;
+                        DisplayNetAmount();
+                    }
+                    else
+                    {
+                        MessageBox.Show("No items to delete");
+                    }
+                }
+                catch
+                {
+                    MessageBox.Show("Empty Row");
+                }
+                txtItemId.Focus();
+            }
+        }
+
+        private void txtBox_CashPaid_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Return)
+            {
+                btn_Save.Focus();
+            }
+        }
+
+        private void txtBox_CashPaid_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (txtBlkNetAmount.Text == "")
+            {
+                MessageBox.Show("Do some transaction");
+                txtItemId.Focus();
+            }
+        }
+
+        private void checkBoxGST_Checked(object sender, RoutedEventArgs e)
+        {
+            txtItemId.Focus();
+            ClearGrid();
+            billType = "GST";
+            dataGrid1.Visibility = Visibility.Visible;
+            dataGrid2.Visibility = Visibility.Collapsed;
+        }
+
+        private void checkBoxGST_Unchecked(object sender, RoutedEventArgs e)
+        {
+            txtItemId.Focus();
+            ClearGrid();
+            billType = "NON_GST";
+            dataGrid1.Visibility = Visibility.Collapsed;
+            dataGrid2.Visibility = Visibility.Visible;
+        }
+
+        private void StockLeft()
+        {
+            cc.OpenConnection();
+            cc.DataReader("select quantity from Stock where itemid= " + idCount + " ");
+            while (cc.reader.Read())
+            {
+                stockLeft = cc.reader["quantity"].ToString();
+            }
+            cc.CloseReader();
+            cc.CloseConnection();
+        }
+
+        private void StockQuantityCheck()
+        {
+            StockLeft();
+            int id = Convert.ToInt32(txtItemId.Text);
+            oldQty =Convert.ToString(quantityCell);
             stockQtyCheck = Convert.ToInt32(stockLeft) - Convert.ToInt32(oldQty);
         }
 
@@ -362,199 +561,202 @@ namespace Billing
         }
         public void ClearGrid()
         {
+            dt.Clear();
+            dt1.Clear();
+            txtBlkNetAmount.Text = "";
             id.list.Clear();
-            cc.OpenConnection();
-            cc.ExecuteQuery("delete * from BillTable");
-            cc.CloseConnection();
             lbl_Credit.Visibility = Visibility.Hidden;
             textBox_Credit.Visibility = Visibility.Hidden;
             cashPay.Visibility = Visibility.Hidden;
             txtBox_CashPaid.Visibility = Visibility.Hidden;
+            txtBox_Discount.Text = "";
+            txtBox_DiscountPercent.Text = "";
+            checkBox.IsChecked = false;
+            dataGridSR.Visibility = Visibility.Collapsed;
+            salereturnhead.Visibility = Visibility.Collapsed;
         }
         private void ClearCustomerTxtBox()
         {
-            textBoxCustomer.Text = "";
-            textBoxCustomerPh.Text = "";
+            textBoxCustomer.Text = "Customer Name";
+            textBoxCustomerPh.Text = "Phone No";
+            textBlockCard.Visibility = Visibility.Collapsed;
+            textBlockCardBalance.Visibility = Visibility.Collapsed;
+            textBoxDiscountCard.Text = "Enter Card Id";
+            checkBoxCard.IsEnabled = false;
         }
 
         private void btn_Clear_Click(object sender, RoutedEventArgs e)
         {
             ClearGrid();
             ClearCustomerTxtBox();
-            Display();
-            ReadBillNo();
-            txtBillNo.Text = BillNumber.ToString();
+            lbSuggestion.Visibility = Visibility.Collapsed;
             txtItemId.Focus();
+        }
+
+        private void SaveBillFromGrid()
+        {
+            if(checkBoxGST.IsChecked == true)
+            {
+                foreach (DataRow dg in dt.Rows)
+                {
+                    string gridId = dg[0].ToString();
+                    string gridName = dg[1].ToString();
+                    string gridRate = dg[2].ToString();
+                    string gridQuantity = dg[3].ToString();
+                    string gridGstPercent = dg[4].ToString();
+                    string gridGst = dg[5].ToString();
+                    string gridAmount = dg[6].ToString();
+                    cc.OpenConnection();
+                    cc.DataReader("insert into BillStock(BillNo,ItemNo,Product,Price,ProductQuantity,TotalPrice,gstPercent,gstRate,netGst,NetAmount,Discount,SaleDate,CustomerName,CustomerPhone,Credit,Debit,SalesReturn,ActualBillAmnt,CashPaid,Particulars,BillType) values('" + billNumber + "','" + gridId + "','" + gridName + "','" + gridRate + "','" + gridQuantity + "','" + gridAmount + "','" + gridGstPercent + "','" + gridGst + "','" + Netgst + "','" + netAmount + "','" + txtBox_Discount.Text + "','" + formattedDate + "','" + textBoxCustomer.Text + "','" + textBoxCustomerPh.Text + "','" + payCredit + "','" + payDebit + "','" + Convert.ToString(returnAmnt) + "','" + Convert.ToString(newBillAmnt) + "','" + paidCash + "','" + paymentType + "','" + billType + "')");
+                    cc.CloseReader();
+                    cc.ExecuteQuery("update Stock set quantity = quantity - " + Convert.ToInt32(gridQuantity) + " where itemid = " + Convert.ToInt32(gridId) + "");
+                    if (Convert.ToDouble(netAmount) > 0)
+                    {
+                        cc.CustomerTransactions("insert into CustomerTransactions(BillNo,CustomerName,CustomerPhone,NetAmount,AmountPaid,Date,Credit,Debit,BillType,Discount) values(@BillNo,@CustomerName,@CustomerPhone,@NetAmount,@AmountPaid,@Date,@Credit,@Debit,@BillType,@Discount)", "BillNo", Convert.ToInt32(billNumber), "CustomerName", textBoxCustomer.Text, "CustomerPhone", textBoxCustomerPh.Text, "NetAmount", Convert.ToDouble(netAmount), "AmountPaid", Convert.ToDouble(paidCash), "Date", formattedDate, "Credit", payCredit, "Debit", payDebit, "BillType", billType, "Discount", Convert.ToString(0));
+                    }
+                    else
+                    {
+                        cc.CustomerTransactions("insert into CustomerTransactions(BillNo,CustomerName,CustomerPhone,NetAmount,AmountPaid,Date,Credit,Debit,BillType,Discount) values(@BillNo,@CustomerName,@CustomerPhone,@NetAmount,@AmountPaid,@Date,@Credit,@Debit,@BillType,@Discount)", "BillNo", Convert.ToInt32(billNumber), "CustomerName", textBoxCustomer.Text, "CustomerPhone", textBoxCustomerPh.Text, "NetAmount", Convert.ToDouble(0), "AmountPaid", Convert.ToDouble(0), "Date", formattedDate, "Credit", payCredit, "Debit", payDebit, "BillType", billType, "Discount", Convert.ToString(0));
+                    }
+                    cc.CloseReader();
+                    cc.CloseConnection();
+                }
+            }
+            else
+            {
+                foreach (DataRow dg in dt1.Rows)
+                {
+                    string gridId = dg[0].ToString();
+                    string gridName = dg[1].ToString();
+                    string gridRate = dg[2].ToString();
+                    string gridQuantity = dg[3].ToString();
+                    string gridAmount = dg[4].ToString();
+                    cc.OpenConnection();
+                    cc.DataReader("insert into BillStock(BillNo,ItemNo,Product,Price,ProductQuantity,TotalPrice,gstPercent,gstRate,netGst,NetAmount,Discount,SaleDate,CustomerName,CustomerPhone,Credit,Debit,SalesReturn,ActualBillAmnt,CashPaid,Particulars,BillType) values('" + billNumber + "','" + gridId + "','" + gridName + "','" + gridRate + "','" + gridQuantity + "','" + gridAmount + "',0,0,0,'" + netAmount + "','" + txtBox_Discount.Text + "','" + formattedDate + "','" + textBoxCustomer.Text + "','" + textBoxCustomerPh.Text + "','" + payCredit + "','" + payDebit + "','" + Convert.ToString(returnAmnt) + "','" + Convert.ToString(newBillAmnt) + "','" + paidCash + "','" + paymentType + "','" + billType + "')");
+                    cc.CloseReader();
+                    cc.ExecuteQuery("update Stock set quantity = quantity - " + Convert.ToInt32(gridQuantity) + " where itemid = " + Convert.ToInt32(gridId) + "");
+                    if (Convert.ToDouble(netAmount) > 0)
+                    {
+                        cc.CustomerTransactions("insert into CustomerTransactions(BillNo,CustomerName,CustomerPhone,NetAmount,AmountPaid,Date,Credit,Debit,BillType,Discount) values(@BillNo,@CustomerName,@CustomerPhone,@NetAmount,@AmountPaid,@Date,@Credit,@Debit,@BillType,@Discount)", "BillNo", Convert.ToInt32(billNumber), "CustomerName", textBoxCustomer.Text, "CustomerPhone", textBoxCustomerPh.Text, "NetAmount", Convert.ToDouble(netAmount), "AmountPaid", Convert.ToDouble(paidCash), "Date", formattedDate, "Credit", payCredit, "Debit", payDebit, "BillType", billType, "Discount", Convert.ToString(0));
+                    }
+                    else
+                    {
+                        cc.CustomerTransactions("insert into CustomerTransactions(BillNo,CustomerName,CustomerPhone,NetAmount,AmountPaid,Date,Credit,Debit,BillType,Discount) values(@BillNo,@CustomerName,@CustomerPhone,@NetAmount,@AmountPaid,@Date,@Credit,@Debit,@BillType,@Discount)", "BillNo", Convert.ToInt32(billNumber), "CustomerName", textBoxCustomer.Text, "CustomerPhone", textBoxCustomerPh.Text, "NetAmount", Convert.ToDouble(0), "AmountPaid", Convert.ToDouble(0), "Date", formattedDate, "Credit", payCredit, "Debit", payDebit, "BillType", billType, "Discount", Convert.ToString(0));
+                    }
+                    cc.CloseReader();
+                    cc.CloseConnection();
+                }
+            }
+        }
+
+        private void PrintTheBill()
+        {
+            if(textBoxDiscountCard.Text != "Enter Card Id" && textBoxDiscountCard.Text != "")
+            {
+                discountCardAmount();
+            }
+            MessageBox.Show("Bill No :'" + billNumber + "' Saved Successfully.....");
+            bno = Convert.ToInt32(billNumber);
+            string msg = "Do you want to print bill?";
+            string txt = "Bill Print";
+            MessageBoxButton btn = MessageBoxButton.YesNo;
+            MessageBoxResult rslt = MessageBox.Show(msg, txt, btn);
+            switch (rslt)
+            {
+                case MessageBoxResult.Yes:
+                    convIntBill = Convert.ToInt32(billNumber);
+                    clearList();
+                    bNO = Convert.ToInt32(bno);
+                    generateBill();
+                    break;
+
+                case MessageBoxResult.No:
+                    ClearGrid();
+                    ClearCustomerTxtBox();
+                    break;
+            }
+            ClearGrid();
+            ClearCustomerTxtBox();
+            lbSuggestion.Visibility = Visibility.Collapsed;
+            txtItemId.Focus();
+            comboBoxPayment.SelectedItem = "By Cash";
         }
 
         private void btn_Save_Click(object sender, RoutedEventArgs e)
         {
-            if (dataGrid1.Items.Count == 1)
+            newBillNo();
+            if (txtBox_Discount.Text == "")
+            {
+                txtBox_Discount.Text = "0";
+            }
+            if (dataGrid1.Items.Count == 0 && dataGrid2.Items.Count == 0)
             {
                 MessageBox.Show("No Bill To Save...!");
             }
             else
             {
                 var time = DateTime.Now;
-                string formattedDate = time.ToString("dd-MMM-yy");
-                string netAmount = Convert.ToString(labelNetAmount.Content);
+                formattedDate = time.ToString("dd-MMM-yy hh:mm:ss tt");
+                netAmount = Convert.ToString(txtBlkNetAmount.Text);
                 gstTotal = Convert.ToDouble(totalGst);
-                cc.OpenConnection();
-                string txtbn = Convert.ToString(txtBillNo.Text);
-                int tbn = Convert.ToInt32(txtBillNo.Text);
-                if (selectedPayment == "By Credit")
-                {
-                    if (textBoxCustomer.Text == "" & textBoxCustomerPh.Text == "")
-                    {
-                        MessageBox.Show("Enter customer details");
-                    }
-                    else if (textBoxCustomer.Text != "Customer Name" & textBoxCustomerPh.Text != "Phone No")
-                    {
-                        payCredit = Convert.ToString(labelNetAmount.Content);
-                        payDebit = Convert.ToString(0);
-                        paymentType = "By Credit";
-                        paidCash = payCredit;
-                        cc.SaveBill("insert into BillStock(BillNo,ItemNo,Product,Price,ProductQuantity,TotalPrice,gstPercent,gstRate,netGst,NetAmount,SaleDate,CustomerName,CustomerPhone,Credit,Debit,SalesReturn,ActualBillAmnt,CashPaid,Particulars) select ?,Id,Name,Rate,Quantity,Amount,GSTPercent,AddedGST,?,?,?,?,?,?,?,?,?,?,? from BillTable", "BillNo", txtBillNo.Text, "netGst", gstTotal, "NetAmount", netAmount, "SaleDate", formattedDate, "CustomerName", textBoxCustomer.Text, "CustomerPhone", textBoxCustomerPh.Text, "Credit", payCredit, "Debit", payDebit, "SalesReturn", Convert.ToString(returnAmnt), "ActualBillAmnt", Convert.ToString(newBillAmnt), "CashPaid", paidCash, "Particulars", paymentType);
-                        if (Convert.ToDouble(netAmount) > 0)
-                        {
-                            cc.CustomerTransactions("insert into CustomerTransactions(BillNo,CustomerName,CustomerPhone,NetAmount,AmountPaid) values(?,?,?,?,?)", "BillNo", Convert.ToInt32(txtBillNo.Text), "CustomerName", textBoxCustomer.Text, "CustomerPhone", textBoxCustomerPh.Text, "NetAmount", Convert.ToDouble(netAmount), "AmountPaid", Convert.ToDouble(0));
-                        }
-                        else
-                        {
-                            cc.CustomerTransactions("insert into CustomerTransactions(BillNo,CustomerName,CustomerPhone,NetAmount,AmountPaid) values(?,?,?,?,?)", "BillNo", Convert.ToInt32(txtBillNo.Text), "CustomerName", textBoxCustomer.Text, "CustomerPhone", textBoxCustomerPh.Text, "NetAmount", Convert.ToDouble(0), "AmountPaid", Convert.ToDouble(0));
-                        }
-                        cc.CloseReader();
-                        StockUpdate();
-                        BillNumber = Convert.ToInt32(BillNumber) + 1;
-                        billNumber = Convert.ToString(BillNumber);
-                        writeSaleBno();
-                        MessageBox.Show("Bill Saved Successfully.....");
-                        bno = Convert.ToInt32(txtBillNo.Text);
-                        string msg = "Do you want to print bill?";
-                        string txt = "Bill Print";
-                        MessageBoxButton btn = MessageBoxButton.YesNo;
-                        MessageBoxResult rslt = MessageBox.Show(msg, txt, btn);
-                        switch (rslt)
-                        {
-                            case MessageBoxResult.Yes:
-                                convIntBill = Convert.ToInt32(txtBillNo.Text);
-                                clearList();
-                                bNO = Convert.ToInt32(bno);
-                                generateBill();
-                                break;
-
-                            case MessageBoxResult.No:
-                                ClearGrid();
-                                ClearCustomerTxtBox();
-                                Display();
-                                txtBillNo.Text = billNumber.ToString();
-                                break;
-                        }
-                        ClearGrid();
-                        ClearCustomerTxtBox();
-                        Display();
-                        txtBillNo.Text = billNumber.ToString();
-                        txtItemId.Focus();
-                    }
-                    else
-                    {
-                        MessageBox.Show("Enter customer details");
-                    }
-
-                }
-                else if (selectedPayment == "By Cash")
+                string txtbn = Convert.ToString(billNumber);
+                int tbn = Convert.ToInt32(billNumber);
+                if (selectedPayment == "By Cash")
                 {
                     payCredit = Convert.ToString(0);
                     payDebit = Convert.ToString(0);
                     paymentType = "By Cash";
                     paidCash = netAmount;
-                    if (textBoxCustomer.Text == "" & textBoxCustomerPh.Text == "")
+                    if (textBoxCustomer.Text == "Customer Name" || textBoxCustomerPh.Text == "Phone No")
                     {
-                        textBoxCustomer.Text = "Cust_" + txtBillNo.Text;
+                        textBoxCustomer.Text = "Cust_" + billNumber;
                         var date = DateTime.Now;
-                        string presentDate = date.ToString("dd-MMM-yy");
+                        string presentDate = date.ToString("dd-MMM-yy hh:mm:ss tt");
                         textBoxCustomerPh.Text = "Ph_" + presentDate;
-                        cc.SaveBill("insert into BillStock(BillNo,ItemNo,Product,Price,ProductQuantity,TotalPrice,gstPercent,gstRate,netGst,NetAmount,SaleDate,CustomerName,CustomerPhone,Credit,Debit,SalesReturn,ActualBillAmnt,CashPaid,Particulars) select ?,Id,Name,Rate,Quantity,Amount,GSTPercent,AddedGST,?,?,?,?,?,?,?,?,?,?,? from BillTable", "BillNo", txtBillNo.Text, "netGst", gstTotal, "NetAmount", netAmount, "SaleDate", formattedDate, "CustomerName", textBoxCustomer.Text, "CustomerPhone", textBoxCustomerPh.Text, "Credit", payCredit, "Debit", payDebit, "SalesReturn", Convert.ToString(returnAmnt), "ActualBillAmnt", Convert.ToString(newBillAmnt), "CashPaid", paidCash, "Particulars", paymentType);
-                        if (Convert.ToDouble(netAmount) > 0)
-                        {
-                            cc.CustomerTransactions("insert into CustomerTransactions(BillNo,CustomerName,CustomerPhone,NetAmount,AmountPaid) values(?,?,?,?,?)", "BillNo", Convert.ToInt32(txtBillNo.Text), "CustomerName", textBoxCustomer.Text, "CustomerPhone", textBoxCustomerPh.Text, "NetAmount", Convert.ToDouble(netAmount), "AmountPaid", Convert.ToDouble(netAmount));
-                        }
-                        else
-                        {
-                            cc.CustomerTransactions("insert into CustomerTransactions(BillNo,CustomerName,CustomerPhone,NetAmount,AmountPaid) values(?,?,?,?,?)", "BillNo", Convert.ToInt32(txtBillNo.Text), "CustomerName", textBoxCustomer.Text, "CustomerPhone", textBoxCustomerPh.Text, "NetAmount", Convert.ToDouble(0), "AmountPaid", Convert.ToDouble(0));
-                        }
-                        cc.CloseReader();
+                        SaveBillFromGrid();
                     }
-                    else if(textBoxCustomer.Text != "Customer Name" & textBoxCustomerPh.Text != "Phone No")
+                    else if (textBoxCustomer.Text == "" || textBoxCustomerPh.Text == "")
                     {
-                        cc.SaveBill("insert into BillStock(BillNo,ItemNo,Product,Price,ProductQuantity,TotalPrice,gstPercent,gstRate,netGst,NetAmount,SaleDate,CustomerName,CustomerPhone,Credit,Debit,SalesReturn,ActualBillAmnt,CashPaid,Particulars) select ?,Id,Name,Rate,Quantity,Amount,GSTPercent,AddedGST,?,?,?,?,?,?,?,?,?,?,? from BillTable", "BillNo", txtBillNo.Text, "netGst", gstTotal, "NetAmount", netAmount, "SaleDate", formattedDate, "CustomerName", textBoxCustomer.Text, "CustomerPhone", textBoxCustomerPh.Text, "Credit", payCredit, "Debit", payDebit, "SalesReturn", Convert.ToString(returnAmnt), "ActualBillAmnt", Convert.ToString(newBillAmnt), "CashPaid", paidCash, "Particulars", paymentType);
-                        if (Convert.ToDouble(netAmount) > 0)
-                        {
-                            cc.CustomerTransactions("insert into CustomerTransactions(BillNo,CustomerName,CustomerPhone,NetAmount,AmountPaid) values(?,?,?,?,?)", "BillNo", Convert.ToInt32(txtBillNo.Text), "CustomerName", textBoxCustomer.Text, "CustomerPhone", textBoxCustomerPh.Text, "NetAmount", Convert.ToDouble(netAmount), "AmountPaid", Convert.ToDouble(netAmount));
-                        }
-                        else
-                        {
-                            cc.CustomerTransactions("insert into CustomerTransactions(BillNo,CustomerName,CustomerPhone,NetAmount,AmountPaid) values(?,?,?,?,?)", "BillNo", Convert.ToInt32(txtBillNo.Text), "CustomerName", textBoxCustomer.Text, "CustomerPhone", textBoxCustomerPh.Text, "NetAmount", Convert.ToDouble(0), "AmountPaid", Convert.ToDouble(0));
-                        }
-                        cc.CloseReader();
+                        textBoxCustomer.Text = "Cust_" + billNumber;
+                        var date = DateTime.Now;
+                        string presentDate = date.ToString("dd-MMM-yy hh:mm:ss tt");
+                        textBoxCustomerPh.Text = "Ph_" + presentDate;
+                        SaveBillFromGrid();
                     }
                     else
                     {
-                        textBoxCustomer.Text = "Cust_" + txtBillNo.Text;
-                        var date = DateTime.Now;
-                        string presentDate = date.ToString("dd-MMM-yy");
-                        textBoxCustomerPh.Text = "Ph_" + presentDate;
-                        cc.SaveBill("insert into BillStock(BillNo,ItemNo,Product,Price,ProductQuantity,TotalPrice,gstPercent,gstRate,netGst,NetAmount,SaleDate,CustomerName,CustomerPhone,Credit,Debit,SalesReturn,ActualBillAmnt,CashPaid,Particulars) select ?,Id,Name,Rate,Quantity,Amount,GSTPercent,AddedGST,?,?,?,?,?,?,?,?,?,?,? from BillTable", "BillNo", txtBillNo.Text, "netGst", gstTotal, "NetAmount", netAmount, "SaleDate", formattedDate, "CustomerName", textBoxCustomer.Text, "CustomerPhone", textBoxCustomerPh.Text, "Credit", payCredit, "Debit", payDebit, "SalesReturn", Convert.ToString(returnAmnt), "ActualBillAmnt", Convert.ToString(newBillAmnt), "CashPaid", paidCash, "Particulars", paymentType);
-                        if (Convert.ToDouble(netAmount) > 0)
-                        {
-                            cc.CustomerTransactions("insert into CustomerTransactions(BillNo,CustomerName,CustomerPhone,NetAmount,AmountPaid) values(?,?,?,?,?)", "BillNo", Convert.ToInt32(txtBillNo.Text), "CustomerName", textBoxCustomer.Text, "CustomerPhone", textBoxCustomerPh.Text, "NetAmount", Convert.ToDouble(netAmount), "AmountPaid", Convert.ToDouble(netAmount));
-                        }
-                        else
-                        {
-                            cc.CustomerTransactions("insert into CustomerTransactions(BillNo,CustomerName,CustomerPhone,NetAmount,AmountPaid) values(?,?,?,?,?)", "BillNo", Convert.ToInt32(txtBillNo.Text), "CustomerName", textBoxCustomer.Text, "CustomerPhone", textBoxCustomerPh.Text, "NetAmount", Convert.ToDouble(0), "AmountPaid", Convert.ToDouble(0));
-                        }
-                        cc.CloseReader();
+                        SaveBillFromGrid();
                     }
-                    StockUpdate();
-                    BillNumber = Convert.ToInt32(BillNumber) + 1;
-                    billNumber = Convert.ToString(BillNumber);
-                    writeSaleBno();
-                    MessageBox.Show("Bill Saved Successfully.....");
-                    bno = Convert.ToInt32(txtBillNo.Text);
-                    string msg = "Do you want to print bill?";
-                    string txt = "Bill Print";
-                    MessageBoxButton btn = MessageBoxButton.YesNo;
-                    MessageBoxResult rslt = MessageBox.Show(msg, txt, btn);
-                    switch (rslt)
-                    {
-                        case MessageBoxResult.Yes:
-                            convIntBill = Convert.ToInt32(txtBillNo.Text);
-                            clearList();
-                            bNO = Convert.ToInt32(bno);
-                            generateBill();
-                            break;
-
-                        case MessageBoxResult.No:
-                            ClearGrid();
-                            ClearCustomerTxtBox();
-                            Display();
-                            txtBillNo.Text = billNumber.ToString();
-                            break;
-                    }
-                    ClearGrid();
-                    ClearCustomerTxtBox();
-                    lbSuggestion.Visibility = Visibility.Collapsed;
-                    Display();
-                    txtBillNo.Text = billNumber.ToString();
-                    txtItemId.Focus();
+                    PrintTheBill();
                 }
-                else if (selectedPayment == "Multi Payment")
+                else if (selectedPayment == "By Credit")
                 {
-                    if (textBoxCustomer.Text == "" & textBoxCustomerPh.Text == "")
+                    if (textBoxCustomer.Text == "" || textBoxCustomerPh.Text == "")
                     {
                         MessageBox.Show("Enter customer details");
                     }
-                    else if (textBoxCustomer.Text != "Customer Name" & textBoxCustomerPh.Text != "Phone No")
+                    else if (textBoxCustomer.Text != "Customer Name" || textBoxCustomerPh.Text != "Phone No")
+                    {
+                        payCredit = Convert.ToString(txtBlkNetAmount.Text);
+                        payDebit = Convert.ToString(0);
+                        paymentType = "By Credit";
+                        paidCash = Convert.ToString(0);
+                        SaveBillFromGrid();
+                        PrintTheBill();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Enter customer details");
+                    }
+
+                }
+                else if (selectedPayment == "Multi Payment")
+                {
+                    if (textBoxCustomer.Text == "" || textBoxCustomerPh.Text == "")
+                    {
+                        MessageBox.Show("Enter customer details");
+                    }
+                    else if (textBoxCustomer.Text != "Customer Name" || textBoxCustomerPh.Text != "Phone No")
                     {
                         string lastContent = lbl_Credit.Content.ToString();
                         paymentType = "Multi Payment";
@@ -569,48 +771,8 @@ namespace Billing
                             payCredit = Convert.ToString(0);
                             payDebit = textBox_Credit.Text;
                         }
-                        cc.SaveBill("insert into BillStock(BillNo,ItemNo,Product,Price,ProductQuantity,TotalPrice,gstPercent,gstRate,netGst,NetAmount,SaleDate,CustomerName,CustomerPhone,Credit,Debit,SalesReturn,ActualBillAmnt,CashPaid,Particulars) select ?,Id,Name,Rate,Quantity,Amount,GSTPercent,AddedGST,?,?,?,?,?,?,?,?,?,?,? from BillTable", "BillNo", txtBillNo.Text, "netGst", gstTotal, "NetAmount", netAmount, "SaleDate", formattedDate, "CustomerName", textBoxCustomer.Text, "CustomerPhone", textBoxCustomerPh.Text, "Credit", payCredit, "Debit", payDebit, "SalesReturn", Convert.ToString(returnAmnt), "ActualBillAmnt", Convert.ToString(newBillAmnt), "CashPaid", paidCash, "Particulars", paymentType);
-                        if (Convert.ToDouble(netAmount) > 0)
-                        {
-                            cc.CustomerTransactions("insert into CustomerTransactions(BillNo,CustomerName,CustomerPhone,NetAmount,AmountPaid) values(?,?,?,?,?)", "BillNo", Convert.ToInt32(txtBillNo.Text), "CustomerName", textBoxCustomer.Text, "CustomerPhone", textBoxCustomerPh.Text, "NetAmount", Convert.ToDouble(netAmount), "AmountPaid", Convert.ToDouble(txtBox_CashPaid.Text));
-                        }
-                        else
-                        {
-                            cc.CustomerTransactions("insert into CustomerTransactions(BillNo,CustomerName,CustomerPhone,NetAmount,AmountPaid) values(?,?,?,?,?)", "BillNo", Convert.ToInt32(txtBillNo.Text), "CustomerName", textBoxCustomer.Text, "CustomerPhone", textBoxCustomerPh.Text, "NetAmount", Convert.ToDouble(0), "AmountPaid", Convert.ToDouble(0));
-                        }
-                        cc.CloseReader();
-                        StockUpdate();
-                        BillNumber = Convert.ToInt32(BillNumber) + 1;
-                        billNumber = Convert.ToString(BillNumber);
-                        writeSaleBno();
-                        MessageBox.Show("Bill Saved Successfully.....");
-                        bno = Convert.ToInt32(txtBillNo.Text);
-                        string msg = "Do you want to print bill?";
-                        string txt = "Bill Print";
-                        MessageBoxButton btn = MessageBoxButton.YesNo;
-                        MessageBoxResult rslt = MessageBox.Show(msg, txt, btn);
-                        switch (rslt)
-                        {
-                            case MessageBoxResult.Yes:
-                                convIntBill = Convert.ToInt32(txtBillNo.Text);
-                                clearList();
-                                bNO = Convert.ToInt32(bno);
-                                generateBill();
-                                break;
-
-                            case MessageBoxResult.No:
-                                ClearGrid();
-                                ClearCustomerTxtBox();
-                                Display();
-                                txtBillNo.Text = billNumber.ToString();
-                                break;
-                        }
-                        ClearGrid();
-                        ClearCustomerTxtBox();
-                        Display();
-                        txtBillNo.Text = billNumber.ToString();
-                        txtItemId.Focus();
-                        cc.CloseConnection();
+                        SaveBillFromGrid();
+                        PrintTheBill();
                     }
                     else
                     {
@@ -626,58 +788,31 @@ namespace Billing
             newBillAmnt = 0;
         }
 
-        private void writeSaleBno()
-        {
-            string configFilePath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Config\Config.txt");
-            string[] configValues = File.ReadAllLines(configFilePath);
-            for (int i = 0; i < configValues.Length; i++)
-            {
-                if (configValues[i] == "SalesBillNumber '" + billNo + "'")
-                {
-                    configValues[i] = "SalesBillNumber '" + billNumber + "'";
-                }
-            }
-            File.WriteAllLines(configFilePath, configValues);
-        }
-
-        private void StockUpdate()
+        private void newBillNo()
         {
             cc.OpenConnection();
-            cc.ExecuteQuery("update Stock as a inner join BillTable as b on a.itemid = b.Id set a.quantity = a.quantity - b.Quantity");
+            if (checkBoxGST.IsChecked == true)
+            {
+                cc.DataReader("select top 1 BillNo from BillStock where BillType='GST' order by BillNo desc");
+            }
+            else
+            {
+                cc.DataReader("select top 1 BillNo from BillStock where BillType='NON_GST' order by BillNo desc");
+            }
+            if (cc.reader.HasRows)
+            {
+                while (cc.reader.Read())
+                {
+                    int bnum = Convert.ToInt32(cc.reader["BillNo"]);
+                    billNumber = Convert.ToString(bnum + 1);
+                }
+            }
+            else
+            {
+                billNumber = "1";
+            }
+            cc.CloseReader();
             cc.CloseConnection();
-        }
-        private void ReadBillNo()
-        {
-            string saleBillNoPath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Config\Config.txt");
-            string saleBillNoValue = File.ReadAllText(saleBillNoPath);
-            if (saleBillNoValue.Contains("SalesBillNumber"))
-            {
-                string[] val = saleBillNoValue.Substring(saleBillNoValue.IndexOf("SalesBillNumber") + 17).Split(Convert.ToChar("'"));
-                billNoList.Add(val[0].ToString());
-                foreach (var number in billNoList)
-                {
-                    billNumber = Convert.ToString(number);
-                    billNo = billNumber;
-                }
-            }
-        }
-
-        private void button_Copy2_Click(object sender, RoutedEventArgs e)
-        {
-            string mac = "";
-            foreach (NetworkInterface nic in NetworkInterface.GetAllNetworkInterfaces())
-            {
-
-                if (nic.OperationalStatus == OperationalStatus.Up && (!nic.Description.Contains("Virtual") && !nic.Description.Contains("Pseudo")))
-                {
-                    if (nic.GetPhysicalAddress().ToString() != "")
-                    {
-                        mac = nic.GetPhysicalAddress().ToString();
-                    }
-                }
-            }
-            string result = mac.Substring(0, 3);
-            MessageBox.Show(result);
         }
 
         private void dataGrid1_LoadingRow(object sender, DataGridRowEventArgs e)
@@ -690,33 +825,43 @@ namespace Billing
             lbSuggestion.Visibility = Visibility.Collapsed;
         }
 
-        private void StockLeft()
+        private void dataGrid1_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-            cc.OpenConnection();
-            int id = Convert.ToInt32(txtItemId.Text);
-            cc.DataReader("select quantity from Stock where itemid= " + id + " ");
-            while (cc.reader.Read())
+            if (e.Key == Key.Delete)
             {
-                stockLeft = cc.reader["quantity"].ToString();
+                try
+                {
+                    int selectedIndex = dataGrid1.SelectedIndex;
+                    if (dt.Rows.Count == 1 && selectedIndex == 0)
+                    {
+                        dt.Clear();
+                        txtBlkNetAmount.Text = "";
+                        id.list.Clear();
+                    }
+                    else if (dt.Rows.Count > 1)
+                    {
+                        id.list.RemoveAt(selectedIndex);
+                        dt.Rows.RemoveAt(selectedIndex);
+                        dataGrid1.ItemsSource = null;
+                        dataGrid1.ItemsSource = dt.DefaultView;
+                        DisplayNetAmount();
+                    }
+                    else
+                    {
+                        MessageBox.Show("No items to delete");
+                    }
+                }
+                catch
+                {
+                    MessageBox.Show("Empty Row");
+                }
+                txtItemId.Focus();
             }
-            cc.CloseReader();
-            cc.CloseConnection();
-        }
-        private void GetSelectedItemGst()
-        {
-            cc.OpenConnection();
-            int id = Convert.ToInt32(txtItemId.Text);
-            cc.DataReader("select gst_amount from Stock where itemid= " + id + " ");
-            while (cc.reader.Read())
-            {
-                selectedItemGst = cc.reader["gst_amount"].ToString();
-            }
-            cc.CloseReader();
-            cc.CloseConnection();
         }
 
         private void btn_Sales_Return_Click(object sender, RoutedEventArgs e)
         {
+            srbno = Convert.ToInt32(billNumber);
             SalesReturn sr = new SalesReturn();
             sr.InputChanged += OnDialogInputChanged;
             sr.Show();
@@ -725,41 +870,39 @@ namespace Billing
         private void OnDialogInputChanged(object sender, SalesReturn.DialogInputEventArgs e)
         {
             var sr = sender as SalesReturn;
-            if (labelNetAmount.Content.ToString() == "")
+            if (txtBlkNetAmount.Text == "")
             {
-                labelNetAmount.Content = 0;
+                txtBlkNetAmount.Text = "0";
             }
-            returnAmnt = Convert.ToDouble(sr.labelNetAmount.Text);
-            newBillAmnt = Convert.ToDouble(labelNetAmount.Content);
+            dataGridSR.ItemsSource = sr.dtSR.DefaultView;
+            dataGridSR.Visibility = Visibility.Visible;
+            salereturnhead.Visibility = Visibility.Visible;
+            returnAmnt = Convert.ToDouble(sr.txtBlkNetAmount.Text);
+            newBillAmnt = Convert.ToDouble(txtBlkNetAmount.Text);
             toPay = newBillAmnt - returnAmnt;
-            labelNetAmount.Content = Convert.ToString(toPay);
+            correctBillAmount = Convert.ToString(toPay);
+            txtBlkNetAmount.Text = Convert.ToString(toPay);
         }
 
-        private void GetCustomerDetails()
-        {
-            lbl_Credit.Visibility = Visibility.Visible;
-            textBox_Credit.Visibility = Visibility.Visible;
-            cc.OpenConnection();
-            cc.DataReader("select CustomerName,CustomerPhone,Credit from BillStock where BillNo = " + billNumber1 + " ");
-            while (cc.reader.Read())
-            {
-                textBoxCustomer.Text = cc.reader["CustomerName"].ToString();
-                textBoxCustomerPh.Text = cc.reader["CustomerPhone"].ToString();
-                textBox_Credit.Text = cc.reader["Credit"].ToString();
-            }
-            cc.CloseReader();
-            cc.CloseConnection();
-        }
+        //private void GetCustomerDetails()
+        //{
+        //    lbl_Credit.Visibility = Visibility.Visible;
+        //    textBox_Credit.Visibility = Visibility.Visible;
+        //    cc.OpenConnection();
+        //    cc.DataReader("select CustomerName,CustomerPhone,Credit from BillStock where BillNo = " + billNumber1 + " ");
+        //    while (cc.reader.Read())
+        //    {
+        //        textBoxCustomer.Text = cc.reader["CustomerName"].ToString();
+        //        textBoxCustomerPh.Text = cc.reader["CustomerPhone"].ToString();
+        //        textBox_Credit.Text = cc.reader["Credit"].ToString();
+        //    }
+        //    cc.CloseReader();
+        //    cc.CloseConnection();
+        //}
 
         private void txtItemId_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
             var txtItemId = sender as TextBox;
-            e.Handled = Regex.IsMatch(e.Text, "[^0-9]+");
-        }
-
-        private void txtBillNo_PreviewTextInput(object sender, TextCompositionEventArgs e)
-        {
-            var txtBillNo = sender as TextBox;
             e.Handled = Regex.IsMatch(e.Text, "[^0-9]+");
         }
 
@@ -771,8 +914,34 @@ namespace Billing
 
         private void btn_Sales_History_Click(object sender, RoutedEventArgs e)
         {
-            SalesHistory sh = new SalesHistory();
-            this.NavigationService.Navigate(sh);
+            if(MainWindow.userName=="admin")
+            {
+                cc.OpenConnection();
+                if (cc.BillPreview1("select COUNT(*) from BillStock", billExistValue) > 0)
+                {
+                    cc.CloseConnection();
+                    SalesHistory sh = new SalesHistory();
+                    this.NavigationService.Navigate(sh);
+                }
+                else
+                {
+                    MessageBox.Show("No Bills to Show");
+                }
+            }
+            else
+            {
+                cc.OpenConnection();
+                if (cc.BillPreview1("select COUNT(*) from BillStock where BillType='GST'", billExistValue) > 0)
+                {
+                    cc.CloseConnection();
+                    SalesHistory sh = new SalesHistory();
+                    this.NavigationService.Navigate(sh);
+                }
+                else
+                {
+                    MessageBox.Show("No Bills to Show");
+                }
+            }
         }
 
         private void backbutton_Click(object sender, RoutedEventArgs e)
@@ -822,7 +991,7 @@ namespace Billing
 
         private void calculateBalanceAmount()
         {
-            double netAmnt = Convert.ToDouble(labelNetAmount.Content);
+            double netAmnt = Convert.ToDouble(txtBlkNetAmount.Text);
             double cashPaid;
             if (Double.TryParse(txtBox_CashPaid.Text, out cashPaid))
             {
@@ -837,24 +1006,6 @@ namespace Billing
                     textBox_Credit.Text = ((netAmnt - cashPaid) * -1).ToString();
                 }
             }
-        }
-
-        private void ViewBill()
-        {
-            cc.OpenConnection();
-            string txtbn = Convert.ToString(txtBillNo.Text);
-            if (cc.BillPreview("select COUNT(*) from BillStock where BillNo = @bno ", "@bno", txtbn, billExist) > 0)
-            {
-                ClearCustomerTxtBox();
-                DisplayBill();
-                Display();
-            }
-            else
-            {
-                MessageBox.Show("Bill does not exist");
-                ClearGrid();
-            }
-            cc.CloseConnection();
         }
 
         private void textBoxCustomer_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
@@ -876,28 +1027,6 @@ namespace Billing
                 textBoxCustomer.Text = string.Empty;
         }
 
-        private void btn_Print_Click(object sender, RoutedEventArgs e)
-        {
-            bno = Convert.ToInt32(txtBillNo.Text);
-            string msg = "Do you want to print bill?";
-            string txt = "Bill Print";
-            MessageBoxButton btn = MessageBoxButton.YesNo;
-            MessageBoxResult rslt = MessageBox.Show(msg, txt, btn);
-            switch (rslt)
-            {
-                case MessageBoxResult.Yes:
-                    convIntBill = Convert.ToInt32(txtBillNo.Text);
-                    clearList();
-                    bNO = Convert.ToInt32(bno);
-                    generateBill();
-                    break;
-
-                case MessageBoxResult.No:
-                    break;
-            }
-            txtItemId.Focus();
-        }
-
         private void clearList()
         {
             billnoList.Clear();
@@ -914,6 +1043,7 @@ namespace Billing
             gstRateList.Clear();
             totalGstList.Clear();
             salesReturnList.Clear();
+            discountList.Clear();
         }
 
         private void generateBill()
@@ -925,7 +1055,8 @@ namespace Billing
             {
                 DataRow drow = dataTable.NewRow();
                 drow["Bno"] = billnoList[i];
-                drow["CustName"] = custNameList[i];
+                string[] custName = Regex.Split(custNameList[i], "  ");
+                drow["CustName"] = custName[0];
                 drow["CustPhone"] = custPhoneList[i];
                 drow["Barcode"] = barcodeList[i];
                 drow["Item"] = itemNameList[i];
@@ -941,15 +1072,36 @@ namespace Billing
                 dataTable.Rows.Add(drow);
             }
             Report.Database.Tables["BillingReportData"].SetDataSource((DataTable)dataTable);
-            Report.PrintOptions.PaperOrientation = CrystalDecisions.Shared.PaperOrientation.Portrait;
-            Report.PrintOptions.PaperSize = CrystalDecisions.Shared.PaperSize.PaperA4;
-            Report.PrintToPrinter(1, false, 0, 15);
+            DataTable dTable = billDetails.BillingData;
+            DataRow dr = dTable.NewRow();
+            dr["NetAmount"] = totalPriceList.Sum();
+            dr["Discount"] = discountList[discountList.Count - 1];
+            dTable.Rows.Add(dr);
+            Report.Database.Tables["BillingData"].SetDataSource((DataTable)dTable);
+            try
+            {
+                Report.PrintOptions.PaperOrientation = CrystalDecisions.Shared.PaperOrientation.Portrait;
+                Report.PrintOptions.PaperSize = CrystalDecisions.Shared.PaperSize.PaperA4;
+                Report.PrintToPrinter(1, false, 0, 15);
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("No printer connected");
+            }
+            
         }
 
         private void addBill()
         {
             cc.OpenConnection();
-            cc.DataReader("select * from BillStock where BillNo = " + bNO + " ");
+            if(checkBoxGST.IsChecked==true)
+            {
+                cc.DataReader("select * from BillStock where BillNo = " + bNO + " and BillType='GST'");
+            }
+            else
+            {
+                cc.DataReader("select * from BillStock where BillNo = " + bNO + " and BillType='NON_GST'");
+            }
             while (cc.reader.Read())
             {
                 billnoList.Add(Convert.ToInt32(cc.reader["BillNo"]));
@@ -966,26 +1118,214 @@ namespace Billing
                 gstRateList.Add(Convert.ToDouble(cc.reader["gstRate"]));
                 totalGstList.Add(Convert.ToDouble(cc.reader["netGst"]));
                 saleDateList.Add(Convert.ToString(cc.reader["SaleDate"]));
+                discountList.Add(Convert.ToDouble(cc.reader["Discount"]));
             }
             cc.CloseReader();
         }
 
-        private void textBox_Credit_PreviewKeyDown(object sender, KeyEventArgs e)
+        private void CustomerAddbutton_Click(object sender, RoutedEventArgs e)
         {
-            if (e.Key == Key.Return)
+            CustomerAddWindow caw = new CustomerAddWindow();
+            lbSuggestion.SelectedItem = null;
+            textBoxCustomer.Text = "";
+            textBoxCustomerPh.Text = "";
+            lbSuggestion.Visibility = Visibility.Collapsed;
+            caw.InputChanged += OnDialogInputChanged;
+            caw.Show();
+        }
+
+        private void OnDialogInputChanged(object sender, CustomerAddWindow.DialogInputEventArgs e)
+        {
+            var csw = sender as CustomerAddWindow;
+            customerPhone = csw.textBoxCustomerPhone.Text;
+            customerName = csw.textBoxCustomerName.Text+"  "+customerPhone;
+            customerList.Add(customerName);
+            customerList.Sort();
+            lbSuggestion.SelectedItem = customerName;
+            textBoxCustomerPh.Text = customerPhone;
+        }
+
+        private void txtBox_DiscountPercent_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            CalculateDiscount_And_DiscountPercent();
+            if (txtBox_DiscountPercent.Text == "")
             {
-                if (textBox_Credit.Text == "")
-                    textBox_Credit.Text = "0";
-                cc.OpenConnection();
-                cc.ExecuteQuery("update BillStock set Credit=" + textBox_Credit.Text + " where BillNo=" + billNumber1 + "");
-                cc.CloseConnection();
-                MessageBox.Show("Credit Updated");
+                txtBox_Discount.Text = "";
             }
         }
 
-        private void textBox_Credit_TextChanged(object sender, TextChangedEventArgs e)
+        private void txtBox_Discount_TextChanged(object sender, TextChangedEventArgs e)
         {
-            textBox_Credit.ToolTip = "Changes in here will be saved...";
+            if(dataGrid1.Items.Count != 1)
+            {
+                if (txtBox_Discount.Text == "")
+                {
+                    txtBlkNetAmount.Text = Convert.ToString(correctBillAmount);
+                }
+                else
+                {
+                    double disc = Convert.ToDouble(txtBox_Discount.Text);
+                    double result = Convert.ToDouble(correctBillAmount) - disc;
+                    txtBlkNetAmount.Text = Convert.ToString(result);
+                    CalculateDiscount_And_DiscountPercent();
+                    if (txtBox_Discount.Text == "")
+                    {
+                        txtBox_DiscountPercent.Text = "";
+                    }
+                }
+                if (txtBox_Discount.Text == "")
+                {
+                    txtBox_DiscountPercent.Text = "";
+                }
+                roundAfterDiscount = Convert.ToDouble(txtBlkNetAmount.Text);
+            }
+        }
+
+        private void CalculateDiscount_And_DiscountPercent()
+        {
+            float originalRate;
+            float discountCash;
+            float discountPercent;
+            float dpResult;
+            float dResult;
+            if (txtBox_Discount.IsFocused && float.TryParse(correctBillAmount, out originalRate) && float.TryParse(txtBox_Discount.Text, out discountCash))
+            {
+                dpResult = ((100 * discountCash) / originalRate);
+                txtBox_DiscountPercent.Text = Convert.ToString(dpResult);
+            }
+            else if (txtBox_DiscountPercent.IsFocused && float.TryParse(correctBillAmount, out originalRate) && float.TryParse(txtBox_DiscountPercent.Text, out discountPercent))
+            {
+                dResult = ((originalRate / 100) * discountPercent);
+                txtBox_Discount.Text = Convert.ToString(dResult);
+            }
+        }
+
+        private void checkBox_Checked(object sender, RoutedEventArgs e)
+        {
+            int netBillAmount;
+            if (txtBox_Discount.Text == "")
+            {
+                netBillAmount = Convert.ToInt32(roundCorrectBill);
+                txtBlkNetAmount.Text = Convert.ToString(netBillAmount);
+            }
+            else
+            {
+                netBillAmount = Convert.ToInt32(roundAfterDiscount);
+                txtBlkNetAmount.Text = Convert.ToString(netBillAmount);
+            }
+        }
+
+        private void checkBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            if (txtBox_Discount.Text == "")
+            {
+                txtBlkNetAmount.Text = Convert.ToString(correctBillAmount);
+            }
+            else
+            {
+                txtBlkNetAmount.Text = Convert.ToString(roundAfterDiscount);
+            }
+        }
+
+        private void discountCardAmount()
+        {
+            cc.OpenConnection();
+            string custphone = textBoxCustomerPh.Text;
+            double finalamount = Convert.ToDouble(txtBlkNetAmount.Text);
+            double discountCardAmount = ((finalamount / 100) * 10) + Convert.ToDouble(textBlockCardBalance.Text);
+            cc.ExecuteQuery("update CustomerDetails set CardPoints ='" + discountCardAmount.ToString() + "' where CustomerPhone='" + custphone + "' ");
+            cc.CloseConnection();
+        }
+
+        private void DiscountCardCalculation()
+        {
+            double balance = Convert.ToDouble(textBlockCardBalance.Text);
+            double netamount = Convert.ToDouble(txtBlkNetAmount.Text);
+            double newnetamount;
+            if (balance >= 500)
+            {
+                if (((netamount / 100) * 20) > balance)
+                {
+                    textBlockCardBalance.Text = "0";
+                    txtBlkNetAmount.Text = Convert.ToString(netamount - balance);
+                    txtBox_Discount.Text = Convert.ToString(balance);
+                }
+                else
+                {
+                    newnetamount = balance - ((netamount / 100) * 20);
+                    textBlockCardBalance.Text = Convert.ToString(newnetamount);
+                    txtBlkNetAmount.Text = Convert.ToString(netamount - ((netamount / 100) * 20));
+                    txtBox_Discount.Text = Convert.ToString((netamount / 100) * 20);
+                }
+
+            }
+            else
+            {
+                MessageBox.Show("Insufficient Card balance!");
+                checkBoxCard.IsChecked = false;
+
+            }
+        }
+
+        private void textBoxDiscountCard_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+
+            try
+            {
+                if (e.Key == Key.Return)
+                {
+                    cc.OpenConnection();
+                    string cardId;
+                    cardId = textBoxDiscountCard.Text;
+                    cc.DataReader("select CustomerName,CustomerPhone,CardPoints from CustomerDetails where CardId ='" + cardId + "' ");
+                    while (cc.reader.Read())
+                    {
+
+                        string custName = cc.reader["CustomerName"].ToString();
+                        string custPhn = cc.reader["CustomerPhone"].ToString();
+                        CardPoints = Convert.ToDouble(cc.reader["CardPoints"].ToString());
+                        textBlockCardBalance.Text = Convert.ToString(CardPoints);
+                        textBoxCustomer.Text = custName + "  " + custPhn;
+                        textBoxCustomerPh.Text = cc.reader["CustomerPhone"].ToString();
+                        lbSuggestion.Visibility = Visibility.Collapsed;
+                    }
+                    cc.CloseReader();
+                    cc.CloseConnection();
+                    textBlockCard.Visibility = Visibility.Visible;
+                    textBlockCardBalance.Visibility = Visibility.Visible;
+                    checkBoxCard.IsEnabled = true;
+                }
+            }
+            catch (Exception)
+            {
+                if (textBoxDiscountCard.Text == "")
+                    MessageBox.Show("Enter The Card ID!.");
+            }
+        }
+
+        private void checkBoxCard_Checked(object sender, RoutedEventArgs e)
+        {
+            if(dt.Rows.Count>0)
+            {
+                DiscountCardCalculation();
+            }
+            else
+            {
+                MessageBox.Show("No Items are Purchased");
+                checkBoxCard.IsChecked = false;
+            }
+        }
+
+        private void checkBoxCard_Unchecked(object sender, RoutedEventArgs e)
+        {
+            txtBlkNetAmount.Text = correctBillAmount;
+            textBlockCardBalance.Text = Convert.ToString(CardPoints);
+            txtBox_Discount.Text = "";
+        }
+
+        private void textBoxDiscountCard_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+        {
+            textBoxDiscountCard.Text = string.Empty;
         }
 
     }

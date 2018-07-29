@@ -48,12 +48,12 @@ namespace Billing
         {
             if(comboBoxVendorName.SelectedItem != null)
             {
-                vendorList.Remove(comboBoxVendorName.SelectedItem.ToString());
-                comboBoxVendorName.Items.Refresh();
                 cc.OpenConnection();
-                cc.ExecuteQuery("Delete * from VendorDetails where Vname = '" + comboBoxVendorName.SelectedItem + "' ");
+                cc.ExecuteQuery("Delete from VendorDetails where Vname = '" + comboBoxVendorName.SelectedItem + "' ");
                 cc.CloseConnection();
                 MessageBox.Show("Vendor removed");
+                vendorList.Remove(comboBoxVendorName.SelectedItem.ToString());
+                comboBoxVendorName.Items.Refresh();
                 comboBoxVendorName.SelectedItem = null;
             }
             else
@@ -95,6 +95,11 @@ namespace Billing
                 }
             });
             itemsViewOriginal.Refresh();
+        }
+
+        private void comboBoxVendorName_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            btnDelete.Focus();
         }
     }
 }

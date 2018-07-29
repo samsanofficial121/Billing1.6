@@ -9,7 +9,7 @@
       Title="VendorPage" Background="White">
 
     <Grid Background="White">
-        <Rectangle Fill="#FF028502" Stroke="Black" Margin="0,0,0,367"/>
+        <Rectangle Fill="#76C6CC" Stroke="Black" Margin="0,0,0,367"/>
         <Button x:Name="btnListAllVendor" Background="White" HorizontalAlignment="Left" Margin="0,228,0,0" VerticalAlignment="Top" Height="190" Width="205" Click="btnListAllVendor_Click">
             <Image Source="Resources\ListVendor.png" Width="200" Height="185"/>
         </Button>
